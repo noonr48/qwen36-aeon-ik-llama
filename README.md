@@ -8,6 +8,8 @@ Primary target model:
 Model release:
 - `https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF`
 
+This fork is specialized and runtime-tuned for that exact released model.
+
 Source model it was derived from:
 - `https://huggingface.co/AEON-7/Qwen3.6-27B-AEON-Ultimate-Uncensored`
 
