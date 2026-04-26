@@ -10,6 +10,19 @@ Model release on Hugging Face:
 
 Public release codename: `MaxThinkCoder`.
 
+## At a glance
+
+- this fork is specialized for:
+  `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-ik-llama-custom-mixed.gguf`
+- main runtime target:
+  custom `ik-llama`
+- fallback artifact:
+  `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-standard-typed-fallback.gguf`
+- mainline focus:
+  preserve the Q4NL RYS model through the custom `ik-llama` quant/runtime path
+- model release:
+  https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF
+
 This repo exists for one concrete target:
 - run that Q4NL RYS model well in GGUF form
 - keep long-context hybrid/recurrent serving stable
