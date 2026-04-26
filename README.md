@@ -102,9 +102,12 @@ Config:
 - prompt: 24 tokens
 - generation: 128 tokens
 
-Results:
-- custom fork, `split-mode graph`: `38.90 tok/s` decode, `162.86 tok/s` prompt
-- patched upstream-style `llama.cpp`, `split-mode layer`: `22.51 tok/s` decode, `187.18 tok/s` prompt
+Comparison on the same standard-typed GGUF:
+
+| runtime | split mode | decode tok/s | prompt tok/s | note |
+|---|---|---:|---:|---|
+| custom `ik-llama` fork | `graph` | `38.90` | `162.86` | fastest validated path |
+| patched upstream-style `llama.cpp` | `layer` | `22.51` | `187.18` | same GGUF, slower decode |
 
 Decode speedup for the custom fork on the same standard-typed GGUF:
 - about `1.73x`
@@ -120,13 +123,12 @@ Custom fork main deployment:
 - `cache-ram=61440`
 - `split-mode graph`
 
-Measured result:
-- `39.37 tok/s` decode
-- `164.98 tok/s` prompt on the short probe
+Long-context comparison:
 
-Patched upstream-style fallback on the standard-typed quant at the same long-context serve target:
-- `22.36 tok/s` decode
-- `161.11 tok/s` prompt on the short probe
+| runtime / file | context target | decode tok/s | prompt tok/s |
+|---|---|---:|---:|
+| custom fork + `ik-llama-custom-mixed` | `409600`, `np=2`, `f32/f32` KV | `39.37` | `164.98` |
+| patched upstream-style fallback + `standard-typed-fallback` | `409600`, `np=2`, `f32/f32` KV | `22.36` | `161.11` |
 
 ### Failure notes that matter
 
