@@ -22,7 +22,7 @@ Source model it was derived from:
   `54G` BF16 -> `16G` IQ4_NL
 - mixed validation snapshot:
   `0.7299` BF16 -> `0.7244` IQ4_NL
-- overall change:
+- overall performance change:
   `-0.0055` absolute, about `-0.75%` relative
 - not a stock `llama.cpp` target
 - project focus:
@@ -37,7 +37,7 @@ For the exact released `15,20` model:
 | BF16 size | `54G` |
 | released IQ4_NL size | `16G` |
 | mixed 4-probe mean | `0.7299` BF16 -> `0.7244` IQ4_NL |
-| overall change | `-0.0055` absolute, about `-0.75%` relative |
+| overall performance change | `-0.0055` absolute, about `-0.75%` relative |
 
 Probe-level snapshot:
 
