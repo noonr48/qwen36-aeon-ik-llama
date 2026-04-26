@@ -26,6 +26,21 @@ The public Hugging Face release uses two clearly separated artifact names:
 - useful for patched `llama.cpp` / research comparison work
 - not the main recommendation for end users
 
+## Why the main focus was `ik-llama`
+
+The mainline target in this release was always the custom `ik-llama` path.
+
+Why:
+- in earlier RYS experiments, the `ik-llama` quant path consistently looked better at preserving reasoning/output quality than standard `llama.cpp`-style quantization
+- for this `Qwen3.6` branch, the real BF16-vs-Q4 validation was run against the custom `ik-llama` quant, not the fallback
+- the runtime optimization work was also centered on the custom fork, because that is where the best speed and the best long-context stability landed
+
+So the release should be read as:
+- `ik-llama-custom-mixed` = main quality/performance target
+- `standard-typed-fallback` = compatibility and research artifact
+
+The fallback exists because some users will still want a more standard-typed file, not because it was the primary quality target in this experiment.
+
 ## What is special here
 
 This is not a generic llama.cpp fork.
