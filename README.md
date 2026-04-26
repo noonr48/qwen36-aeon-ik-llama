@@ -23,6 +23,32 @@ Public release codename: `MaxThinkCoder`.
 - model release:
   https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF
 
+### Top comparison: exact benchmark hardware
+
+These comparison numbers were measured on exactly:
+- `6x NVIDIA GeForce RTX 5060 Ti`
+
+Comparison on the same standard-typed fallback GGUF:
+
+| runtime | file | split mode | ctx | np | KV | decode tok/s | prompt tok/s |
+|---|---|---|---:|---:|---|---:|---:|
+| custom `ik-llama` fork | `standard-typed-fallback` | `graph` | `4096` | `1` | `f16` | `38.90` | `162.86` |
+| patched upstream-style `llama.cpp` | `standard-typed-fallback` | `layer` | `4096` | `1` | `f16` | `22.51` | `187.18` |
+
+Important interpretation:
+- the `38.90 tok/s` number is the short-context apples-to-apples comparison on the fallback file
+- the main custom deployment path still measured about `39.37 tok/s` decode at `ctx=409600`, `np=2`, `f32/f32` KV
+
+### Stock `llama.cpp` compatibility
+
+Be explicit:
+- `ik-llama-custom-mixed.gguf`: **not for stock upstream `llama.cpp`**
+- `standard-typed-fallback.gguf`: benchmarked on a **patched upstream-style** `llama.cpp`, not validated as a clean stock-mainline drop-in
+
+So the safe reading is:
+- use the custom mixed file with this fork
+- only use the fallback if you specifically want the patched-upstream / research path
+
 This repo exists for one concrete target:
 - run that Q4NL RYS model well in GGUF form
 - keep long-context hybrid/recurrent serving stable
