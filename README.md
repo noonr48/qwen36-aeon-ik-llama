@@ -171,7 +171,10 @@ CUDA_VISIBLE_DEVICES=<six 5060 Ti GPUs> ./build_50_speed/bin/llama-server   -m Q
 
 ## Hugging Face
 
-The model release is intended to live on Hugging Face with a README that links back to this fork and explains the difference between:
+The model release is published at:
+- https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF
+
+That README links back to this fork and explains the difference between:
 - the main `ik-llama` custom quant
 - the fallback standard-typed quant
 
