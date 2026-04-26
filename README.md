@@ -61,7 +61,6 @@ Exact comparison hardware:
 
 | runtime | tested file | ctx | np | KV | decode tok/s | prompt tok/s | note |
 |---|---|---:|---:|---|---:|---:|---|
-| custom `ik-llama` fork | internal standard-typed comparison file | `4096` | `1` | `f16` | `38.90` | `162.86` | apples-to-apples comparison run |
 | patched upstream-style `llama.cpp` | same internal standard-typed comparison file | `4096` | `1` | `f16` | `22.51` | `187.18` | internal comparison only |
 | custom `ik-llama` fork | released custom-mixed file | `409600` | `2` | `f32/f32` | `39.37` | `164.98` | actual deployment target |
 
