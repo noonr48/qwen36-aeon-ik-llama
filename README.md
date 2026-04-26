@@ -1,12 +1,28 @@
 # qwen36-aeon-ik-llama
 
-A specialized `ik_llama.cpp` fork and release notes for the Qwen3.6-27B AEON RYS `15,20` experiment.
+A specialized `ik_llama.cpp` fork and release package for the Qwen3.6-27B AEON RYS `15,20` branch.
 
 This repo exists for one concrete target:
 - run the Qwen3.6-27B AEON-derived `15,20` RYS model well in GGUF form
 - keep long-context hybrid/recurrent serving stable
-- keep the high-performing custom IQ4_NL quant usable
+- keep the highest-performing custom IQ4_NL quant usable
 - tune for the six `RTX 5060 Ti` deployment that was actually used in the experiment
+
+## Public release files
+
+The public Hugging Face release uses two clearly separated artifact names:
+
+1. `Qwen3.6-27B-AEON-RYS-15-20-IQ4_NL-ik-llama-custom-mixed.gguf`
+- primary release file
+- for this custom `ik-llama` fork
+- uses the custom mixed tensor layout validated in the real deployment
+- recommended if you want the actual fast path from this experiment
+
+2. `Qwen3.6-27B-AEON-RYS-15-20-IQ4_NL-standard-typed-fallback.gguf`
+- secondary fallback file
+- standard-typed compatibility artifact
+- useful for patched `llama.cpp` / research comparison work
+- not the main recommendation for end users
 
 ## What is special here
 
@@ -38,31 +54,37 @@ The deeper-reasoning `11,14` branch was also strong, but `15,20` was the cleaner
 ## Main release model
 
 Primary release target:
-- `Qwen3.6-27B-AEON-RYS-15-20-IQ4_NL-ik-llama.gguf`
-
-This is the main model the fork is for.
+- `Qwen3.6-27B-AEON-RYS-15-20-IQ4_NL-ik-llama-custom-mixed.gguf`
 
 Characteristics:
 - AEON-derived / uncensored source branch
 - 69-layer `15,20` RYS variant
-- English-first calibration corpus
+- English-first imatrix calibration corpus
 - custom `ik-llama` mixed quant path
-- tuned around programming, reasoning, and academic-style work within Q4 constraints
+- tuned around programming, reasoning, and academic-style work inside a Q4-class footprint
 
-## Release variants
+## Imatrix calibration focus
 
-There are two useful GGUF variants for this model family:
+The quantization was not calibrated on generic chat filler. The imatrix corpus was:
+- file: `/home/benbi/qwen36_official_base/imatrix/qwen36_reasoning_calibration_v2.txt`
+- size: `4,736,109` characters across `87,507` lines
+- coarse blank-line chunks: `15,540`
 
-1. `ik-llama` custom quant
-- fastest and best-supported path in this repo
-- uses the custom mixed GGUF tensor extension accepted by this fork
-- this is the recommended runtime/model combination
+Heuristic chunk breakdown from the actual file:
+- `math_reasoning`: `5,688` chunks, `1,706,070` chars (`36.0%`)
+- `code_technical`: `3,518` chunks, `1,343,392` chars (`28.4%`)
+- `experiment_docs`: `808` chunks, `224,169` chars (`4.7%`)
+- `writing_chat`: `387` chunks, `164,097` chars (`3.5%`)
+- `other`: `5,139` chunks, `1,249,396` chars (`26.4%`)
 
-2. standard-typed fallback quant
-- uses upstream-compatible tensor types only
-- useful as a fallback artifact and comparison point
-- still experimental for this exact non-4-aligned hybrid `15,20` layout
-- not the main recommendation
+Important note:
+- the `other` bucket is mostly technical continuation text split off from scripts, methodology notes, and structured reasoning material
+- so the simple heuristic undercounts the true technical/reasoning share
+
+Practical read:
+- the corpus was heavily biased toward math-style reasoning, code, technical prose, and experiment artifacts
+- it was only lightly biased toward generic social chat
+- this is why the release is best framed as a programming / reasoning / academic-work Q4, not a general-chat personality tune
 
 ## Actual benchmark snapshot
 
@@ -166,7 +188,7 @@ The speed-tuned deployment binary used in the experiment was built with:
 The winning six-GPU serve shape used:
 
 ```bash
-CUDA_VISIBLE_DEVICES=<six 5060 Ti GPUs> ./build_50_speed/bin/llama-server   -m Qwen3.6-27B-AEON-RYS-15-20-IQ4_NL-ik-llama.gguf   -ngl 999 -fa on   -ctk f32 -ctv f32   -sm graph   -np 2 -c 409600   -cram 61440   -b 512 -ub 128   --jinja --reasoning-format deepseek
+CUDA_VISIBLE_DEVICES=<six 5060 Ti GPUs> ./build_50_speed/bin/llama-server   -m Qwen3.6-27B-AEON-RYS-15-20-IQ4_NL-ik-llama-custom-mixed.gguf   -ngl 999 -fa on   -ctk f32 -ctv f32   -sm graph   -np 2 -c 409600   -cram 61440   -b 512 -ub 128   --jinja --reasoning-format deepseek
 ```
 
 ## Hugging Face
@@ -174,13 +196,13 @@ CUDA_VISIBLE_DEVICES=<six 5060 Ti GPUs> ./build_50_speed/bin/llama-server   -m Q
 The model release is published at:
 - https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF
 
-That README links back to this fork and explains the difference between:
-- the main `ik-llama` custom quant
-- the fallback standard-typed quant
+That README links back to this fork and explicitly maps:
+- `ik-llama-custom-mixed` -> custom fork, main recommendation
+- `standard-typed-fallback` -> compatibility/research artifact
 
 ## Scope
 
 This repo is specialized.
 
-If you want the highest-confidence path for this exact model, use this fork plus the main custom quant.
-If you want maximum generic compatibility, treat the standard-typed fallback as experimental and benchmark it yourself on your runtime branch.
+If you want the highest-confidence path for this exact model, use this fork plus the `ik-llama-custom-mixed` GGUF.
+If you want maximum compatibility work, treat the `standard-typed-fallback` GGUF as secondary and benchmark it on your own runtime branch.
