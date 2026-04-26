@@ -1,13 +1,19 @@
 # qwen36-aeon-ik-llama
 
-A specialized `ik_llama.cpp` fork and release package for the Qwen3.6-27B AEON RYS `15,20` branch.
+A specialized `ik_llama.cpp` fork for the exact Q4NL RYS model built in this experiment.
+
+Primary target model:
+- `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-ik-llama-custom-mixed.gguf`
+
+Model release on Hugging Face:
+- https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF
 
 Public release codename: `MaxThinkCoder`.
 
 This repo exists for one concrete target:
-- run the Qwen3.6-27B AEON-derived `15,20` RYS model well in GGUF form
+- run that Q4NL RYS model well in GGUF form
 - keep long-context hybrid/recurrent serving stable
-- keep the highest-performing custom IQ4_NL quant usable
+- keep the highest-performing custom `ik-llama` quant usable
 - tune for the six `RTX 5060 Ti` deployment that was actually used in the experiment
 
 ## Public release files
