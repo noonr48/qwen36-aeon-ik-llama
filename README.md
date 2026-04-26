@@ -18,9 +18,41 @@ Source model it was derived from:
 - this fork is specialized for the released Q4NL RYS model above
 - main runtime target:
   custom `ik-llama`
+- compression target:
+  `54G` BF16 -> `16G` IQ4_NL
+- mixed validation snapshot:
+  `0.7299` BF16 -> `0.7244` IQ4_NL
+- overall change:
+  `-0.0055` absolute, about `-0.75%` relative
 - not a stock `llama.cpp` target
 - project focus:
   preserve as much capability as possible inside a Q4-class RYS model for programming, reasoning, and academic work
+
+## BF16 vs released custom IQ4_NL
+
+For the exact released `15,20` model:
+
+| item | value |
+|---|---|
+| BF16 size | `54G` |
+| released IQ4_NL size | `16G` |
+| mixed 4-probe mean | `0.7299` BF16 -> `0.7244` IQ4_NL |
+| overall change | `-0.0055` absolute, about `-0.75%` relative |
+
+Probe-level snapshot:
+
+| probe | BF16 | IQ4_NL |
+|---|---:|---:|
+| `math_16` | `0.8421` | `0.7897` |
+| `eq_16` | `0.7123` | `0.7111` |
+| `math_4` | `0.4851` | `0.5170` |
+| `gsm8k_5` | `0.8800` | `0.8800` |
+
+Short read:
+- about `70%` smaller on disk
+- under `1%` overall drop on the mixed snapshot
+- near-zero loss on `eq_16` and `gsm8k_5`
+- the main measurable loss was on `math_16`
 
 ## Speed snapshot
 
@@ -63,6 +95,13 @@ The target was:
 - strongest Q4-class English-first model we could get for coding, reasoning, and academic work
 - derived from the AEON uncensored branch
 - quantized/calibrated with a corpus heavily biased toward reasoning math, code, technical prose, and experiment artifacts
+
+Calibration emphasis:
+- `math_reasoning`: `36.0%`
+- `code_technical`: `28.4%`
+- `experiment_docs`: `4.7%`
+- `writing_chat`: `3.5%`
+- `other`: `26.4%`
 
 ## Why the fork exists
 
