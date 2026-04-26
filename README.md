@@ -2,6 +2,8 @@
 
 A specialized `ik_llama.cpp` fork and release package for the Qwen3.6-27B AEON RYS `15,20` branch.
 
+Public release codename: `MaxThinkCoder`.
+
 This repo exists for one concrete target:
 - run the Qwen3.6-27B AEON-derived `15,20` RYS model well in GGUF form
 - keep long-context hybrid/recurrent serving stable
@@ -12,13 +14,13 @@ This repo exists for one concrete target:
 
 The public Hugging Face release uses two clearly separated artifact names:
 
-1. `Qwen3.6-27B-AEON-RYS-15-20-IQ4_NL-ik-llama-custom-mixed.gguf`
+1. `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-ik-llama-custom-mixed.gguf`
 - primary release file
 - for this custom `ik-llama` fork
 - uses the custom mixed tensor layout validated in the real deployment
 - recommended if you want the actual fast path from this experiment
 
-2. `Qwen3.6-27B-AEON-RYS-15-20-IQ4_NL-standard-typed-fallback.gguf`
+2. `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-standard-typed-fallback.gguf`
 - secondary fallback file
 - standard-typed compatibility artifact
 - useful for patched `llama.cpp` / research comparison work
@@ -54,7 +56,7 @@ The deeper-reasoning `11,14` branch was also strong, but `15,20` was the cleaner
 ## Main release model
 
 Primary release target:
-- `Qwen3.6-27B-AEON-RYS-15-20-IQ4_NL-ik-llama-custom-mixed.gguf`
+- `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-ik-llama-custom-mixed.gguf`
 
 Characteristics:
 - AEON-derived / uncensored source branch
@@ -188,7 +190,7 @@ The speed-tuned deployment binary used in the experiment was built with:
 The winning six-GPU serve shape used:
 
 ```bash
-CUDA_VISIBLE_DEVICES=<six 5060 Ti GPUs> ./build_50_speed/bin/llama-server   -m Qwen3.6-27B-AEON-RYS-15-20-IQ4_NL-ik-llama-custom-mixed.gguf   -ngl 999 -fa on   -ctk f32 -ctv f32   -sm graph   -np 2 -c 409600   -cram 61440   -b 512 -ub 128   --jinja --reasoning-format deepseek
+CUDA_VISIBLE_DEVICES=<six 5060 Ti GPUs> ./build_50_speed/bin/llama-server   -m Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-ik-llama-custom-mixed.gguf   -ngl 999 -fa on   -ctk f32 -ctv f32   -sm graph   -np 2 -c 409600   -cram 61440   -b 512 -ub 128   --jinja --reasoning-format deepseek
 ```
 
 ## Hugging Face
