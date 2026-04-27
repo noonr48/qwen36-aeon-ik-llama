@@ -72,6 +72,14 @@ This fork exists for one concrete target:
 - support the custom mixed GGUF layout used by the release file
 - tune for the six `RTX 5060 Ti` deployment that was actually used in the experiment
 
+## Tool-calling note
+
+Some smaller/weaker tool-calling models will emit repeated *identical* tool calls in a single assistant turn (especially when the tool result is empty / slow).
+Old builds would surface all duplicates, so agent runtimes could end up running the same command repeatedly.
+
+This fork now deduplicates identical `tool_calls` server-side.
+Use the latest version of this repo if you run agent-style tool calling.
+
 ## Why no public `llama.cpp` file
 
 We are not publishing a separate standard `llama.cpp` model file as part of this release.
