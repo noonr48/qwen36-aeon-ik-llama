@@ -1,0 +1,747 @@
+# RYS Layer Duplication: A Practical Guide for Custom LLM Variants
+
+This is the public write-up for what we learned building the Qwen3.6-27B AEON RYS / MaxThinkCoder model line. It focuses on the part that caused real debugging pain: duplicating layers is not enough; tensor names, config, and per-layer execution metadata have to keep the same output-to-source story.
+
+- PDF snapshot: [`rys_layer_duplication_guide.pdf`](rys_layer_duplication_guide.pdf)
+- Source text used to generate the DOCX/PDF: [`source/qwen36_rys_public_guide_source.txt`](source/qwen36_rys_public_guide_source.txt)
+- Build script for the generated DOCX/Markdown: [`source/build_public_guide.py`](source/build_public_guide.py)
+- Related model release: [Qwen3.6-27B-AEON-RYS-15-20-GGUF](https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF)
+
+---
+
+## The model loaded. That was the trap.
+
+
+![The cold-open problem: a model can load cleanly while the copied layer story is still wrong.](assets/intro_loaded_not_correct_generated.png)
+
+
+The first bad build did not fail in the loud, helpful way. It loaded. The files looked plausible. Then generation started drifting into degenerate repetition, as if the model had found a groove and could not climb back out of it.
+
+
+That is the trap with checkpoint surgery. A runtime can accept the file structure before the computation is actually coherent.
+
+
+RYS starts with a tempting idea: take a trained model, select a slice of layers from the middle, copy that slice, and paste the copy back into the stack.
+
+
+Now the model is deeper, but the new depth did not begin as random weights. It began as computation the model already knew how to use. That is the fun part.
+
+
+## What RYS is actually changing
+
+
+> **The useful definition is simple: RYS is a checkpoint transformation, not a training method by itself.**
+
+
+It takes a window of already-trained transformer layers, duplicates that window, and inserts the duplicate back into the layer stack. It does not ask the model to learn new layers from scratch. It starts those new layers from a computation pattern the model already had.
+
+
+That is why it can be useful. A copied middle layer is not random noise; it is a trained transformation that already fits the surrounding model. The hope is that the extra pass through a familiar transformation gives the model more useful depth without beginning from zero.
+
+
+The risk is that a copied layer is not just a pile of numbers. It also carries assumptions about where it sits, what kind of block it is, and which execution path should run it.
+
+
+Think of a layer like a workstation in an assembly line. The tensors are the tools at the station. The config metadata is the instruction sheet that tells the runtime how to use those tools. If you copy the tools from station 15 but leave the instruction sheet from station 20, the station may still exist, but the work being done there is no longer the work those tools were trained for.
+
+
+![A copied layer has weights and execution assumptions. Move both.](assets/layer_assumptions_travel_together.png)
+
+
+The rule that kept the build sane was simple:
+
+
+> **Every output layer must copy its weights and its execution metadata from the same source layer.**
+
+
+Everything else is just a way of keeping that one rule true.
+
+
+![The build route: map, tensors, config, validation, testing, quantization.](assets/rys_build_route_map.png)
+
+
+## Before cutting anything, map the machine
+
+
+A transformer language model is a stack. Tokens become hidden states. Those hidden states pass through layer 0, then layer 1, then layer 2, and so on until the model predicts the next token.
+
+
+The simple path is:
+
+
+```text
+tokens -> embedding -> layer 0 -> layer 1 -> ... -> layer N-1 -> logits
+```
+
+Nothing dramatic is happening here yet. This is just the conveyor belt. RYS changes the length of that conveyor belt, so before touching tensors, it helps to name the pieces clearly.
+
+
+> **The five objects on the bench are weights, tensor names, config, per-layer metadata, and the converted artifact.**
+
+
+Weights are the learned numbers. In Hugging Face format, they usually live in safetensors shards plus an index file.
+
+
+Tensor names are addresses. A key like model.layers.15.self_attn.q_proj.weight tells the loader which saved tensor belongs to which layer and module.
+
+
+Config is the JSON description that tells a runtime how many layers to build and what kind of model it is building.
+
+
+Per-layer metadata is where entry 15 describes layer 15, entry 16 describes layer 16, and so on. In Qwen3.6 hybrid models, text_config.layer_types is the important one because it tells the runtime which attention path each layer should use.
+
+
+GGUF is a converted llama.cpp-style artifact. It has its own metadata header and tensor table. It is not the same thing as serving the HF safetensors folder directly.
+
+
+![Before editing a checkpoint, keep the five objects separate: weights, names, config, per-layer metadata, and the converted artifact.](assets/rys_objects_on_the_bench.png)
+
+
+That separation matters because RYS touches all of these pieces. If only the tensors move, the checkpoint can become structurally valid and semantically wrong.
+
+
+## The map is the story
+
+
+Before copying tensors, build the output-to-source map. This map answers one question:
+
+
+```text
+mapping[out_layer] = source_layer
+```
+
+If mapping[20] = 15, then output layer 20 is a copy of source layer 15. That does not mean inference jumps backward at runtime. The output stack still runs forward: layer 19, then layer 20, then layer 21. The map is ancestry. It tells us where each output layer came from when we built the checkpoint.
+
+
+> **The map is ancestry, not runtime control. It tells the exporter what to copy into each output slot; it does not tell generation to travel backward through the network.**
+
+
+![Takeaway: the model still runs forward; the map only records where each output layer came from.](assets/runtime_order_vs_source_provenance.png)
+
+
+That one distinction prevents a lot of confusion.
+
+
+Start with a tiny model:
+
+
+```text
+source: 0, 1, 2, 3, 4, 5
+```
+
+Now use blocks:2,4.
+
+
+The notation is half-open, like a Python slice. The left edge is included. The right edge is excluded. So blocks:2,4 copies source layers 2 and 3. It does not copy layer 4.
+
+
+![Half-open ranges: blocks:15,20 copies 15..19, not 20.](assets/half_open_range_number_line.png)
+
+
+The duplicate is inserted right after the original copied window:
+
+
+output source route: 0, 1, 2, 3, 2, 3, 4, 5
+
+
+The copied layers are output 4 and output 5, but their source layers are 2 and 3.
+
+
+![Toy mapping for blocks:2,4.](assets/toy_mapping_blocks_2_4.png)
+
+
+Now scale that up to the real 64-layer example.
+
+
+blocks:15,20 copies source layers 15, 16, 17, 18, and 19. It does not copy source layer 20. Because the copy is inserted after source layer 19, the first copied output layer is output 20.
+
+
+For a 64-layer source model, blocks:15,20 creates a 69-layer output model:
+
+
+```text
+output 0..19 -> source 0..19
+```
+
+```text
+output 20..24 -> source 15..19
+```
+
+```text
+output 25..68 -> source 20..63
+```
+
+![Real mapping for blocks:15,20: 64 layers become 69.](assets/rys_insert_mapping_blocks_15_20.png)
+
+
+## Where the offset actually comes from
+
+
+The part that looks strange at first is the shift after the insert.
+
+
+It helps to stop thinking of blocks:15,20 as "layer 15 to layer 20" in everyday counting. In code, it is a slice boundary pair:
+
+
+```text
+i = 15
+```
+
+```text
+j = 20
+```
+
+```text
+duplicate_length = j - i = 5
+```
+
+The duplicated source window is 15, 16, 17, 18, 19. That is five layers. Source layer 20 is not inside the copied window. It is the first layer after the window.
+
+
+The original window stays where it was. Source layers 15..19 are still output layers 15..19. Then the copy is inserted into the next open output slots, which are 20..24. After those five inserted layers, the original source layer 20 can continue, but it has been pushed forward by five slots. So source layer 20 becomes output layer 25.
+
+
+That is all the offset means. It is not an attention trick. It is just bookkeeping for the new stack length.
+
+
+The piecewise rule is:
+
+
+```text
+if out < j: src = out
+```
+
+if j <= out < j + (j - i): src = i + (out - j)
+
+
+```text
+if out >= j + (j - i): src = out - (j - i)
+```
+
+For blocks:15,20, that becomes:
+
+
+output 19 is still source 19
+
+
+output 20 is the first duplicate, so it goes back to source 15
+
+
+output 24 is the last duplicate, so it maps to source 19
+
+
+output 25 is after the inserted copy, so it resumes source 20
+
+
+![The offset is just the insert length: d = j - i.](assets/offset_shift_after_insert.png)
+
+
+The seam is the part worth checking by hand:
+
+
+```text
+output 19 -> source 19
+```
+
+```text
+output 20 -> source 15
+```
+
+```text
+output 24 -> source 19
+```
+
+```text
+output 25 -> source 20
+```
+
+If those four points are right, the insert is probably being interpreted correctly. If they are wrong, everything downstream is already suspect.
+
+
+## One map, two ledgers
+
+
+Once the map exists, there are two ledgers to update: the tensor ledger and the config ledger.
+
+
+The tensor ledger is the visible one. In a safetensors checkpoint, each layer owns a family of tensor keys. A key might look like this:
+
+
+model.layers.15.self_attn.q_proj.weight
+
+
+If output layer 20 is copied from source layer 15, the output checkpoint needs the same tensor values under a new key:
+
+
+model.layers.20.self_attn.q_proj.weight
+
+
+You cannot reuse the old key. Source layer 15 still exists as output layer 15, and the duplicate exists again as output layer 20. Those two layers can start with identical values, but they need different names in the output checkpoint.
+
+
+![Tensor values can be copied, but output layer keys must be renamed.](assets/tensor_rename_conveyor.png)
+
+
+The export loop is just a controlled rename:
+
+
+copy global tensors unchanged
+
+
+```text
+for out in range(len(mapping)):
+```
+
+```text
+    src = mapping[out]
+```
+
+```text
+    for tensor_name in tensors_for_layer[src]:
+```
+
+```text
+        new_name = replace_layer_index(tensor_name, out)
+```
+
+```text
+        output_tensors[new_name] = clone_if_reused(source_tensor)
+```
+
+The clone is not decorative. If a source layer is reused, some safetensors save paths do not like multiple checkpoint keys pointing at the same underlying storage. Cloning duplicated tensors keeps the output file clean and avoids shared-storage save errors.
+
+
+Then comes the config ledger. This is the part that explained the loop in our broken build.
+
+
+![The tensor ledger and config ledger both need to follow the same map.](assets/two_ledgers_same_map_generated.png)
+
+
+If the source model had 64 layers and the output model has 69, the layer-count field must become 69. Depending on the architecture, that might be num_hidden_layers, text_config.num_hidden_layers, n_layer, num_layers, or something model-specific.
+
+
+For per-layer config lists, the rule is exactly the same as the tensor rule:
+
+
+```text
+new_list[out] = old_list[mapping[out]]
+```
+
+That line is boring on purpose. In this build, boring is safety.
+
+
+If output layer 20 got source layer 15's weights, output layer 20 also gets source layer 15's metadata. If output layer 25 resumes source layer 20's weights, output layer 25 also gets source layer 20's metadata.
+
+
+![Per-layer config lists must follow the same output-to-source map.](assets/config_mirror_table.png)
+
+
+This is where many RYS builds quietly break. They update the tensors. They bump the layer count. But a per-layer config list stays in the old order. The model can load while executing copied layers with the wrong instruction sheet.
+
+
+## The Qwen3.6 loop story
+
+
+For this Qwen3.6 hybrid checkpoint, some layers take the full-attention road and some layers take the linear-attention road. Those are not cosmetic labels. They are different execution paths inside the model.
+
+
+```text
+text_config.layer_types is the per-layer routing plan that tells the runtime which road each layer should take. That makes layer_types execution-critical.
+```
+
+Around the RYS window, the source schedule was:
+
+
+source layer 15: full_attention
+
+
+source layer 16: linear_attention
+
+
+source layer 17: linear_attention
+
+
+source layer 18: linear_attention
+
+
+source layer 19: full_attention
+
+
+source layer 20: linear_attention
+
+
+Now follow the blocks:15,20 map. Output layer 20 copies source layer 15. Source layer 15 is full_attention. Therefore output layer 20 must also be treated as full_attention.
+
+
+If layer_types is not remapped, output layer 20 can accidentally keep the old entry that used to sit at index 20. In this source model, that entry was linear_attention. That creates the mismatch we were looking for:
+
+
+output layer 20 weights: source 15
+
+
+correct output layer 20 type: full_attention
+
+
+naive output layer 20 type: linear_attention
+
+
+![The bug is not that one attention type is bad. The bug is sending copied weights down the wrong execution path.](assets/wrong_track_mismatch_generated.png)
+
+
+![In Qwen3.6 hybrid models, layer_types is an execution plan.](assets/layer_types_is_execution_plan.png)
+
+
+Depending on the loader and architecture checks, a broken build may either fail loudly or load far enough to generate. The dangerous case is the quiet one: the shapes look plausible, but the copied layer is routed through an execution path that does not match where its weights came from.
+
+
+The offset math did not create that attention mismatch by itself. The offset only said "output 20 came from source 15." The mismatch happened because layer_types did not move with the same output-to-source map. Once output 20 became a copy of source 15, every per-layer execution list also needed to treat output 20 as source 15.
+
+
+So the attention rule is not a separate rule. It is the same map again:
+
+
+output 20 weights come from source 15
+
+
+output 20 layer_type comes from source 15
+
+
+output 25 weights come from source 20
+
+
+output 25 layer_type comes from source 20
+
+
+The symptom we cared about was degenerate repetition and looping. Looping by itself is not proof of this exact bug, because sampling settings, templates, quantization, runtime code, and prompt handling can all cause repetition. In this build, though, the seam lined up with the failure: the first wrong metadata entry appeared at output layer 20, exactly where the RYS insertion began. When the metadata was remapped with the same map as the tensors, that split story disappeared.
+
+
+The fix we trusted was not a sampler tweak. It was to use the same map twice:
+
+
+```text
+weights_out[out] = weights_src[mapping[out]]
+```
+
+```text
+layer_types_out[out] = layer_types_src[mapping[out]]
+```
+
+Once both ledgers followed the same map, output 20 got source 15's weights and source 15's full_attention type. Output 25 resumed source 20's weights and source 20's linear_attention type. The checkpoint stopped telling two stories at the insertion boundary.
+
+
+## Loaded where?
+
+
+"The model loads" is too vague unless you say where it loaded.
+
+
+![HF-folder loading and GGUF loading validate different artifacts.](assets/loader_paths_safetensors_vs_gguf.png)
+
+
+> **HF safetensors loading checks the folder story. GGUF loading checks the converted artifact story. Passing one does not certify the other.**
+
+
+An HF-format load reads config.json, the safetensors index, and the shard files together. It proves that the folder is at least structurally plausible for that loader: layer counts, tensor names, tensor shapes, and config fields are being interpreted together. A strict loader may fail if the selected layer type expects a different tensor family. A permissive or custom path may get farther and still be semantically wrong.
+
+
+The llama.cpp or ik-llama path checks a different object. The HF checkpoint is converted first. During conversion, the converter reads the HF config and tensors, then writes a GGUF with its own metadata header and tensor table. At serve time, llama.cpp reads that GGUF, not the original safetensors folder.
+
+
+In our production path, the HF safetensors RYS export came first. Then it was converted to GGUF for ik-llama serving. The GGUF-side checks were useful for that artifact: the BF16 GGUF reported a 69-block model and the loader saw 915 tensors. That did not replace the earlier HF config check; it confirmed a different stage of the pipeline.
+
+
+> **The practical rule is simple: validate the artifact in the form that will run it.**
+
+
+For HF or vLLM-style safetensors, inspect config.json, tensor keys, layer counts, and per-layer metadata.
+
+
+For llama.cpp or ik-llama, inspect the GGUF header, tensor count, block count, conversion logs, quantization logs, and serve smoke tests.
+
+
+## The checks that saved time
+
+
+A loaded model is not automatically a correct model. Loading mostly proves that the checkpoint is structurally plausible. It does not prove that every copied layer has the right execution metadata.
+
+
+> **What success looks like is boring in the best way: the output layer count matches the tensors, every copied tensor has the right output name, every per-layer metadata list has the output length, and the seam entries point back to the same source layers as the weights.**
+
+
+Before judging quality, check the artifact mechanically:
+
+
+Every expected output layer index exists in the tensor keys.
+
+
+No tensor key is duplicated.
+
+
+The config layer count matches the output layer count.
+
+
+Every per-layer metadata list has the output length.
+
+
+Every remapped metadata entry follows the map.
+
+
+For layer_types, the check is:
+
+
+```text
+for out, src in enumerate(mapping):
+```
+
+```text
+    assert layer_types_out[out] == layer_types_src[src]
+```
+
+For blocks:15,20, check the seam:
+
+
+```text
+output 19 -> source 19
+```
+
+```text
+output 20 -> source 15
+```
+
+```text
+output 24 -> source 19
+```
+
+```text
+output 25 -> source 20
+```
+
+![Mechanical checks before quality judgment.](assets/validation_checklist_card.png)
+
+
+> **At this point, you should be able to explain why output 20 comes from source 15 and why output 25 resumes source 20. If that explanation is fuzzy, do not quantize yet. The quantized model will only make the bug harder to see.**
+
+
+## A practical validation path
+
+
+The testing order matters.
+
+
+First, load the unquantized checkpoint. If it fails, the problem is usually tensor names, tensor shapes, shard indexes, or layer-count config.
+
+
+Second, run a short loop smoke test. Use a boring prompt that forces structure, for example: "Write 12 distinct one-sentence scenes in the same city. Do not repeat sentence openings." If the model immediately repeats, do not assume RYS is bad. Check whether weights and metadata still point to the same source layer.
+
+
+Third, run fixed probes across candidate windows. These are not final proof of model quality. They are a cheap way to compare options and reject broken builds.
+
+
+Only after the BF16 or FP16 checkpoint behaves should quantization enter the story. Quantized failures are much harder to debug if the unquantized model was never proven sound.
+
+
+![Test like a ladder: structure first, quantization last.](assets/testing_ladder.png)
+
+
+## Choosing the layer window
+
+
+The best RYS window belongs to the source checkpoint. A window that works well on one source can be weak on another, even when both share the same base architecture. Fine-tuning can move useful behavior through the stack, so each source line needs its own search.
+
+
+Start with the exact checkpoint intended for use. Do not choose a window from a different fine-tune just because it has the same base architecture.
+
+
+A practical first pass is to test a small spread of short windows: one early-middle, one middle, one late-middle, and one window suggested by prior experiments. Export each one with the same mapping-safe pipeline. Run the same structural checks, loop prompts, and probes. Compare everything against the unmodified source.
+
+
+Reject broken candidates before comparing scores. A window that gives a nice number but loops, fails conversion, or collapses after quantization is not a deployable winner.
+
+
+![Window selection belongs to the exact source checkpoint.](assets/window_selection_funnel.png)
+
+
+Short insertions are easier to debug at first. Larger inserts can come later after the export path is trusted. The winner should not be chosen from one score alone. Load behavior, loop resistance, target probes, general behavior, serving cost, and quantization survival all matter.
+
+
+The important lesson from our run is not "everyone should use 15,20." It is "the window belongs to the source checkpoint and the deployment path."
+
+
+## Quantization is the callback
+
+
+> **BF16 is the audition. Quantization is the callback.**
+
+
+![BF16 is the first audition. Quantization is the callback.](assets/quantization_callback_generated.png)
+
+
+A window that looks great before compression can get weird once you squeeze it down, especially after RYS has changed the activation path. That is why we treated quantization as a second trial instead of assuming BF16 rankings would survive.
+
+
+This is where the notes almost tricked us: the quantization files were not all grading the same subjects.
+
+
+![Compare candidates on the same suite. Different probes are useful notes, not one shared leaderboard.](assets/same_suite_scoreboard.png)
+
+
+> **Do not compare headline means unless the candidates ran the same suite.**
+
+
+The blocks:15,20 file used a mixed suite: math_16, eq_16, math_4, and gsm8k_5. Its headline number was overall_mean.
+
+
+One blocks:11,14 file used the reasoning slice: math_4 and gsm8k_5. Its headline number was combined_mean. Another blocks:11,14 no-think file used math_16 and eq_16, where the combined drop was much smaller. Those files are useful, but they are not one scoreboard.
+
+
+In the mixed-suite file, blocks:15,20 had a small overall IQ4_NL imatrix drop, even though individual probes moved differently:
+
+
+BF16 overall_mean: 0.729899
+
+
+IQ4_NL overall_mean: 0.724435
+
+
+delta: -0.005465
+
+
+![Quantization is a second trial, not a formality.](assets/quantization_survival_cards.png)
+
+
+In the reasoning-slice file, blocks:11,14 was genuinely strong in BF16, but dropped much harder under IQ4_NL on that specific probe:
+
+
+BF16 combined_mean: 0.854324
+
+
+IQ4_NL combined_mean: 0.729260
+
+
+delta: -0.125064
+
+
+In the no-think math_16/eq_16 file, blocks:11,14 dropped by -0.020520 combined, not -0.125064. That matters. The stronger claim is only true for the reasoning-slice test.
+
+
+So the honest read is this: 11,14 looked strong in BF16 and had interesting math behavior, but the reasoning-slice quantization result was volatile. 15,20 was the safer production pick because it survived the balanced scan, loop checks, serving path, and mixed-suite quantization delta.
+
+
+A clean final rematch would run the same full quantized suite for both 15,20 and 11,14. Until then, do not flatten those two result files into one leaderboard.
+
+
+## The Qwen3.6 case file
+
+
+Here is the specific build we landed on.
+
+
+The source line had 64 layers indexed 0..63. Its important per-layer execution metadata was text_config.layer_types. The stack mixed linear_attention and full_attention.
+
+
+The selected RYS spec was blocks:15,20. That copied source layers 15..19, inserted 5 layers, and produced a 69-layer output model.
+
+
+The mapping was:
+
+
+```text
+output 0..19 -> source 0..19
+```
+
+```text
+output 20..24 -> source 15..19
+```
+
+```text
+output 25..68 -> source 20..63
+```
+
+The config update was:
+
+
+```text
+text_config.num_hidden_layers = 69
+```
+
+```text
+text_config.layer_types = [source_layer_types[mapping[out]] for out in range(69)]
+```
+
+The tensor export rewrote every per-layer tensor from source index to output index, cloned tensors when a source layer was reused, and copied global tensors unchanged for this export.
+
+
+The validation target was simple:
+
+
+69 output layer tensor groups
+
+
+69 layer_types entries
+
+
+output 20 tensors from source 15
+
+
+output 20 layer_type from source 15
+
+
+output 25 tensors from source 20
+
+
+output 25 layer_type from source 20
+
+
+The fixed probes compared candidate windows against the unmodified source. This chart uses the AEON scan files aeon_strict_math120.pkl and aeon_strict_eq140.pkl.
+
+
+```text
+combined = (math_120 + eq_140) / 2
+```
+
+Here, eq_140 is the historical probe/file label. The saved strict EQ pickle contains qids 1..139, so read the label as the scan name rather than a literal counted row claim.
+
+
+![Strict probe results for the Qwen3.6 AEON source line.](assets/strict_probe_results_chart.png)
+
+
+In this source line, blocks:15,20 was the best balanced strict result. blocks:31,34 was close. blocks:11,14 had the highest math_120 result but not the best combined result. blocks:30,35 had worked better in another source line, but it was not the winner here.
+
+
+That chart is not proof of a universal best window. It is selection after structure checks, loop checks, source-specific probes, and deployment constraints. RYS is not a magic index recipe. It is a build method plus a measurement loop.
+
+
+## The finished mental model
+
+
+The clean version of RYS is not "duplicate some layers and hope."
+
+
+![One output-to-source map feeds the whole build: tensors, config metadata, validation, testing, and quantization.](assets/master_map_summary.png)
+
+
+It is:
+
+
+Build one output-to-source map.
+
+
+Use that map to move the tensors.
+
+
+Use that same map to move every per-layer execution list.
+
+
+Validate the seam before judging quality.
+
+
+Test the artifact in the format that will actually run.
+
+
+Quantize only after the unquantized build behaves.
+
+
+When those pieces agree, RYS becomes a controlled checkpoint transformation. The tensors say where each output layer came from. The config says the same thing. The per-layer metadata says the same thing. The runtime no longer has to guess.
+
+
+When those pieces disagree, the model can still load. But generation may reveal the split story through loops, repetition, or sudden quality collapse.

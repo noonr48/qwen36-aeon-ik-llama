@@ -8,6 +8,10 @@ Primary target model:
 Model release:
 - `https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF`
 
+RYS build guide:
+- [`docs/rys-layer-duplication-guide`](docs/rys-layer-duplication-guide)
+- PDF snapshot: [`docs/rys-layer-duplication-guide/rys_layer_duplication_guide.pdf`](docs/rys-layer-duplication-guide/rys_layer_duplication_guide.pdf)
+
 This fork is specialized and runtime-tuned for that exact released model.
 
 Source model it was derived from:
