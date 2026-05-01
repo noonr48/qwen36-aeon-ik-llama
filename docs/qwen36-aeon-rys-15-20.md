@@ -33,7 +33,7 @@ So the public Q4 release centered on `15,20` instead.
 
 ## Runtime conclusions
 
-Three conclusions came out of the runtime work:
+Four conclusions came out of the runtime work:
 
 1. stock upstream compatibility was not enough
 - the non-4-aligned hybrid pattern needed loader fixes
@@ -46,10 +46,17 @@ Three conclusions came out of the runtime work:
 - recurrent checkpoints had to be disabled on graph split
 - prompt batching across slots had to be serialized for recurrent/hybrid models under graph split to keep the `200k/slot` FP32 deployment stable
 
+4. MTP is worth exposing, but not as the default path
+- a true MTP GGUF was added for people testing Qwen3.6/Qwen3.5 MTP support in `ik_llama.cpp`
+- the artifact keeps `qwen35.nextn_predict_layers = 1` and the `blk.69.nextn.*` tensors
+- the best checked adaptive MTP path reached about `45.36 tok/s` on `3x RTX 3090`, while the non-MTP graph-split path reached about `48.68 tok/s`
+- practical quality checks also favored the original non-MTP file because it showed fewer long-output repeat penalties
+
 ## Practical recommendation
 
 If someone wants to use this exact model family seriously:
 - use the custom fork in this repo
 - use the main custom quant release
+- treat the MTP GGUF as an experimental/runtime-testing artifact
 - rebuild for your own SM targets if your GPU architecture differs
 - do not assume stock upstream `llama.cpp` will behave the same on this non-4-aligned Qwen3.6 hybrid variant

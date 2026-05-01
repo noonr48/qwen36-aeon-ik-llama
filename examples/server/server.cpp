@@ -1086,6 +1086,21 @@ int main(int argc, char ** argv) {
                 const std::string oaicompat_model_name = requested_model_name.empty()
                     ? fallback_model_name
                     : requested_model_name;
+
+                const auto infer_id_slot_from_model = [](const std::string & model) -> int {
+                    const auto ends_with = [](const std::string & s, const std::string & suffix) -> bool {
+                        return s.size() >= suffix.size() && s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0;
+                    };
+
+                    if (ends_with(model, "-slot0") || ends_with(model, "-s0")) {
+                        return 0;
+                    }
+                    if (ends_with(model, "-slot1") || ends_with(model, "-s1")) {
+                        return 1;
+                    }
+                    return -1;
+                };
+                const int inferred_id_slot = infer_id_slot_from_model(oaicompat_model_name);
                 for (size_t i = 0; i < inputs.size(); i++) {
                     server_task task = server_task(type);
 
@@ -1099,6 +1114,10 @@ int main(int argc, char ** argv) {
                     //    ctx_server.params,
                     //    data);
                     task.id_slot = json_value(data, "id_slot", -1);
+                    if (task.id_slot < 0 && inferred_id_slot >= 0 && inferred_id_slot < ctx_server.params_base.n_parallel) {
+                        task.id_slot = inferred_id_slot;
+                        task.data["id_slot"] = task.id_slot;
+                    }
 
                     // OAI-compat
                     task.params.oaicompat = oaicompat;
@@ -1254,17 +1273,33 @@ int main(int argc, char ** argv) {
     };
 
     const auto handle_models = [&params, &model_meta](const httplib::Request & req, httplib::Response & res) {
+        (void) req;
+
+        json data = json::array();
+
+        const auto add_model = [&](const std::string & id, const json & extra_meta = json::object()) {
+            json meta = model_meta;
+            for (const auto & kv : extra_meta.items()) {
+                meta[kv.key()] = kv.value();
+            }
+            data.push_back({
+                {"id",       id},
+                {"object",   "model"},
+                {"created",  std::time(0)},
+                {"owned_by", "llamacpp"},
+                {"meta",     meta},
+                {"max_model_len", params.n_ctx},
+            });
+        };
+
+        add_model(params.model_alias);
+        for (int32_t i = 0; i < params.n_parallel; ++i) {
+            add_model(params.model_alias + std::string("-slot") + std::to_string(i), {{"slot_pinned", i}});
+        }
+
         json models = {
             {"object", "list"},
-            {"data", {
-                 {
-                     {"id",       params.model_alias},
-                     {"object",   "model"},
-                     {"created",  std::time(0)},
-                     {"owned_by", "llamacpp"},
-                     {"meta",     model_meta}
-                 },
-             }}
+            {"data", data},
         };
 
         res.set_content(models.dump(), "application/json; charset=utf-8");
