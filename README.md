@@ -6,7 +6,7 @@ Primary target model, and still the recommended daily file:
 - `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-ik-llama-custom-mixed.gguf`
 
 Optional experimental MTP file:
-- `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-MTP-IQ4_NL-experimental-mtp-imatrix.gguf`
+- `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-SpeedBoosted-IQ4_NL-MTP-Experimental.gguf`
 
 Model release:
 - `https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF`
@@ -18,6 +18,8 @@ RYS build guide:
 This fork is specialized and runtime-tuned for that released model family.
 The non-MTP GGUF remains the standard recommendation because it tested faster, behaved more accurately in practical evals, and showed fewer long-output repetition issues. The MTP GGUF is included for runtime testing and MTP development, not as the default file.
 
+The `SpeedBoosted` wording in the MTP filename refers to the custom `ik_llama` runtime/release context. It does not mean the MTP artifact beat the recommended non-MTP GGUF in our tests.
+
 Source model it was derived from:
 - `https://huggingface.co/AEON-7/Qwen3.6-27B-AEON-Ultimate-Uncensored`
 
@@ -28,7 +30,7 @@ Source model it was derived from:
 - recommended default:
   `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-ik-llama-custom-mixed.gguf`
 - optional MTP test file:
-  `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-MTP-IQ4_NL-experimental-mtp-imatrix.gguf`
+  `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-SpeedBoosted-IQ4_NL-MTP-Experimental.gguf`
 - main runtime target:
   custom `ik-llama`
 - compression target:

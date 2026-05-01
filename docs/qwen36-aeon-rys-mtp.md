@@ -6,9 +6,11 @@ Use the non-MTP GGUF as the default:
 - `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-ik-llama-custom-mixed.gguf`
 
 Use the MTP GGUF only when the goal is to test MTP itself:
-- `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-MTP-IQ4_NL-experimental-mtp-imatrix.gguf`
+- `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-SpeedBoosted-IQ4_NL-MTP-Experimental.gguf`
 
 The MTP file is worth publishing because it gives people a real Qwen3.6 RYS artifact with the MTP tail preserved. It is not replacing the main file because the non-MTP path was still faster and cleaner in our practical checks.
+
+Filename note: `SpeedBoosted` refers to the custom `ik_llama` speedup/release context around this model family. It is not a claim that MTP itself beat the non-MTP artifact.
 
 ## What changed
 
