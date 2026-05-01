@@ -1,12 +1,9 @@
 # qwen36-aeon-ik-llama
 
-A specialized `ik_llama.cpp` fork for the Qwen3.6 AEON RYS model built in this experiment.
+A specialized `ik_llama.cpp` fork for the exact Q4NL RYS model built in this experiment.
 
-Primary target model, and still the recommended daily file:
+Primary target model:
 - `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-ik-llama-custom-mixed.gguf`
-
-Optional experimental MTP file:
-- `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-MTP-IQ4_NL-experimental.gguf`
 
 Model release:
 - `https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF`
@@ -15,8 +12,7 @@ RYS build guide:
 - [`docs/rys-layer-duplication-guide`](docs/rys-layer-duplication-guide)
 - PDF snapshot: [`docs/rys-layer-duplication-guide/rys_layer_duplication_guide.pdf`](docs/rys-layer-duplication-guide/rys_layer_duplication_guide.pdf)
 
-This fork is specialized and runtime-tuned for that released model family.
-The non-MTP GGUF remains the standard recommendation because it tested faster, behaved more accurately in practical evals, and showed fewer long-output repetition issues. The MTP GGUF is included for runtime testing and MTP development, not as the default file.
+This fork is specialized and runtime-tuned for that exact released model.
 
 Source model it was derived from:
 - `https://huggingface.co/AEON-7/Qwen3.6-27B-AEON-Ultimate-Uncensored`
@@ -24,11 +20,6 @@ Source model it was derived from:
 ## At a glance
 
 - this fork is specialized for the released Q4NL RYS model above
-- the HF page now carries the `Speedup + MTP` release framing
-- recommended default:
-  `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-ik-llama-custom-mixed.gguf`
-- optional MTP test file:
-  `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-MTP-IQ4_NL-experimental.gguf`
 - main runtime target:
   custom `ik-llama`
 - compression target:
@@ -77,37 +68,10 @@ Exact comparison hardware:
 | patched upstream-style `llama.cpp` | same internal standard-typed comparison file | `4096` | `1` | `f16` | `22.51` | `187.18` | internal comparison only |
 | custom `ik-llama` fork | released custom-mixed file | `409600` | `2` | `f32/f32` | `39.37` | `164.98` | actual deployment target |
 
-MTP check on `3x RTX 3090`:
-
-| path | split | decode tok/s | prompt tok/s | note |
-|---|---|---:|---:|---|
-| experimental MTP GGUF | graph split, `-mtp --draft-max 1` | `35.06` | `199.26` | structurally valid MTP, about `62.4%` draft acceptance |
-| recommended non-MTP GGUF | graph split | `48.64` | `211.25` | faster and cleaner in practical tests |
-
-That is why MTP is published as an extra artifact instead of replacing the default model.
-
-## Experimental MTP file
-
-The MTP GGUF keeps the MTP tail intact:
-- `qwen35.nextn_predict_layers = 1`
-- `blk.69.nextn.*` tensors present
-
-Tested MTP flags:
-
-```bash
--sm graph -mtp --draft-max 1 --draft-p-min 0.0 --draft-min 0 -b 128 -ub 32 -ctk f16 -ctv f16 -fa on -gr
-```
-
-The important practical read:
-- use the MTP file if you are testing MTP behavior, draft acceptance, or `ik_llama.cpp` MTP runtime changes
-- use the original non-MTP file if you want the best current user-facing result
-- do not assume the MTP artifact is a quality upgrade; in our tests it was technically interesting but not the better default
-
 ## What this fork is for
 
 This fork exists for one concrete target:
 - run the released custom-mixed Q4NL RYS model well
-- support the optional MTP GGUF for controlled runtime testing
 - keep long-context hybrid/recurrent serving stable
 - support the custom mixed GGUF layout used by the release file
 - tune for the six `RTX 5060 Ti` deployment that was actually used in the experiment
@@ -157,8 +121,7 @@ This is not a generic llama.cpp fork.
 The released model path depended on:
 1. Qwen3.6 hybrid/recurrent loader fixes for non-4-aligned RYS variants
 2. graph-split serving fixes for long-context recurrent/hybrid runs
-3. Qwen3.5/Qwen3.6 MTP graph-reuse and MTP-tail handling for the optional MTP artifact
-4. quantization/runtime support for the custom mixed GGUF tensor layout used by the release model
+3. quantization/runtime support for the custom mixed GGUF tensor layout used by the release model
 
 Without those changes, stock upstream runtimes hit real failures in the experiment.
 

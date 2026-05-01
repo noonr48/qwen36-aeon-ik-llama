@@ -91,11 +91,9 @@ static __global__ void quantize_mmq_q8_1(
         return;
     }
 
-    float d = 1.0f / d_inv;
+    const float d = 1.0f / d_inv;
 
     if (ds_layout == MMQ_Q8_1_DS_LAYOUT_DS4) {
-        d = max(-65504.0f, min(65504.f, d));
-        sum = max(-65504.0f, min(65504.f, sum));
         y[ib].ds4[iqs/32] = make_half2(d, sum);
     } else {
         y[ib].d4[iqs/32]  = d;

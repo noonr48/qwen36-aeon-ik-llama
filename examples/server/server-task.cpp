@@ -120,16 +120,6 @@ json server_task_result_cmpl_partial::to_json_oaicompat_partial() {
     return res;
 }
 
-json server_task_result_cmpl_final::usage_json_oaicompat() {
-    return json{
-        {"completion_tokens", n_decoded},
-        {"prompt_tokens",     n_prompt_tokens},
-        {"total_tokens",      n_decoded + n_prompt_tokens},
-        {"prompt_tokens_details", json { {"cached_tokens", n_prompt_tokens_cache} }},
-    };
-}
-
-
 json server_task_result_cmpl_final::to_json_oaicompat_final() {
     std::time_t t = std::time(0);
     json logprobs = json(nullptr); // OAI default to null
@@ -154,7 +144,11 @@ json server_task_result_cmpl_final::to_json_oaicompat_final() {
         {"created",            t},
         {"model",              oaicompat_model},
         {"object",             "text_completion"},
-        {"usage",              usage_json_oaicompat()},
+        {"usage", json {
+            {"completion_tokens", n_decoded},
+            {"prompt_tokens",     n_prompt_tokens},
+            {"total_tokens",      n_decoded + n_prompt_tokens}
+        }},
         {"id", oaicompat_cmpl_id}
     };
 
@@ -385,7 +379,11 @@ json server_task_result_cmpl_final::to_json_oaicompat_chat_final() {
         {"created",            t},
         {"model",              oaicompat_model},
         {"object",             "chat.completion"},
-        {"usage",              usage_json_oaicompat()},
+        {"usage", json {
+            {"completion_tokens", n_decoded},
+            {"prompt_tokens",     n_prompt_tokens},
+            {"total_tokens",      n_decoded + n_prompt_tokens}
+        }},
         {"id", oaicompat_cmpl_id}
     };
 
@@ -447,7 +445,11 @@ json server_task_result_cmpl_final::to_json_oaicompat_chat_stream() {
             {"id",                 oaicompat_cmpl_id},
             {"model",              oaicompat_model},
             {"object",             "chat.completion.chunk"},
-            {"usage",              usage_json_oaicompat()},
+            {"usage", json {
+                {"completion_tokens", n_decoded},
+                {"prompt_tokens",     n_prompt_tokens},
+                {"total_tokens",      n_decoded + n_prompt_tokens},
+            }},
             });
     }
     if (timings.prompt_n >= 0) {
@@ -521,11 +523,10 @@ json server_task_result_cmpl_final::to_json_oaicompat_resp_final() {
         {"object",       "response"},
         {"output",       output},
         {"status",       "completed"},
-        {"usage",        json {
+        {"usage",        json{
             {"input_tokens",  n_prompt_tokens},
             {"output_tokens", n_decoded},
             {"total_tokens",  n_decoded + n_prompt_tokens},
-            {"input_tokens_details", json { {"cached_tokens", n_prompt_tokens_cache} }},
         }},
     };
 
@@ -632,12 +633,11 @@ json server_task_result_cmpl_final::to_json_oaicompat_resp_stream() {
                 {"status",     "completed"},
                 {"model",      oaicompat_model},
                 {"output",     output},
-                {"usage",      json {
+                {"usage",      json{
                     {"input_tokens",  n_prompt_tokens},
                     {"output_tokens", n_decoded},
                     {"total_tokens",  n_decoded + n_prompt_tokens},
-                    {"input_tokens_details", json { {"cached_tokens", n_prompt_tokens_cache} }},
-                }}
+                }},
             }},
         }},
     });
@@ -703,8 +703,7 @@ json server_task_result_cmpl_final::to_json_anthropic_final() {
         {"stop_reason", stop_reason},
         {"stop_sequence", stopping_word.empty() ? nullptr : json(stopping_word)},
         {"usage", {
-            {"cache_read_input_tokens", n_prompt_tokens_cache},
-            {"input_tokens", n_prompt_tokens - n_prompt_tokens_cache},
+            {"input_tokens", n_prompt_tokens},
             {"output_tokens", n_decoded}
         }}
     };
@@ -924,8 +923,7 @@ json server_task_result_cmpl_partial::to_json_anthropic_partial() {
                     {"stop_reason", nullptr},
                     {"stop_sequence", nullptr},
                     {"usage", {
-                        {"cache_read_input_tokens", n_prompt_tokens_cache},
-                        {"input_tokens", n_prompt_tokens - n_prompt_tokens_cache},
+                        {"input_tokens", n_prompt_tokens},
                         {"output_tokens", 0}
                     }}
                 }}
