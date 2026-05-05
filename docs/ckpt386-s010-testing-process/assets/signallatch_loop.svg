@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 390" role="img" aria-labelledby="title desc">
+  <title id="title">SignalLatch behavior loop</title>
+  <desc id="desc">Review, align, latch, repair, confirm loop for coding-agent behavior.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M2 2 L10 6 L2 10 Z" fill="#364152"/>
+    </marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#1f2937" flood-opacity="0.10"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="390" rx="24" fill="#f7f8fb"/>
+  <rect x="24" y="24" width="1232" height="342" rx="20" fill="#ffffff" stroke="#d8dee9"/>
+
+  <text x="54" y="70" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#141a22">SignalLatch behavior loop</text>
+  <text x="54" y="103" font-family="Arial, sans-serif" font-size="17" fill="#526071">A coding-agent habit loop for evidence-gated action and validation.</text>
+
+  <g font-family="Arial, sans-serif" filter="url(#shadow)">
+    <g transform="translate(48 145)">
+      <rect width="198" height="120" rx="14" fill="#f0f7ff" stroke="#8ab9e8"/>
+      <text x="24" y="38" font-size="22" font-weight="700" fill="#16324f">Review</text>
+      <text x="24" y="68" font-size="15" fill="#31465d">Inspect scoped</text>
+      <text x="24" y="91" font-size="15" fill="#31465d">repo context first</text>
+    </g>
+
+    <g transform="translate(288 145)">
+      <rect width="198" height="120" rx="14" fill="#f3fbf4" stroke="#8bcf94"/>
+      <text x="24" y="38" font-size="22" font-weight="700" fill="#1f4d2b">Align</text>
+      <text x="24" y="68" font-size="15" fill="#35533b">Track goal,</text>
+      <text x="24" y="91" font-size="15" fill="#35533b">constraints, scope</text>
+    </g>
+
+    <g transform="translate(528 145)">
+      <rect width="198" height="120" rx="14" fill="#fff7e6" stroke="#e2b762"/>
+      <text x="24" y="38" font-size="22" font-weight="700" fill="#624414">Latch</text>
+      <text x="24" y="68" font-size="15" fill="#5a4a2b">Wait for concrete</text>
+      <text x="24" y="91" font-size="15" fill="#5a4a2b">tool signal</text>
+    </g>
+
+    <g transform="translate(768 145)">
+      <rect width="198" height="120" rx="14" fill="#fff2f2" stroke="#e29393"/>
+      <text x="24" y="38" font-size="22" font-weight="700" fill="#6a2323">Repair</text>
+      <text x="24" y="68" font-size="15" fill="#5f3939">Patch from</text>
+      <text x="24" y="91" font-size="15" fill="#5f3939">evidence only</text>
+    </g>
+
+    <g transform="translate(1008 145)">
+      <rect width="198" height="120" rx="14" fill="#f3f0ff" stroke="#aa9be8"/>
+      <text x="24" y="38" font-size="22" font-weight="700" fill="#3e3272">Confirm</text>
+      <text x="24" y="68" font-size="15" fill="#4a426f">Validate and</text>
+      <text x="24" y="91" font-size="15" fill="#4a426f">calibrate certainty</text>
+    </g>
+  </g>
+
+  <g stroke="#364152" stroke-width="3" fill="none" marker-end="url(#arrow)" opacity="0.85">
+    <path d="M250 205 H280"/>
+    <path d="M490 205 H520"/>
+    <path d="M730 205 H760"/>
+    <path d="M970 205 H1000"/>
+    <path d="M1107 270 C1107 333 146 333 146 270"/>
+  </g>
+
+  <text x="54" y="314" font-family="Arial, sans-serif" font-size="16" fill="#526071">Promoted behaviors: scoped context, goal alignment, wait/retry control, evidence-gated repair, focused validation, calibrated uncertainty.</text>
+</svg>

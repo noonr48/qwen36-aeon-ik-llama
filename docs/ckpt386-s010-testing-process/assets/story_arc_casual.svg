@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1570" height="560" viewBox="0 0 1570 560">
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#5f6f7a"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#17212b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="1570" height="560" fill="#f7f9fb"/>
+  <text x="56" y="68" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="850" fill="#1f2933">
+<tspan x="56" dy="0">The story was not a straight line</tspan>
+</text>
+  <text x="56" y="112" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="450" fill="#5f6f7a">
+<tspan x="56" dy="0">We had to separate useful scouting results from the exact thing we planned to upload.</tspan>
+</text>
+  <g filter="url(#shadow)"><rect x="70" y="170" width="250" height="180" rx="14" fill="#e8f2f7" stroke="#c9d2d9" stroke-width="2"/>
+<rect x="70" y="170" width="10" height="180" rx="5" fill="#2f6f9f"/>
+<text x="100" y="218" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#1f2933">
+<tspan x="100" dy="0">Start</tspan>
+</text>
+<text x="100" y="260" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="450" fill="#5f6f7a">
+<tspan x="100" dy="0">AEON RYS 15/20 already</tspan>
+<tspan x="100" dy="26">existed as the Q4NL</tspan>
+<tspan x="100" dy="26">deployment target.</tspan>
+</text></g>
+<g filter="url(#shadow)"><rect x="365" y="170" width="250" height="180" rx="14" fill="#e7f5f1" stroke="#c9d2d9" stroke-width="2"/>
+<rect x="365" y="170" width="10" height="180" rx="5" fill="#248f7b"/>
+<text x="395" y="218" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#1f2933">
+<tspan x="395" dy="0">Tune</tspan>
+</text>
+<text x="395" y="260" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="450" fill="#5f6f7a">
+<tspan x="395" dy="0">A small ckpt386</tspan>
+<tspan x="395" dy="26">behavioral LoRA nudged</tspan>
+<tspan x="395" dy="26">agent behavior.</tspan>
+</text></g>
+<g filter="url(#shadow)"><rect x="660" y="170" width="250" height="180" rx="14" fill="#fbf1df" stroke="#c9d2d9" stroke-width="2"/>
+<rect x="660" y="170" width="10" height="180" rx="5" fill="#b98020"/>
+<text x="690" y="218" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#1f2933">
+<tspan x="690" dy="0">Messy tests</tspan>
+</text>
+<text x="690" y="260" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="450" fill="#5f6f7a">
+<tspan x="690" dy="0">Direct adapter and</tspan>
+<tspan x="690" dy="26">early probes were</tspan>
+<tspan x="690" dy="26">useful, but not the</tspan>
+<tspan x="690" dy="26">deploy path.</tspan>
+</text></g>
+<g filter="url(#shadow)"><rect x="955" y="170" width="250" height="180" rx="14" fill="#eaf6ee" stroke="#c9d2d9" stroke-width="2"/>
+<rect x="955" y="170" width="10" height="180" rx="5" fill="#2f8f57"/>
+<text x="985" y="218" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#1f2933">
+<tspan x="985" dy="0">Deploy test</tspan>
+</text>
+<text x="985" y="260" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="450" fill="#5f6f7a">
+<tspan x="985" dy="0">Merged IQ4_NL GGUF</tspan>
+<tspan x="985" dy="26">showed the real</tspan>
+<tspan x="985" dy="26">production shape.</tspan>
+</text></g>
+<g filter="url(#shadow)"><rect x="1250" y="170" width="250" height="180" rx="14" fill="#efedf8" stroke="#c9d2d9" stroke-width="2"/>
+<rect x="1250" y="170" width="10" height="180" rx="5" fill="#6d5fa8"/>
+<text x="1280" y="218" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#1f2933">
+<tspan x="1280" dy="0">Pick</tspan>
+</text>
+<text x="1280" y="260" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="450" fill="#5f6f7a">
+<tspan x="1280" dy="0">s0.10 was less flashy</tspan>
+<tspan x="1280" dy="26">than s0.20/s0.25, but</tspan>
+<tspan x="1280" dy="26">held up better.</tspan>
+</text></g>
+<line x1="332" y1="260" x2="358" y2="260" stroke="#5f6f7a" stroke-width="4" stroke-linecap="round" marker-end="url(#arrow)"/>
+<line x1="627" y1="260" x2="653" y2="260" stroke="#5f6f7a" stroke-width="4" stroke-linecap="round" marker-end="url(#arrow)"/>
+<line x1="922" y1="260" x2="948" y2="260" stroke="#5f6f7a" stroke-width="4" stroke-linecap="round" marker-end="url(#arrow)"/>
+<line x1="1217" y1="260" x2="1243" y2="260" stroke="#5f6f7a" stroke-width="4" stroke-linecap="round" marker-end="url(#arrow)"/>
+<text x="72" y="425" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#1f2933">
+<tspan x="72" dy="0">The headline lesson</tspan>
+</text>
+<text x="72" y="465" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="500" fill="#5f6f7a">
+<tspan x="72" dy="0">The best-looking first run was not automatically the release. Repeats mattered more than the</tspan>
+<tspan x="72" dy="30">exciting row.</tspan>
+</text>
+</svg>

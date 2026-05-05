@@ -1,0 +1,22 @@
+# Comprehensive Production Matrix
+
+- github_mcp_commits_fix | base_aeon_iq4_nothink | pass=False | score=0.375 | rc=1 | elapsed=228s
+  - checks: build_passes=yes, handler_reads_branch=no, output_mentions_branch=no, readme_mentions_get_commits_branch=yes, request_does_not_use_sha_commit_path=no, request_uses_path_param=no, request_uses_sha_branch=no, schema_has_branch=yes
+- github_mcp_commits_fix | direct_ckpt350_s025_nothink | pass=False | score=0.375 | rc=124 | elapsed=600s
+  - checks: build_passes=yes, handler_reads_branch=no, output_mentions_branch=no, readme_mentions_get_commits_branch=yes, request_does_not_use_sha_commit_path=no, request_uses_path_param=no, request_uses_sha_branch=no, schema_has_branch=yes
+- github_mcp_commits_fix | direct_ckpt386_s025_nothink | pass=False | score=0.375 | rc=1 | elapsed=283s
+  - checks: build_passes=yes, handler_reads_branch=no, output_mentions_branch=no, readme_mentions_get_commits_branch=yes, request_does_not_use_sha_commit_path=no, request_uses_path_param=no, request_uses_sha_branch=no, schema_has_branch=yes
+- github_mcp_commits_fix | merged_ckpt350_s025_bf16_nothink | pass=False | score=0.375 | rc=1 | elapsed=216s
+  - checks: build_passes=yes, handler_reads_branch=no, output_mentions_branch=no, readme_mentions_get_commits_branch=yes, request_does_not_use_sha_commit_path=no, request_uses_path_param=no, request_uses_sha_branch=no, schema_has_branch=yes
+- github_mcp_commits_fix | merged_ckpt386_s025_bf16_nothink | pass=True | score=1.0 | rc=124 | elapsed=600s
+  - checks: build_passes=yes, handler_reads_branch=yes, output_mentions_branch=yes, readme_mentions_get_commits_branch=yes, request_does_not_use_sha_commit_path=yes, request_uses_path_param=yes, request_uses_sha_branch=yes, schema_has_branch=yes
+- radar_fix | base_aeon_iq4_nothink | pass=False | score=0.6667 | rc=1 | elapsed=560s
+  - checks: server_started=yes, startup_threads_once_error_gone=yes, test_sh_exit_zero=no
+- radar_fix | direct_ckpt350_s025_nothink | pass=False | score=0.6667 | rc=1 | elapsed=543s
+  - checks: server_started=yes, startup_threads_once_error_gone=yes, test_sh_exit_zero=no
+- radar_fix | direct_ckpt386_s025_nothink | pass=False | score=0.6667 | rc=1 | elapsed=346s
+  - checks: server_started=yes, startup_threads_once_error_gone=yes, test_sh_exit_zero=no
+- radar_fix | merged_ckpt350_s025_bf16_nothink | pass=False | score=0.6667 | rc=1 | elapsed=500s
+  - checks: server_started=yes, startup_threads_once_error_gone=yes, test_sh_exit_zero=no
+- radar_fix | merged_ckpt386_s025_bf16_nothink | pass=False | score=0.6667 | rc=124 | elapsed=600s
+  - checks: server_started=yes, startup_threads_once_error_gone=yes, test_sh_exit_zero=no

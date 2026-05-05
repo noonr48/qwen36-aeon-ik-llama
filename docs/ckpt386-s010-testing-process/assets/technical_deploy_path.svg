@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="690" viewBox="0 0 1600 690">
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#5f6f7a"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#17212b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="690" fill="#f7f9fb"/>
+  <text x="56" y="68" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="850" fill="#1f2933">
+<tspan x="56" dy="0">The actual deploy route</tspan>
+</text>
+  <text x="56" y="112" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="450" fill="#5f6f7a">
+<tspan x="56" dy="0">The release candidate is a merged GGUF, not a runtime adapter recipe.</tspan>
+</text>
+  <g filter="url(#shadow)"><rect x="80" y="185" width="245" height="190" rx="14" fill="#e8f2f7" stroke="#c9d2d9" stroke-width="2"/>
+<rect x="80" y="185" width="10" height="190" rx="5" fill="#2f6f9f"/>
+<text x="110" y="233" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#1f2933">
+<tspan x="110" dy="0">AEON RYS 15/20</tspan>
+</text>
+<text x="110" y="275" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="450" fill="#5f6f7a">
+<tspan x="110" dy="0">Existing Q4NL model</tspan>
+<tspan x="110" dy="26">line and HF-format</tspan>
+<tspan x="110" dy="26">base.</tspan>
+</text></g>
+<g filter="url(#shadow)"><rect x="380" y="185" width="245" height="190" rx="14" fill="#e7f5f1" stroke="#c9d2d9" stroke-width="2"/>
+<rect x="380" y="185" width="10" height="190" rx="5" fill="#248f7b"/>
+<text x="410" y="233" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#1f2933">
+<tspan x="410" dy="0">ckpt386 LoRA</tspan>
+</text>
+<text x="410" y="275" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="450" fill="#5f6f7a">
+<tspan x="410" dy="0">10,800 examples, r=8,</tspan>
+<tspan x="410" dy="26">alpha=32,</tspan>
+<tspan x="410" dy="26">behavior-focused.</tspan>
+</text></g>
+<g filter="url(#shadow)"><rect x="680" y="185" width="245" height="190" rx="14" fill="#fbf1df" stroke="#c9d2d9" stroke-width="2"/>
+<rect x="680" y="185" width="10" height="190" rx="5" fill="#b98020"/>
+<text x="710" y="233" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#1f2933">
+<tspan x="710" dy="0">Merge at s0.10</tspan>
+</text>
+<text x="710" y="275" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="450" fill="#5f6f7a">
+<tspan x="710" dy="0">Low-strength merge</tspan>
+<tspan x="710" dy="26">kept the nudge without</tspan>
+<tspan x="710" dy="26">overpowering the base.</tspan>
+</text></g>
+<g filter="url(#shadow)"><rect x="980" y="185" width="245" height="190" rx="14" fill="#eaf6ee" stroke="#c9d2d9" stroke-width="2"/>
+<rect x="980" y="185" width="10" height="190" rx="5" fill="#2f8f57"/>
+<text x="1010" y="233" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#1f2933">
+<tspan x="1010" dy="0">IQ4_NL + imatrix</tspan>
+</text>
+<text x="1010" y="275" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="450" fill="#5f6f7a">
+<tspan x="1010" dy="0">Quantized as the</tspan>
+<tspan x="1010" dy="26">practical upload</tspan>
+<tspan x="1010" dy="26">artifact.</tspan>
+</text></g>
+<g filter="url(#shadow)"><rect x="1280" y="185" width="245" height="190" rx="14" fill="#efedf8" stroke="#c9d2d9" stroke-width="2"/>
+<rect x="1280" y="185" width="10" height="190" rx="5" fill="#6d5fa8"/>
+<text x="1310" y="233" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#1f2933">
+<tspan x="1310" dy="0">ik-llama runtime</tspan>
+</text>
+<text x="1310" y="275" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="450" fill="#5f6f7a">
+<tspan x="1310" dy="0">Jinja template,</tspan>
+<tspan x="1310" dy="26">DeepSeek format, graph</tspan>
+<tspan x="1310" dy="26">split, flash</tspan>
+<tspan x="1310" dy="26">attention.</tspan>
+</text></g>
+<line x1="340" y1="267" x2="365" y2="267" stroke="#5f6f7a" stroke-width="4" stroke-linecap="round" marker-end="url(#arrow)"/>
+<line x1="640" y1="267" x2="665" y2="267" stroke="#5f6f7a" stroke-width="4" stroke-linecap="round" marker-end="url(#arrow)"/>
+<line x1="940" y1="267" x2="965" y2="267" stroke="#5f6f7a" stroke-width="4" stroke-linecap="round" marker-end="url(#arrow)"/>
+<line x1="1240" y1="267" x2="1265" y2="267" stroke="#5f6f7a" stroke-width="4" stroke-linecap="round" marker-end="url(#arrow)"/>
+<rect x="205" y="455" width="520" height="150" rx="14" fill="#ffffff" stroke="#c9d2d9" stroke-width="2"/>
+<rect x="205" y="455" width="10" height="150" rx="5" fill="#b85042"/>
+<text x="235" y="503" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#1f2933">
+<tspan x="235" dy="0">Why not live LoRA?</tspan>
+</text>
+<text x="235" y="545" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="450" fill="#5f6f7a">
+<tspan x="235" dy="0">The tested production profile uses flash attention.</tspan>
+<tspan x="235" dy="26">Live LoRA is not the supported serving path here.</tspan>
+</text>
+<rect x="850" y="455" width="520" height="150" rx="14" fill="#ffffff" stroke="#c9d2d9" stroke-width="2"/>
+<rect x="850" y="455" width="10" height="150" rx="5" fill="#2f8f57"/>
+<text x="880" y="503" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#1f2933">
+<tspan x="880" dy="0">What gets uploaded?</tspan>
+</text>
+<text x="880" y="545" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="450" fill="#5f6f7a">
+<tspan x="880" dy="0">A full merged GGUF at s0.10. The file is the upload</tspan>
+<tspan x="880" dy="26">artifact, not a separate adapter.</tspan>
+</text>
+</svg>

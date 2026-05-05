@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="760" viewBox="0 0 1600 760">
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#5f6f7a"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#17212b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="760" fill="#f7f9fb"/>
+  <text x="56" y="68" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="850" fill="#1f2933">
+<tspan x="56" dy="0">Where the selected tune actually helped</tspan>
+</text>
+  <text x="56" y="112" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="450" fill="#5f6f7a">
+<tspan x="56" dy="0">The useful gain was not just a mean score. It changed several concrete patch behaviors.</tspan>
+</text>
+  <text x="360" y="168" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800" fill="#b85042">
+<tspan x="360" dy="0">previous Q4NL</tspan>
+</text>
+<text x="695" y="168" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800" fill="#2f8f57">
+<tspan x="695" dy="0">ckpt386 s0.10</tspan>
+</text>
+<text x="85" y="240" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800" fill="#1f2933">
+<tspan x="85" dy="0">commits branch</tspan>
+</text>
+<rect x="360" y="210" width="280" height="34" rx="17" fill="#dde5ea"/>
+<rect x="360" y="210" width="210" height="34" rx="17" fill="#b85042"/>
+<rect x="695" y="210" width="280" height="34" rx="17" fill="#dde5ea"/>
+<rect x="695" y="210" width="280" height="34" rx="17" fill="#2f8f57"/>
+<text x="1008" y="238" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800" fill="#1f2933">
+<tspan x="1008" dy="0">0.75 -&gt; 1.00</tspan>
+</text>
+<text x="85" y="335" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800" fill="#1f2933">
+<tspan x="85" dy="0">PR details</tspan>
+</text>
+<rect x="360" y="305" width="280" height="34" rx="17" fill="#dde5ea"/>
+<rect x="360" y="305" width="280" height="34" rx="17" fill="#b85042"/>
+<rect x="695" y="305" width="280" height="34" rx="17" fill="#dde5ea"/>
+<rect x="695" y="305" width="280" height="34" rx="17" fill="#2f8f57"/>
+<text x="1008" y="333" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800" fill="#1f2933">
+<tspan x="1008" dy="0">1.00 -&gt; 1.00</tspan>
+</text>
+<text x="85" y="430" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800" fill="#1f2933">
+<tspan x="85" dy="0">kill excess</tspan>
+</text>
+<rect x="360" y="400" width="280" height="34" rx="17" fill="#dde5ea"/>
+<rect x="360" y="400" width="70" height="34" rx="17" fill="#b85042"/>
+<rect x="695" y="400" width="280" height="34" rx="17" fill="#dde5ea"/>
+<rect x="695" y="400" width="280" height="34" rx="17" fill="#2f8f57"/>
+<text x="1008" y="428" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800" fill="#1f2933">
+<tspan x="1008" dy="0">0.25 -&gt; 1.00</tspan>
+</text>
+<text x="85" y="525" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800" fill="#1f2933">
+<tspan x="85" dy="0">search timeout</tspan>
+</text>
+<rect x="360" y="495" width="280" height="34" rx="17" fill="#dde5ea"/>
+<rect x="360" y="495" width="70" height="34" rx="17" fill="#b85042"/>
+<rect x="695" y="495" width="280" height="34" rx="17" fill="#dde5ea"/>
+<rect x="695" y="495" width="210" height="34" rx="17" fill="#2f8f57"/>
+<text x="1008" y="523" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800" fill="#1f2933">
+<tspan x="1008" dy="0">0.25 -&gt; 0.75</tspan>
+</text>
+<text x="85" y="620" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800" fill="#1f2933">
+<tspan x="85" dy="0">web race</tspan>
+</text>
+<rect x="360" y="590" width="280" height="34" rx="17" fill="#dde5ea"/>
+<rect x="360" y="590" width="140" height="34" rx="17" fill="#b85042"/>
+<rect x="695" y="590" width="280" height="34" rx="17" fill="#dde5ea"/>
+<rect x="695" y="590" width="280" height="34" rx="17" fill="#2f8f57"/>
+<text x="1008" y="618" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800" fill="#1f2933">
+<tspan x="1008" dy="0">0.50 -&gt; 1.00</tspan>
+</text>
+<rect x="1180" y="230" width="370" height="220" rx="14" fill="#eaf6ee" stroke="#c9d2d9" stroke-width="2"/>
+<rect x="1180" y="230" width="10" height="220" rx="5" fill="#2f8f57"/>
+<text x="1210" y="278" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#1f2933">
+<tspan x="1210" dy="0">Operational change</tspan>
+</text>
+<text x="1210" y="320" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="450" fill="#5f6f7a">
+<tspan x="1210" dy="0">The base model often ran into</tspan>
+<tspan x="1210" dy="26">full-timeout behavior. s0.10</tspan>
+<tspan x="1210" dy="26">finished more patches cleanly in</tspan>
+<tspan x="1210" dy="26">the deploy-format run.</tspan>
+</text>
+<rect x="1180" y="500" width="370" height="155" rx="14" fill="#fbf1df" stroke="#c9d2d9" stroke-width="2"/>
+<rect x="1180" y="500" width="10" height="155" rx="5" fill="#b98020"/>
+<text x="1210" y="548" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#1f2933">
+<tspan x="1210" dy="0">Still not solved</tspan>
+</text>
+<text x="1210" y="590" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="450" fill="#5f6f7a">
+<tspan x="1210" dy="0">Search-timeout behavior improved</tspan>
+<tspan x="1210" dy="26">but did not fully pass in the</tspan>
+<tspan x="1210" dy="26">first s0.10 run.</tspan>
+</text>
+</svg>

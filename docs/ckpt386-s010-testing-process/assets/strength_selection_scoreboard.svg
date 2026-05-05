@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="860" viewBox="0 0 1600 860">
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#5f6f7a"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#17212b" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="860" fill="#f7f9fb"/>
+  <text x="56" y="68" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="850" fill="#1f2933">
+<tspan x="56" dy="0">Why s0.10 won the release slot</tspan>
+</text>
+  <text x="56" y="112" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="450" fill="#5f6f7a">
+<tspan x="56" dy="0">s0.20 and s0.25 had perfect first runs; repeat stability changed the decision.</tspan>
+</text>
+  <text x="80" y="170" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800" fill="#1f2933">
+<tspan x="80" dy="0">First-run mean score</tspan>
+</text>
+<text x="90" y="240" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="850" fill="#1f2933">
+<tspan x="90" dy="0">base</tspan>
+</text>
+<rect x="360" y="205" width="650" height="42" rx="21" fill="#dde5ea"/>
+<rect x="360" y="205" width="357" height="42" rx="21" fill="#b85042"/>
+<text x="1045" y="237" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="850" fill="#1f2933">
+<tspan x="1045" dy="0">0.550</tspan>
+</text>
+<text x="1165" y="236" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700" fill="#1f2933">
+<tspan x="1165" dy="0">1/5</tspan>
+</text>
+<text x="1435" y="236" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="650" fill="#5f6f7a">
+<tspan x="1435" dy="0">4 timeouts</tspan>
+</text>
+<text x="90" y="345" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="850" fill="#1f2933">
+<tspan x="90" dy="0">s0.10</tspan>
+</text>
+<rect x="360" y="310" width="650" height="42" rx="21" fill="#dde5ea"/>
+<rect x="360" y="310" width="617" height="42" rx="21" fill="#2f8f57"/>
+<text x="1045" y="342" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="850" fill="#1f2933">
+<tspan x="1045" dy="0">0.950</tspan>
+</text>
+<text x="1165" y="341" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700" fill="#1f2933">
+<tspan x="1165" dy="0">4/5 first, 9/15 repeats</tspan>
+</text>
+<text x="1435" y="341" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="650" fill="#5f6f7a">
+<tspan x="1435" dy="0">selected</tspan>
+</text>
+<text x="90" y="450" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="850" fill="#1f2933">
+<tspan x="90" dy="0">s0.20</tspan>
+</text>
+<rect x="360" y="415" width="650" height="42" rx="21" fill="#dde5ea"/>
+<rect x="360" y="415" width="650" height="42" rx="21" fill="#b98020"/>
+<text x="1045" y="447" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="850" fill="#1f2933">
+<tspan x="1045" dy="0">1.000</tspan>
+</text>
+<text x="1165" y="446" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700" fill="#1f2933">
+<tspan x="1165" dy="0">5/5 first, 8/15 repeats</tspan>
+</text>
+<text x="1435" y="446" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="650" fill="#5f6f7a">
+<tspan x="1435" dy="0">degraded</tspan>
+</text>
+<text x="90" y="555" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="850" fill="#1f2933">
+<tspan x="90" dy="0">s0.25</tspan>
+</text>
+<rect x="360" y="520" width="650" height="42" rx="21" fill="#dde5ea"/>
+<rect x="360" y="520" width="650" height="42" rx="21" fill="#6d5fa8"/>
+<text x="1045" y="552" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="850" fill="#1f2933">
+<tspan x="1045" dy="0">1.000</tspan>
+</text>
+<text x="1165" y="551" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700" fill="#1f2933">
+<tspan x="1165" dy="0">5/5 first, 6/10 repeats</tspan>
+</text>
+<text x="1435" y="551" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="650" fill="#5f6f7a">
+<tspan x="1435" dy="0">collapsed</tspan>
+</text>
+<rect x="85" y="650" width="1350" height="130" rx="14" fill="#ffffff" stroke="#c9d2d9" stroke-width="2"/>
+<rect x="85" y="650" width="10" height="130" rx="5" fill="#2f8f57"/>
+<text x="115" y="698" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" fill="#1f2933">
+<tspan x="115" dy="0">Selection rule</tspan>
+</text>
+<text x="115" y="740" text-anchor="start" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="450" fill="#5f6f7a">
+<tspan x="115" dy="0">Do not pick the loudest single row. Pick the strength that improves base and survives repeats</tspan>
+<tspan x="115" dy="26">well enough to deploy.</tspan>
+</text>
+</svg>
