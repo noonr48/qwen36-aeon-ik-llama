@@ -1,24 +1,30 @@
 # qwen36-aeon-ik-llama
 
-A specialized `ik_llama.cpp` fork for the Qwen3.6 AEON RYS model built in this experiment.
+A specialized `ik_llama.cpp` fork for the Qwen3.6 AEON RYS model line built in this experiment. It supports both the original non-finetuned AEON RYS 15/20 Q4_NL release and the newer SignalLatch behavior-finetuned merged GGUF release.
 
-Primary target model, and still the recommended daily file:
+Primary non-finetuned target model:
 - `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-ik-llama-custom-mixed.gguf`
 
 Optional experimental MTP file:
 - `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-SpeedBoosted-IQ4_NL-MTP-Experimental.gguf`
 
+Primary fine-tuned target model:
+- `Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf`
+
 Latest fine-tuned deployment update:
 - supported fine-tune: checkpoint 386 behavioral LoRA, strength-merged into the AEON RYS base model
 - selected long-term strength: `s0.10`
 - selected deploy artifact shape: `IQ4_NL` GGUF with imatrix
-- selected artifact name: `Qwen3.6-27B-AEON-RYS-15-20-ckpt386-s010-IQ4_NL-imatrix.gguf`
-- tested server profile: temp `0.7`, graph split, flash attention, Jinja, DeepSeek reasoning format, context `65536`
+- public model name: `SignalLatch`
+- selected artifact name: `Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf`
+- Hugging Face release: `https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-SignalLatch-GGUF`
+- tested server profile: temp `0.7`, graph split, flash attention, Jinja, DeepSeek reasoning format, context `65536` for the strength sweep and `131072` for the later canvas comparison
 
 Use the fine-tune as a merged GGUF. Do not treat live runtime LoRA loading as the production path for this setup: the deployment profile uses flash attention and graph split, and live LoRA still conflicts with flash attention in this runtime path.
 
-Model release:
-- `https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF`
+Model releases:
+- non-finetuned AEON RYS 15/20: `https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF`
+- fine-tuned SignalLatch: `https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-SignalLatch-GGUF`
 
 RYS build guide:
 - [`docs/rys-layer-duplication-guide`](docs/rys-layer-duplication-guide)
@@ -41,7 +47,7 @@ Source model it was derived from:
 - optional MTP test file:
   `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-SpeedBoosted-IQ4_NL-MTP-Experimental.gguf`
 - latest fine-tuned default candidate:
-  `Qwen3.6-27B-AEON-RYS-15-20-ckpt386-s010-IQ4_NL-imatrix.gguf`
+  `Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf`
 - main runtime target:
   custom `ik-llama`
 - compression target:
@@ -56,9 +62,11 @@ Source model it was derived from:
 
 ## Fine-tuned ckpt386 deployment
 
-The current practical deployment candidate is the checkpoint-386 behavioral LoRA merged into the AEON RYS base model at strength `s0.10`, then exported as IQ4_NL GGUF with imatrix.
+The current practical fine-tuned deployment candidate is SignalLatch: the checkpoint-386 behavioral LoRA merged into the AEON RYS base model at strength `s0.10`, then exported as IQ4_NL GGUF. The public release file is `Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf`.
 
-The Q4NL deployment sweep compared base Q4NL and multiple LoRA merge strengths at temp `0.7`, graph split, flash attention, Jinja, DeepSeek reasoning format, and context `65536`.
+This fork is the intended runtime path for that merged finetune. Load it as a full GGUF model, not as a separate live LoRA adapter.
+
+The Q4NL deployment sweep compared base Q4NL and multiple LoRA merge strengths at temp `0.7`, graph split, flash attention, Jinja, DeepSeek reasoning format, and context `65536`. The later practical canvas-agent comparison also used temp `0.7`, graph split, flash attention, Jinja, DeepSeek reasoning format, FP32 KV, and context `131072`.
 
 | Candidate | Stability result | Read |
 |---|---:|---|
@@ -72,7 +80,7 @@ Recommended server shape:
 
 ```bash
 ./build/bin/llama-server \
-  -m /path/to/Qwen3.6-27B-AEON-RYS-15-20-ckpt386-s010-IQ4_NL-imatrix.gguf \
+  -m /path/to/Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf \
   -c 65536 \
   -ngl 999 \
   -np 1 \
@@ -154,8 +162,9 @@ The important practical read:
 
 ## What this fork is for
 
-This fork exists for one concrete target:
+This fork exists for one concrete model line:
 - run the released custom-mixed Q4NL RYS model well
+- run the SignalLatch merged fine-tuned Q4_NL GGUF release well
 - support the optional MTP GGUF for controlled runtime testing
 - keep long-context hybrid/recurrent serving stable
 - support the custom mixed GGUF layout used by the release file
@@ -180,7 +189,8 @@ Why:
 
 So the intended path is:
 - use this fork
-- use the released `ik-llama-custom-mixed` GGUF
+- use the released non-finetuned `ik-llama-custom-mixed` GGUF, or the merged SignalLatch fine-tuned GGUF
+- do not present these as stock `llama.cpp` targets
 
 ## Hyper-focused project
 
