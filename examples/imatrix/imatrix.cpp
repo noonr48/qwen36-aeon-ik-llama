@@ -638,37 +638,6 @@ static void process_logits(
     }
 }
 
-static bool run_mtp_imatrix_warmup(llama_context * ctx, llama_token * tokens, const float * hidden_states, int32_t n_tokens, llama_pos pos_0) {
-    const llama_model * model = llama_get_model(ctx);
-    if (llama_model_n_nextn_layer(model) <= 0) {
-        return true;
-    }
-
-    llama_batch mtp_batch = llama_batch_init(n_tokens, 0, 1);
-    mtp_batch.n_tokens = n_tokens;
-    for (int32_t i = 0; i < n_tokens; ++i) {
-        mtp_batch.token[i] = tokens[i];
-        mtp_batch.pos[i] = pos_0 + i;
-        mtp_batch.n_seq_id[i] = 1;
-        mtp_batch.seq_id[i][0] = 0;
-        mtp_batch.logits[i] = 1;
-    }
-
-    llama_set_draft_input_hidden_state(ctx, hidden_states);
-    llama_set_mtp_op_type(ctx, MTP_OP_WARMUP);
-    const int ret = llama_decode(ctx, mtp_batch);
-    llama_set_mtp_op_type(ctx, MTP_OP_NONE);
-    llama_set_draft_input_hidden_state(ctx, nullptr);
-    llama_batch_free(mtp_batch);
-
-    if (ret != 0) {
-        fprintf(stderr, "%s: failed to eval MTP warmup batch\n", __func__);
-        return false;
-    }
-
-    return true;
-}
-
 static bool compute_imatrix(llama_context * ctx, const gpt_params & params) {
     const bool add_bos = llama_should_add_bos_token(llama_get_model(ctx));
     GGML_ASSERT(llama_add_eos_token(llama_get_model(ctx)) != 1);
@@ -711,17 +680,12 @@ static bool compute_imatrix(llama_context * ctx, const gpt_params & params) {
     const int n_chunk = params.n_chunks < 0 ? n_chunk_max : std::min(params.n_chunks, n_chunk_max);
     const int n_vocab = llama_n_vocab(llama_get_model(ctx));
     const int n_batch = params.n_batch;
-    const bool collect_mtp = params.has_mtp && llama_model_n_nextn_layer(llama_get_model(ctx)) > 0;
-    const int n_embd = collect_mtp ? llama_model_n_embd(llama_get_model(ctx)) : 0;
 
     int count = 0;
     double nll = 0.0;
     double nll2 = 0.0;
 
     fprintf(stderr, "%s: computing over %d chunks with batch_size %d\n", __func__, n_chunk, n_batch);
-    if (collect_mtp) {
-        fprintf(stderr, "%s: MTP warmup collection enabled\n", __func__);
-    }
 
     std::vector<std::thread> workers(std::thread::hardware_concurrency() - 1);
 
@@ -737,18 +701,6 @@ static bool compute_imatrix(llama_context * ctx, const gpt_params & params) {
         const int end   = start + n_ctx;
 
         std::vector<float> logits;
-        if (params.compute_ppl && collect_mtp) {
-            logits.reserve((size_t)n_ctx * n_vocab);
-        }
-        std::vector<float> mtp_hidden_states;
-        std::vector<llama_token> mtp_tokens;
-        if (collect_mtp) {
-            mtp_hidden_states.resize((size_t)n_ctx * n_embd);
-            mtp_tokens.assign(tokens.begin() + start, tokens.begin() + end);
-            if (add_bos) {
-                mtp_tokens[0] = llama_token_bos(llama_get_model(ctx));
-            }
-        }
 
         const auto t_start = std::chrono::high_resolution_clock::now();
 
@@ -773,36 +725,12 @@ static bool compute_imatrix(llama_context * ctx, const gpt_params & params) {
                 return false;
             }
 
-            if (params.compute_ppl && (num_batches > 1 || collect_mtp)) {
-                const auto * batch_logits = llama_get_logits(ctx);
-                logits.insert(logits.end(), batch_logits, batch_logits + batch_size * n_vocab);
-            }
-
-            if (collect_mtp) {
-                float * hidden_dst = mtp_hidden_states.data() + (size_t)j * n_batch * n_embd;
-                for (int k = 0; k < batch_size; ++k) {
-                    const float * emb = llama_get_embeddings_ith(ctx, k);
-                    if (!emb) {
-                        fprintf(stderr, "%s: failed to read main-model hidden state for token %d\n", __func__, k);
-                        return false;
-                    }
-                    std::memcpy(hidden_dst + (size_t)k * n_embd, emb, (size_t)n_embd * sizeof(float));
-                }
-            }
-
             // restore the original token in case it was set to BOS
             tokens[batch_start] = token_org;
-        }
 
-        if (collect_mtp) {
-            llama_kv_cache_clear(ctx);
-            const int mtp_batch = std::max<int>(1, params.n_ubatch);
-            for (int mtp_start = 0; mtp_start < n_ctx; mtp_start += mtp_batch) {
-                const int mtp_size = std::min(n_ctx - mtp_start, mtp_batch);
-                if (!run_mtp_imatrix_warmup(ctx, mtp_tokens.data() + mtp_start,
-                            mtp_hidden_states.data() + (size_t)mtp_start * n_embd, mtp_size, mtp_start)) {
-                    return false;
-                }
+            if (params.compute_ppl && num_batches > 1) {
+                const auto * batch_logits = llama_get_logits(ctx);
+                logits.insert(logits.end(), batch_logits, batch_logits + batch_size * n_vocab);
             }
         }
 
@@ -821,7 +749,7 @@ static bool compute_imatrix(llama_context * ctx, const gpt_params & params) {
 
         if (params.compute_ppl) {
             const int first = n_ctx/2;
-            const auto all_logits = !logits.empty() ? logits.data() : llama_get_logits(ctx);
+            const auto all_logits = num_batches > 1 ? logits.data() : llama_get_logits(ctx);
             process_logits(n_vocab, all_logits + first*n_vocab, tokens.data() + start + first, n_ctx - 1 - first,
                     workers, nll, nll2, logit_history.data() + start + first, prob_history.data() + start + first);
             count += n_ctx - first - 1;

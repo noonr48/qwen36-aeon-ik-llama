@@ -8,6 +8,15 @@ Primary target model, and still the recommended daily file:
 Optional experimental MTP file:
 - `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-SpeedBoosted-IQ4_NL-MTP-Experimental.gguf`
 
+Latest fine-tuned deployment update:
+- supported fine-tune: checkpoint 386 behavioral LoRA, strength-merged into the AEON RYS base model
+- selected long-term strength: `s0.10`
+- selected deploy artifact shape: `IQ4_NL` GGUF with imatrix
+- selected artifact name: `Qwen3.6-27B-AEON-RYS-15-20-ckpt386-s010-IQ4_NL-imatrix.gguf`
+- tested server profile: temp `0.7`, graph split, flash attention, Jinja, DeepSeek reasoning format, context `65536`
+
+Use the fine-tune as a merged GGUF. Do not treat live runtime LoRA loading as the production path for this setup: the deployment profile uses flash attention and graph split, and live LoRA still conflicts with flash attention in this runtime path.
+
 Model release:
 - `https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF`
 
@@ -31,6 +40,8 @@ Source model it was derived from:
   `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-ik-llama-custom-mixed.gguf`
 - optional MTP test file:
   `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-SpeedBoosted-IQ4_NL-MTP-Experimental.gguf`
+- latest fine-tuned default candidate:
+  `Qwen3.6-27B-AEON-RYS-15-20-ckpt386-s010-IQ4_NL-imatrix.gguf`
 - main runtime target:
   custom `ik-llama`
 - compression target:
@@ -42,6 +53,40 @@ Source model it was derived from:
 - not a stock `llama.cpp` target
 - project focus:
   preserve as much capability as possible inside a Q4-class RYS model for programming, reasoning, and academic work
+
+## Fine-tuned ckpt386 deployment
+
+The current practical deployment candidate is the checkpoint-386 behavioral LoRA merged into the AEON RYS base model at strength `s0.10`, then exported as IQ4_NL GGUF with imatrix.
+
+The Q4NL deployment sweep compared base Q4NL and multiple LoRA merge strengths at temp `0.7`, graph split, flash attention, Jinja, DeepSeek reasoning format, and context `65536`.
+
+| Candidate | Stability result | Read |
+|---|---:|---|
+| base Q4NL | 1/5, mean 0.550 | weak baseline |
+| `s0.10` | strict 9/15, mean 0.842 | selected default candidate |
+| `s0.10` crash-adjusted | 9/14, mean 0.884 | excludes one server crash before model attempt |
+| `s0.20` | 8/15, mean 0.850 | too unstable across repeats |
+| `s0.25` | 6/10, mean 0.875 | first perfect run did not reproduce |
+
+Recommended server shape:
+
+```bash
+./build/bin/llama-server \
+  -m /path/to/Qwen3.6-27B-AEON-RYS-15-20-ckpt386-s010-IQ4_NL-imatrix.gguf \
+  -c 65536 \
+  -ngl 999 \
+  -np 1 \
+  -fa on \
+  -sm graph \
+  --temp 0.7 \
+  --jinja \
+  --reasoning-format deepseek \
+  --reasoning-budget 0 \
+  -cram 0 \
+  --ctx-checkpoints 0
+```
+
+This is a tentative long-term default, not a claim that the fine-tune is solved. It is materially better than base Q4NL in this practical sweep, but still high variance at temp `0.7`.
 
 ## BF16 vs released custom IQ4_NL
 

@@ -1087,11 +1087,16 @@ int main(int argc, char ** argv) {
                     ? fallback_model_name
                     : requested_model_name;
 
+                // Allow clients to pin requests to a specific slot without needing non-standard JSON fields.
+                // This is useful for multi-slot deployments where we want to avoid slot bouncing.
                 const auto infer_id_slot_from_model = [](const std::string & model) -> int {
                     const auto ends_with = [](const std::string & s, const std::string & suffix) -> bool {
                         return s.size() >= suffix.size() && s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0;
                     };
 
+                    // Supported hints:
+                    //  - "...-slot0" / "...-slot1"
+                    //  - "...-s0"    / "...-s1"
                     if (ends_with(model, "-slot0") || ends_with(model, "-s0")) {
                         return 0;
                     }
@@ -1288,11 +1293,13 @@ int main(int argc, char ** argv) {
                 {"created",  std::time(0)},
                 {"owned_by", "llamacpp"},
                 {"meta",     meta},
-                {"max_model_len", params.n_ctx},
             });
         };
 
+        // Default (unpinned) model id.
         add_model(params.model_alias);
+
+        // Slot-pinned variants to avoid prompt-cache misses when clients run multiple concurrent sessions.
         for (int32_t i = 0; i < params.n_parallel; ++i) {
             add_model(params.model_alias + std::string("-slot") + std::to_string(i), {{"slot_pinned", i}});
         }

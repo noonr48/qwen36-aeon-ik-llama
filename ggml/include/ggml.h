@@ -699,7 +699,6 @@ extern "C" {
         GGML_OP_REDUCE,
         GGML_OP_FAKE_CPY,
         GGML_OP_FUSED_NORM,
-        GGML_OP_FUSED_RMS_RMS_ADD,
 
         GGML_OP_COUNT,
     };
@@ -1570,14 +1569,6 @@ extern "C" {
     GGML_API struct ggml_tensor * ggml_l2_norm_inplace(
             struct ggml_context * ctx,
             struct ggml_tensor  * a,
-            float                 eps);
-
-    GGML_API struct ggml_tensor * ggml_fused_rms_rms_add(
-            struct ggml_context * ctx,
-            struct ggml_tensor  * x1,
-            struct ggml_tensor  * c1,
-            struct ggml_tensor  * x2,
-            struct ggml_tensor  * c2,
             float                 eps);
 
     // a - x
@@ -2526,8 +2517,7 @@ extern "C" {
             struct ggml_tensor  * v,
             struct ggml_tensor  * g,
             struct ggml_tensor  * beta,
-            struct ggml_tensor  * state,
-            bool                  save_all_steps);
+            struct ggml_tensor  * state);
 
     // custom operators
 
@@ -2935,11 +2925,6 @@ extern "C" {
     // some quantization type cannot be used without an importance matrix
     GGML_API bool ggml_quantize_requires_imatrix(enum ggml_type type);
 
-    struct quantize_user_data {
-        bool  symmetric_q4_0;
-        bool  slow_iq2_ks;
-    };
-
     // calls ggml_quantize_init internally (i.e. can allocate memory)
     GGML_API size_t ggml_quantize_chunk(
             enum ggml_type   type,
@@ -2948,8 +2933,7 @@ extern "C" {
                    int64_t   start,
                    int64_t   nrows,
                    int64_t   n_per_row,
-               const float * imatrix,
-               const struct quantize_user_data * user_data);
+               const float * imatrix);
 
     //
     // gguf
