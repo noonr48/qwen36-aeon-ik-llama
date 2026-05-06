@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="540" viewBox="0 0 980 540" role="img">
+  <rect width="980" height="540" rx="8" fill="#ffffff"/>
+  <text x="36" y="44" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="28" font-weight="800" fill="#17211f" text-anchor="start">BF16 versus released IQ4_NL</text>
+  <text x="36" y="72" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="400" fill="#596863" text-anchor="start">The mixed four-probe snapshot changed by -0.0055 absolute, about -0.75% relative.</text>
+  <rect x="735" y="42" width="14" height="14" rx="2" fill="#275c86"/>
+  <text x="756" y="55" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="700" fill="#17211f" text-anchor="start">BF16</text>
+  <rect x="825" y="42" width="14" height="14" rx="2" fill="#126b5d"/>
+  <text x="846" y="55" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="700" fill="#17211f" text-anchor="start">IQ4_NL</text>
+  <line x1="86" y1="428.0" x2="938" y2="428.0" stroke="#d7ded8" stroke-width="1"/>
+  <text x="74" y="433.0" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="400" fill="#596863" text-anchor="end">0.00</text>
+  <line x1="86" y1="344.5" x2="938" y2="344.5" stroke="#d7ded8" stroke-width="1"/>
+  <text x="74" y="349.5" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="400" fill="#596863" text-anchor="end">0.25</text>
+  <line x1="86" y1="261.0" x2="938" y2="261.0" stroke="#d7ded8" stroke-width="1"/>
+  <text x="74" y="266.0" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="400" fill="#596863" text-anchor="end">0.50</text>
+  <line x1="86" y1="177.5" x2="938" y2="177.5" stroke="#d7ded8" stroke-width="1"/>
+  <text x="74" y="182.5" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="400" fill="#596863" text-anchor="end">0.75</text>
+  <line x1="86" y1="94.0" x2="938" y2="94.0" stroke="#d7ded8" stroke-width="1"/>
+  <text x="74" y="99.0" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="400" fill="#596863" text-anchor="end">1.00</text>
+  <line x1="86" y1="94" x2="86" y2="428" stroke="#9aa7a1" stroke-width="1.2"/>
+  <line x1="86" y1="428" x2="938" y2="428" stroke="#9aa7a1" stroke-width="1.2"/>
+  <rect x="86.0" y="184.213581447504" width="65.6" height="243.786418552496" rx="4" fill="#275c86"/>
+  <text x="118.8" y="176.213581447504" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#275c86" text-anchor="middle">0.730</text>
+  <rect x="163.6" y="186.03879130228" width="65.6" height="241.96120869772" rx="4" fill="#126b5d"/>
+  <text x="196.39999999999998" y="178.03879130228" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#126b5d" text-anchor="middle">0.724</text>
+  <text x="157.6" y="458" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="700" fill="#17211f" text-anchor="middle">Mixed mean</text>
+  <rect x="263.2" y="146.72439354012602" width="65.6" height="281.275606459874" rx="4" fill="#275c86"/>
+  <text x="296.0" y="138.72439354012602" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#275c86" text-anchor="middle">0.842</text>
+  <rect x="340.79999999999995" y="164.24482655764598" width="65.6" height="263.755173442354" rx="4" fill="#126b5d"/>
+  <text x="373.59999999999997" y="156.24482655764598" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#126b5d" text-anchor="middle">0.790</text>
+  <text x="334.79999999999995" y="458" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="700" fill="#17211f" text-anchor="middle">math_16</text>
+  <rect x="440.4" y="190.07852564094003" width="65.6" height="237.92147435905997" rx="4" fill="#275c86"/>
+  <text x="473.2" y="182.07852564094003" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#275c86" text-anchor="middle">0.712</text>
+  <rect x="518.0" y="190.49602564094" width="65.6" height="237.50397435906" rx="4" fill="#126b5d"/>
+  <text x="550.8" y="182.49602564094" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#126b5d" text-anchor="middle">0.711</text>
+  <text x="512.0" y="458" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="700" fill="#17211f" text-anchor="middle">eq_16</text>
+  <rect x="617.5999999999999" y="265.971406608282" width="65.6" height="162.028593391718" rx="4" fill="#275c86"/>
+  <text x="650.3999999999999" y="257.971406608282" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#275c86" text-anchor="middle">0.485</text>
+  <rect x="695.1999999999999" y="255.334313010868" width="65.6" height="172.665686989132" rx="4" fill="#126b5d"/>
+  <text x="727.9999999999999" y="247.334313010868" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#126b5d" text-anchor="middle">0.517</text>
+  <text x="689.1999999999999" y="458" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="700" fill="#17211f" text-anchor="middle">math_4</text>
+  <rect x="794.8" y="134.07999999999998" width="65.6" height="293.92" rx="4" fill="#275c86"/>
+  <text x="827.5999999999999" y="126.07999999999998" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#275c86" text-anchor="middle">0.880</text>
+  <rect x="872.4" y="134.07999999999998" width="65.6" height="293.92" rx="4" fill="#126b5d"/>
+  <text x="905.1999999999999" y="126.07999999999998" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="12" font-weight="700" fill="#126b5d" text-anchor="middle">0.880</text>
+  <text x="866.4" y="458" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="700" fill="#17211f" text-anchor="middle">gsm8k_5</text>
+</svg>

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="500" viewBox="0 0 980 500" role="img">
+  <rect width="980" height="500" rx="8" fill="#ffffff"/>
+  <text x="36" y="44" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="28" font-weight="800" fill="#17211f" text-anchor="start">MTP decode-speed notes</text>
+  <text x="36" y="72" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="400" fill="#596863" text-anchor="start">Internal same-machine notes; useful for release decision, not a normalized public benchmark.</text>
+  <line x1="250.0" y1="94" x2="250.0" y2="366" stroke="#d7ded8" stroke-width="1"/>
+  <text x="250.0" y="396" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="400" fill="#596863" text-anchor="middle">0</text>
+  <line x1="382.0" y1="94" x2="382.0" y2="366" stroke="#d7ded8" stroke-width="1"/>
+  <text x="382.0" y="396" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="400" fill="#596863" text-anchor="middle">10</text>
+  <line x1="514.0" y1="94" x2="514.0" y2="366" stroke="#d7ded8" stroke-width="1"/>
+  <text x="514.0" y="396" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="400" fill="#596863" text-anchor="middle">20</text>
+  <line x1="646.0" y1="94" x2="646.0" y2="366" stroke="#d7ded8" stroke-width="1"/>
+  <text x="646.0" y="396" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="400" fill="#596863" text-anchor="middle">30</text>
+  <line x1="778.0" y1="94" x2="778.0" y2="366" stroke="#d7ded8" stroke-width="1"/>
+  <text x="778.0" y="396" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="400" fill="#596863" text-anchor="middle">40</text>
+  <line x1="910.0" y1="94" x2="910.0" y2="366" stroke="#d7ded8" stroke-width="1"/>
+  <text x="910.0" y="396" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="400" fill="#596863" text-anchor="middle">50</text>
+  <line x1="250" y1="366" x2="910" y2="366" stroke="#9aa7a1" stroke-width="1.2"/>
+  <text x="232" y="130" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#17211f" text-anchor="end">No MTP graph split</text>
+  <rect x="250" y="111" width="642.5694" height="30" rx="4" fill="#275c86"/>
+  <text x="902.5694" y="133" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="800" fill="#275c86" text-anchor="start">48.68 tok/s</text>
+  <text x="232" y="184" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#17211f" text-anchor="end">Naive MTP draft-1</text>
+  <rect x="250" y="165" width="503.64599999999996" height="30" rx="4" fill="#8c342d"/>
+  <text x="763.646" y="187" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="800" fill="#8c342d" text-anchor="start">38.16 tok/s</text>
+  <text x="232" y="238" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#17211f" text-anchor="end">Adaptive MTP short</text>
+  <rect x="250" y="219" width="598.73748" height="30" rx="4" fill="#9a5a1c"/>
+  <text x="858.73748" y="241" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="800" fill="#9a5a1c" text-anchor="start">45.36 tok/s</text>
+  <text x="232" y="292" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#17211f" text-anchor="end">No MTP long 768</text>
+  <rect x="250" y="273" width="643.0247999999999" height="30" rx="4" fill="#275c86"/>
+  <text x="903.0247999999999" y="295" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="800" fill="#275c86" text-anchor="start">48.71 tok/s</text>
+  <text x="232" y="346" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#17211f" text-anchor="end">Adaptive MTP long 768</text>
+  <rect x="250" y="327" width="619.79148" height="30" rx="4" fill="#c28a1d"/>
+  <text x="879.79148" y="349" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="800" fill="#c28a1d" text-anchor="start">46.95 tok/s</text>
+</svg>

@@ -498,6 +498,10 @@
           <tr><td>Practical agent checks</td><td>5-task production matrix plus 5-run canvas comparison set.</td><td>Could the compressed model act as a coding-agent base?</td><td>Yes with caveats; behavior reliability motivated later SignalLatch.</td></tr>
         </tbody>
       </table>
+      <div class="decision">
+        <h3>Spreadsheet Source</h3>
+        <p>The chart data is collected into an OnlyOffice workbook: <a href="assets/qwen36_aeon_rys_stats.xlsx">qwen36_aeon_rys_stats.xlsx</a>. It contains the short scan, strict scan, quantization snapshot, 11/14 long-reasoning comparison, MTP speed notes, and duplicate-window cost sheet.</p>
+      </div>
     </section>
 
     <section id="candidate-list" data-od-id="candidate-list">
@@ -540,6 +544,10 @@
           <tr><td><code>blocks:30,35</code></td><td class="num">0.964841</td><td class="num">0.627521</td><td class="num">0.796181</td><td>Official-base winner, not AEON winner.</td></tr>
         </tbody>
       </table>
+      <figure>
+        <img src="assets/strict_scan_mean.svg" alt="Bar chart of AEON strict scan mean scores for 15/20, 31/34, 11/14, 24/32, baseline, and 30/35.">
+        <figcaption>The strict mean chart uses the same values as the table above. The score axis is intentionally narrowed and labelled because these candidates are close together.</figcaption>
+      </figure>
       <div class="decision">
         <h3>Decision From The Full List</h3>
         <p>The page should not imply that every possible single-layer duplication across all 64 layers was run. The documented evidence supports: 13 early AEON short-scan mappings, 6 strict AEON mappings, one true single-layer candidate in the short scan, and a separate single-entry strict file for <code>15,20</code>.</p>
@@ -620,6 +628,10 @@
           <tr><td><code>gsm8k_5</code></td><td class="num">0.880000</td><td class="num">0.880000</td><td class="num">flat</td></tr>
         </tbody>
       </table>
+      <figure>
+        <img src="assets/quantization_survival.svg" alt="Grouped bar chart comparing BF16 and released IQ4_NL scores across the mixed mean, math_16, eq_16, math_4, and gsm8k_5 probes.">
+        <figcaption>The released IQ4_NL stayed within <code>-0.0055</code> absolute of the BF16 mixed four-probe mean, while the individual probes moved in different directions.</figcaption>
+      </figure>
       <div class="grid-2">
         <div class="decision">
           <h3>Decision</h3>
@@ -696,6 +708,10 @@
           <tr><td>Adaptive MTP long 768-token check</td><td class="num">46.9539 tok/s</td><td class="num">long check</td><td>Acceptance 38/54 = 70.37%; close but still behind.</td></tr>
         </tbody>
       </table>
+      <figure>
+        <img src="assets/mtp_decode_speed.svg" alt="Horizontal bar chart comparing no-MTP, naive MTP, and adaptive MTP decode-speed notes.">
+        <figcaption>These are internal same-machine speed notes used for the release decision, not a normalized public speed benchmark. In the tested paths, no-MTP stayed slightly ahead.</figcaption>
+      </figure>
       <div class="decision warn">
         <h3>Decision</h3>
         <p>Publish the MTP GGUF as experimental. Keep the non-MTP IQ4_NL file as the default because practical quality and speed still favored it.</p>
@@ -736,6 +752,10 @@
           </tr>
         </tbody>
       </table>
+      <figure>
+        <img src="assets/long_reasoning_11_14_vs_15_20.svg" alt="Two-panel chart showing 11/14 versus 15/20 composite score and worst 4-gram repeat in the long-reasoning caveat test.">
+        <figcaption>The 11/14 branch deserves the caveat: it tied final/any exact rates in this slice and had much cleaner repetition. It still was not rerun through the full release decision ladder.</figcaption>
+      </figure>
     </section>
 
     <section id="practical" data-od-id="practical">

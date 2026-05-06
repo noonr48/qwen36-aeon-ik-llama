@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="520" viewBox="0 0 980 520" role="img">
+  <rect width="980" height="520" rx="8" fill="#ffffff"/>
+  <text x="36" y="44" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="28" font-weight="800" fill="#17211f" text-anchor="start">AEON strict scan mean by candidate</text>
+  <text x="36" y="72" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="400" fill="#596863" text-anchor="start">Mean of math_120 and eq_140; narrowed score scale shown explicitly.</text>
+  <line x1="96" y1="426.0" x2="926" y2="426.0" stroke="#d7ded8" stroke-width="1"/>
+  <text x="84" y="431.0" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="400" fill="#596863" text-anchor="end">0.795</text>
+  <line x1="96" y1="322.25" x2="926" y2="322.25" stroke="#d7ded8" stroke-width="1"/>
+  <text x="84" y="327.25" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="400" fill="#596863" text-anchor="end">0.800</text>
+  <line x1="96" y1="218.5" x2="926" y2="218.5" stroke="#d7ded8" stroke-width="1"/>
+  <text x="84" y="223.5" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="400" fill="#596863" text-anchor="end">0.805</text>
+  <line x1="96" y1="114.75" x2="926" y2="114.75" stroke="#d7ded8" stroke-width="1"/>
+  <text x="84" y="119.75" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="400" fill="#596863" text-anchor="end">0.810</text>
+  <line x1="96" y1="94" x2="96" y2="426" stroke="#9aa7a1" stroke-width="1.2"/>
+  <line x1="96" y1="426" x2="926" y2="426" stroke="#9aa7a1" stroke-width="1.2"/>
+  <rect x="96.0" y="127.31941108324995" width="118.33333333333333" height="298.68058891675" rx="4" fill="#126b5d"/>
+  <text x="155.16666666666666" y="119.31941108324995" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="700" fill="#126b5d" text-anchor="middle">0.809394</text>
+  <text x="155.16666666666666" y="454" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#17211f" text-anchor="middle">15/20</text>
+  <rect x="238.33333333333331" y="135.29861228600078" width="118.33333333333333" height="290.7013877139992" rx="4" fill="#275c86"/>
+  <text x="297.5" y="127.29861228600078" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="700" fill="#275c86" text-anchor="middle">0.809010</text>
+  <text x="297.5" y="454" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#17211f" text-anchor="middle">31/34</text>
+  <rect x="380.66666666666663" y="151.814540341" width="118.33333333333333" height="274.185459659" rx="4" fill="#9a5a1c"/>
+  <text x="439.8333333333333" y="143.814540341" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="700" fill="#9a5a1c" text-anchor="middle">0.808214</text>
+  <text x="439.8333333333333" y="454" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#17211f" text-anchor="middle">11/14</text>
+  <rect x="523.0" y="318.2828721362506" width="118.33333333333333" height="107.7171278637494" rx="4" fill="#70867f"/>
+  <text x="582.1666666666666" y="310.2828721362506" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="700" fill="#70867f" text-anchor="middle">0.800191</text>
+  <text x="582.1666666666666" y="454" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#17211f" text-anchor="middle">24/32</text>
+  <rect x="665.3333333333333" y="323.381888907251" width="118.33333333333333" height="102.61811109274902" rx="4" fill="#87948f"/>
+  <text x="724.4999999999999" y="315.381888907251" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="700" fill="#87948f" text-anchor="middle">0.799945</text>
+  <text x="724.4999999999999" y="454" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#17211f" text-anchor="middle">baseline</text>
+  <rect x="807.6666666666665" y="401.498112923752" width="118.33333333333333" height="24.50188707624801" rx="4" fill="#8c342d"/>
+  <text x="866.8333333333331" y="393.498112923752" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="700" fill="#8c342d" text-anchor="middle">0.796181</text>
+  <text x="866.8333333333331" y="454" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#17211f" text-anchor="middle">30/35</text>
+  <text x="926" y="486" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="800" fill="#126b5d" text-anchor="end">Selected default: 15/20</text>
+</svg>
