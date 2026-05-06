@@ -403,11 +403,11 @@
           <div class="metric"><strong>15,20</strong><span>RYS window. Source layers 15..19 are duplicated into output layers 20..24.</span></div>
           <div class="metric"><strong>IQ4_NL</strong><span>Main deployment artifact. BF16 exists for exploration, not normal inference.</span></div>
           <div class="metric"><strong>-0.75%</strong><span>Mixed four-probe mean change from RYS BF16 to released IQ4_NL.</span></div>
-          <div class="metric"><strong>custom fork</strong><span>Required runtime path for the released mixed GGUF and Qwen3.6 hybrid handling.</span></div>
+          <div class="metric"><strong>custom fork</strong><span>Required runtime path; faster in the internal comparison, but quality preservation is the main claim.</span></div>
         </div>
         <div class="note">
           <h2>Short Read</h2>
-          <p>The public claim is narrow: this exact AEON RYS 15/20 branch, served through the custom ik-llama fork, produced a practical Q4-class release whose mixed probe score stayed close to its BF16 source. The release is not claiming a universal RYS recipe, a stock llama.cpp target, or that 15/20 beats every other window on every later probe.</p>
+          <p>The public claim is narrow: this exact AEON RYS 15/20 branch, served through the custom ik-llama fork, produced a practical Q4-class release whose mixed probe score stayed close to its BF16 source. The fork also mattered for speed in our internal runtime comparison, but the primary claim is quality preservation under compression, not a speed benchmark. The release is not claiming a universal RYS recipe, a stock llama.cpp target, or that 15/20 beats every other window on every later probe.</p>
         </div>
       </div>
     </div>
@@ -446,7 +446,7 @@
         </div>
         <div class="claim-box">
           <h3>Claimed</h3>
-          <p>The custom ik-llama fork is the intended runtime path. The model card and this page should not be read as stock llama.cpp compatibility claims.</p>
+          <p>The custom ik-llama fork is the intended runtime path. It also measured faster in the internal comparison, 39.37 tok/s versus 22.51 tok/s for the patched upstream-style comparison, but that speed note is secondary to preserving quality in the Q4_NL file.</p>
         </div>
         <div class="claim-box">
           <h3>Not Claimed</h3>
@@ -697,7 +697,7 @@
       <div class="grid-2">
         <div class="decision">
           <h3>Decision</h3>
-          <p>Keep the main release centered on IQ4_NL because the mixed four-probe drop was small relative to the size reduction: about 57.6 GB BF16 GGUF to 16.6 GB IQ4_NL.</p>
+          <p>Keep the main release centered on IQ4_NL because the mixed four-probe drop was small relative to the size reduction: about 57.6 GB BF16 GGUF to 16.6 GB IQ4_NL. Runtime speed helped the deployment story, but preserving useful reasoning/coding quality through compression is the core result.</p>
         </div>
         <div class="decision warn">
           <h3>Important Caveat</h3>
@@ -708,7 +708,7 @@
 
     <section id="runtime" data-od-id="runtime">
       <h2>Runtime Profile</h2>
-      <p>The model is released for the custom AEON ik-llama fork. That is not packaging trivia; it is part of the tested artifact. The fork carries the Qwen3.6 hybrid and graph-split work needed for this line.</p>
+      <p>The model is released for the custom AEON ik-llama fork. That is not packaging trivia; it is part of the tested artifact. The fork carries the Qwen3.6 hybrid and graph-split work needed for this line. In the internal runtime comparison, the recommended custom path decoded at <code>39.37 tok/s</code> versus <code>22.51 tok/s</code> for the patched upstream-style comparison; useful speed, but still secondary to the quality-preservation result that made the IQ4_NL file worth releasing.</p>
       <pre><code>./build/bin/llama-server \
   -m /path/to/Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-ik-llama-custom-mixed.gguf \
   -c 65536 \
@@ -741,7 +741,7 @@
           <tr><th>Runtime Check</th><th>Setup</th><th class="num">Decode</th><th>Decision</th></tr>
         </thead>
         <tbody>
-          <tr><td>Recommended custom path</td><td>Graph split, long-context deployment profile, FP32 KV validation snapshot.</td><td class="num">39.37 tok/s</td><td>Public runtime path.</td></tr>
+          <tr><td>Recommended custom path</td><td>Graph split, long-context deployment profile, FP32 KV validation snapshot.</td><td class="num">39.37 tok/s</td><td>Public runtime path; faster in this internal comparison, with the release claim still anchored on quality preservation.</td></tr>
           <tr><td>Patched upstream-style comparison</td><td>Internal standard-typed comparison path, shorter context, layer-style comparison.</td><td class="num">22.51 tok/s</td><td>Not released as the public target.</td></tr>
         </tbody>
       </table>
