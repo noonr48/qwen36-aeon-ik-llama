@@ -407,7 +407,7 @@
         </div>
         <div class="note">
           <h2>Short Read</h2>
-          <p>The public claim is narrow: this exact AEON RYS 15/20 branch, served through the custom ik-llama fork, produced a practical Q4-class release whose mixed probe score stayed close to its BF16 source. The fork also mattered for speed in our internal runtime comparison, but the primary claim is quality preservation under compression, not a speed benchmark. The release is not claiming a universal RYS recipe, a stock llama.cpp target, or that 15/20 beats every other window on every later probe.</p>
+          <p>The public claim is narrow: this exact AEON RYS 15/20 branch, served through the custom ik-llama fork, produced a practical Q4-class release whose mixed probe score stayed close to its BF16 source. The fork also mattered for speed in our internal runtime comparison, but the primary claim is quality preservation under compression, not a speed benchmark. The broader aim is practical local work: one capable worker on a 24 GB-class GPU, or more parallel workers when more GPUs are available.</p>
         </div>
       </div>
     </div>
@@ -439,6 +439,11 @@
     <section id="claim" data-od-id="claim">
       <h2>What This Page Claims</h2>
       <p>This page is intentionally written as a record, not a leaderboard page. It explains why the release default became the non-MTP IQ4_NL GGUF and where the evidence is strong, weak, or mixed.</p>
+      <div class="decision">
+        <h3>Project Positioning</h3>
+        <p>The broader goal of this model series is practical local work: capable, functional models that fit realistic hardware and can simply get tasks done. Built on the AEON uncensored base, this release is meant to stay low-friction: less lecturing, less getting in the way, and more focus on completing the task in front of it.</p>
+        <p>RYS and <code>IQ4_NL</code> are the practical part of that goal: preserving useful reasoning and coding behavior in a compact form factor. One 24 GB-class GPU can be enough for a serious local worker. More GPUs naturally mean more independent workers in parallel, not a different claim about one model instance.</p>
+      </div>
       <div class="grid-3">
         <div class="claim-box">
           <h3>Claimed</h3>
