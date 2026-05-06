@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="620" viewBox="0 0 1180 620" role="img">
+  <defs>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#17211f" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L8,3 z" fill="#126b5d"/>
+    </marker>
+  </defs>
+  <rect width="1180" height="620" rx="8" fill="#ffffff"/>
+  <text x="46" y="50" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="34" font-weight="850" fill="#17211f" text-anchor="start">Runtime and tradeoffs</text>
+  <text x="46" y="80" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="17" font-weight="400" fill="#596863" text-anchor="start">These are the practical constraints a reader should understand before treating the file like a stock GGUF.</text>
+  <rect x="56" y="134" width="518" height="170" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <rect x="56" y="134" width="12" height="170" rx="8" fill="#126b5d" stroke="#126b5d" stroke-width="1"/>
+  <text x="90" y="174" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="23" font-weight="850" fill="#126b5d" text-anchor="start">Required runtime fork</text>
+  <text x="90" y="202" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="850" fill="#17211f" text-anchor="start">Not packaging trivia</text>
+  <text x="90" y="238" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">The model is documented against the qwen36-aeon-ik-llama fork.</text>
+  <text x="90" y="261" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">The fork carries the tested hybrid/runtime path.</text>
+  <rect x="606" y="134" width="518" height="170" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <rect x="606" y="134" width="12" height="170" rx="8" fill="#9a5a1c" stroke="#9a5a1c" stroke-width="1"/>
+  <text x="640" y="174" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="23" font-weight="850" fill="#9a5a1c" text-anchor="start">Materialized RYS</text>
+  <text x="640" y="202" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="850" fill="#17211f" text-anchor="start">Explicit tensors</text>
+  <text x="640" y="238" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">Copied layers are stored as normal output layer weights.</text>
+  <text x="640" y="261" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">That kept conversion, quantization, and later</text>
+  <text x="640" y="284" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">fine-tune work straightforward.</text>
+  <rect x="56" y="354" width="518" height="170" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <rect x="56" y="354" width="12" height="170" rx="8" fill="#275c86" stroke="#275c86" stroke-width="1"/>
+  <text x="90" y="394" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="23" font-weight="850" fill="#275c86" text-anchor="start">Long context</text>
+  <text x="90" y="422" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="850" fill="#17211f" text-anchor="start">KV choice is not the claim</text>
+  <text x="90" y="458" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">FP32 KV was used as a conservative isolation check.</text>
+  <text x="90" y="481" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">FP16 KV was tested to about 160k context</text>
+  <text x="90" y="504" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">without the earlier failure pattern.</text>
+  <rect x="606" y="354" width="518" height="170" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <rect x="606" y="354" width="12" height="170" rx="8" fill="#8c342d" stroke="#8c342d" stroke-width="1"/>
+  <text x="640" y="394" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="23" font-weight="850" fill="#8c342d" text-anchor="start">MTP stays experimental</text>
+  <text x="640" y="422" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="850" fill="#17211f" text-anchor="start">Useful, not default</text>
+  <text x="640" y="458" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">MTP metadata and tail calibration worked.</text>
+  <text x="640" y="481" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">No-MTP graph split remained cleaner in</text>
+  <text x="640" y="504" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">tested speed/quality paths.</text>
+</svg>

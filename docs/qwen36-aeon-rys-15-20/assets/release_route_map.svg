@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="540" viewBox="0 0 1180 540" role="img">
+  <defs>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#17211f" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L8,3 z" fill="#126b5d"/>
+    </marker>
+  </defs>
+  <rect width="1180" height="540" rx="8" fill="#ffffff"/>
+  <text x="46" y="50" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="34" font-weight="850" fill="#17211f" text-anchor="start">Release path in one picture</text>
+  <text x="46" y="80" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="17" font-weight="400" fill="#596863" text-anchor="start">The public claim is not just “RYS is better”. It is the whole path that made a small IQ4_NL file practical.</text>
+  <rect x="42" y="142" width="196" height="210" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <rect x="42" y="142" width="196" height="8" rx="8" fill="#275c86" stroke="#275c86" stroke-width="1"/>
+  <text x="62" y="186" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="22" font-weight="850" fill="#275c86" text-anchor="start">AEON base</text>
+  <text x="62" y="226" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="500" fill="#596863" text-anchor="start">Start from the exact</text>
+  <text x="62" y="250" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="500" fill="#596863" text-anchor="start">AEON abliterated</text>
+  <text x="62" y="274" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="500" fill="#596863" text-anchor="start">source branch.</text>
+  <line x1="242" y1="247.0" x2="254" y2="247.0" stroke="#126b5d" stroke-width="2.4" marker-end="url(#arrow)"/>
+  <rect x="262" y="142" width="196" height="210" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <rect x="262" y="142" width="196" height="8" rx="8" fill="#126b5d" stroke="#126b5d" stroke-width="1"/>
+  <text x="282" y="186" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="22" font-weight="850" fill="#126b5d" text-anchor="start">RYS 15/20</text>
+  <text x="282" y="226" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="500" fill="#596863" text-anchor="start">Duplicate source</text>
+  <text x="282" y="250" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="500" fill="#596863" text-anchor="start">layers 15..19 into</text>
+  <text x="282" y="274" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="500" fill="#596863" text-anchor="start">the 20..24 window.</text>
+  <line x1="462" y1="247.0" x2="474" y2="247.0" stroke="#126b5d" stroke-width="2.4" marker-end="url(#arrow)"/>
+  <rect x="482" y="142" width="196" height="210" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <rect x="482" y="142" width="196" height="8" rx="8" fill="#9a5a1c" stroke="#9a5a1c" stroke-width="1"/>
+  <text x="502" y="186" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="22" font-weight="850" fill="#9a5a1c" text-anchor="start">Strict scan</text>
+  <text x="502" y="226" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="500" fill="#596863" text-anchor="start">15/20 wins the</text>
+  <text x="502" y="250" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="500" fill="#596863" text-anchor="start">balanced AEON</text>
+  <text x="502" y="274" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="500" fill="#596863" text-anchor="start">strict mean.</text>
+  <line x1="682" y1="247.0" x2="694" y2="247.0" stroke="#126b5d" stroke-width="2.4" marker-end="url(#arrow)"/>
+  <rect x="702" y="142" width="196" height="210" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <rect x="702" y="142" width="196" height="8" rx="8" fill="#126b5d" stroke="#126b5d" stroke-width="1"/>
+  <text x="722" y="186" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="22" font-weight="850" fill="#126b5d" text-anchor="start">IQ4_NL quant</text>
+  <text x="722" y="226" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="500" fill="#596863" text-anchor="start">Compression keeps</text>
+  <text x="722" y="250" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="500" fill="#596863" text-anchor="start">the four-probe mean</text>
+  <text x="722" y="274" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="500" fill="#596863" text-anchor="start">within about 0.75%.</text>
+  <line x1="902" y1="247.0" x2="914" y2="247.0" stroke="#126b5d" stroke-width="2.4" marker-end="url(#arrow)"/>
+  <rect x="922" y="142" width="196" height="210" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <rect x="922" y="142" width="196" height="8" rx="8" fill="#275c86" stroke="#275c86" stroke-width="1"/>
+  <text x="942" y="186" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="22" font-weight="850" fill="#275c86" text-anchor="start">Release default</text>
+  <text x="942" y="226" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="500" fill="#596863" text-anchor="start">No-MTP IQ4_NL is</text>
+  <text x="942" y="250" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="500" fill="#596863" text-anchor="start">the practical file;</text>
+  <text x="942" y="274" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="500" fill="#596863" text-anchor="start">MTP stays research.</text>
+  <rect x="42" y="396" width="1096" height="82" rx="8" fill="#eef4ef" stroke="#d7ded8" stroke-width="1"/>
+  <text x="70" y="430" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18" font-weight="850" fill="#126b5d" text-anchor="start">Main read</text>
+  <text x="178" y="427" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="500" fill="#17211f" text-anchor="start">BF16 RYS was useful as a construction and exploration artifact.</text>
+  <text x="178" y="451" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="500" fill="#17211f" text-anchor="start">The release target is the quantized deployment path that retained reasoning/coding behavior in the tested probes.</text>
+</svg>

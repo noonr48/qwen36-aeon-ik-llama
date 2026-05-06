@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="520" viewBox="0 0 1180 520" role="img">
+  <defs>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#17211f" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L8,3 z" fill="#126b5d"/>
+    </marker>
+  </defs>
+  <rect width="1180" height="520" rx="8" fill="#ffffff"/>
+  <text x="46" y="50" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="34" font-weight="850" fill="#17211f" text-anchor="start">How to read the caveats</text>
+  <text x="46" y="80" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="17" font-weight="400" fill="#596863" text-anchor="start">The page separates evidence strength instead of forcing every result into one leaderboard.</text>
+  <rect x="36" y="150" width="266" height="220" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <rect x="58" y="172" width="100" height="30" rx="15" fill="#126b5d" opacity="0.12"/>
+  <text x="108.0" y="192" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="800" fill="#126b5d" text-anchor="middle">Strong</text>
+  <text x="58" y="232" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="21" font-weight="850" fill="#126b5d" text-anchor="start">15/20 release default</text>
+  <text x="58" y="272" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">Strict-balanced winner</text>
+  <text x="58" y="295" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">plus strong IQ4_NL survival</text>
+  <text x="58" y="318" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">and tested runtime path.</text>
+  <rect x="328" y="150" width="266" height="220" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <rect x="350" y="172" width="160" height="30" rx="15" fill="#9a5a1c" opacity="0.12"/>
+  <text x="430.0" y="192" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="800" fill="#9a5a1c" text-anchor="middle">Real caveat</text>
+  <text x="350" y="232" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="21" font-weight="850" fill="#9a5a1c" text-anchor="start">11/14 repetition</text>
+  <text x="350" y="272" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">Cleaner in the long-reasoning</text>
+  <text x="350" y="295" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">slice, but not rerun through</text>
+  <text x="350" y="318" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">the full release ladder.</text>
+  <rect x="620" y="150" width="266" height="220" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <rect x="642" y="172" width="172" height="30" rx="15" fill="#275c86" opacity="0.12"/>
+  <text x="728.0" y="192" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="800" fill="#275c86" text-anchor="middle">Experimental</text>
+  <text x="642" y="232" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="21" font-weight="850" fill="#275c86" text-anchor="start">MTP file</text>
+  <text x="642" y="272" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">Structurally valid and useful</text>
+  <text x="642" y="295" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">for research, but not the</text>
+  <text x="642" y="318" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">default in tested paths.</text>
+  <rect x="912" y="150" width="266" height="220" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <rect x="934" y="172" width="196" height="30" rx="15" fill="#8c342d" opacity="0.12"/>
+  <text x="1032.0" y="192" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="800" fill="#8c342d" text-anchor="middle">Known tradeoff</text>
+  <text x="934" y="232" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="21" font-weight="850" fill="#8c342d" text-anchor="start">Duplicate weights</text>
+  <text x="934" y="272" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">Materialized copied tensors</text>
+  <text x="934" y="295" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">cost space but keep downstream</text>
+  <text x="934" y="318" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">workflows explicit.</text>
+  <text x="590" y="448" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="17" font-weight="850" fill="#126b5d" text-anchor="middle">This is why the release page reads like a record, not a leaderboard card.</text>
+</svg>

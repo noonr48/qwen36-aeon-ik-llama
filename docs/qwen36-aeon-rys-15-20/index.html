@@ -407,6 +407,14 @@
           <p>15/20 is not presented as universally best. A later 11/14 long-reasoning comparison was cleaner on repetition, and that remains an important caveat.</p>
         </div>
       </div>
+      <figure>
+        <img src="assets/release_route_map.svg" alt="Explanatory route map from AEON base to RYS 15/20, strict scan, IQ4_NL quantization, and release default.">
+        <figcaption>The release story is a path, not a single score. The practical claim depends on the RYS build, strict selection, quantization survival, and tested runtime path together.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/caveat_map.svg" alt="Four caveat cards distinguishing strong evidence, the 11/14 repetition caveat, experimental MTP, and duplicate-weight tradeoff.">
+        <figcaption>The page separates strong claims, real caveats, experimental branches, and known tradeoffs so readers do not need to reconstruct that hierarchy from the tables.</figcaption>
+      </figure>
     </section>
 
     <section id="artifacts" data-od-id="artifacts">
@@ -478,6 +486,10 @@
           <p>Publish the non-MTP IQ4_NL as the default, keep MTP as experimental, keep BF16 as exploration/reference, and document known caveats.</p>
         </div>
       </div>
+      <figure>
+        <img src="assets/testing_ladder_release.svg" alt="Testing ladder showing source selection, mechanical RYS build, short scan, strict scan, quantization survival, runtime path, MTP research, and practical agent checks.">
+        <figcaption>The ladder view shows the full release process without asking readers to parse every table first.</figcaption>
+      </figure>
     </section>
 
     <section id="test-counts" data-od-id="test-counts">
@@ -616,6 +628,10 @@
         <img src="../rys-layer-duplication-guide/assets/quantization_survival_cards.png" alt="Quantization survival cards comparing RYS candidate behavior after quantization.">
         <figcaption>The quantization result is the core release argument: make the small file useful, not just make a larger BF16 variant.</figcaption>
       </figure>
+      <figure>
+        <img src="assets/q4nl_claim_visual.svg" alt="Visual comparison of BF16 reference artifact versus released IQ4_NL deployment target.">
+        <figcaption>The BF16 files are for exploration and continued work. The named project target is the compressed IQ4_NL release path.</figcaption>
+      </figure>
       <table>
         <thead>
           <tr><th>Probe</th><th class="num">RYS BF16</th><th class="num">Released IQ4_NL</th><th class="num">Change</th></tr>
@@ -670,6 +686,10 @@
           <p>The public profile starts with <code>-c 65536</code>. The same family was also used for <code>131072</code> context comparisons, and default/FP16 KV was separately tested to about 160k context without the earlier failure pattern. FP32 KV was a conservative validation setting, not a requirement.</p>
         </div>
       </div>
+      <figure>
+        <img src="assets/runtime_tradeoff_cards.svg" alt="Runtime and tradeoff cards for the required fork, materialized RYS, long-context KV caveat, and experimental MTP branch.">
+        <figcaption>The runtime cards collect the practical constraints that matter before someone treats the file as a stock GGUF.</figcaption>
+      </figure>
       <table>
         <thead>
           <tr><th>Runtime Check</th><th>Setup</th><th class="num">Decode</th><th>Decision</th></tr>

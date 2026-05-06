@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="560" viewBox="0 0 1180 560" role="img">
+  <defs>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#17211f" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L8,3 z" fill="#126b5d"/>
+    </marker>
+  </defs>
+  <rect width="1180" height="560" rx="8" fill="#ffffff"/>
+  <text x="46" y="50" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="34" font-weight="850" fill="#17211f" text-anchor="start">What the Q4_NL claim actually is</text>
+  <text x="46" y="80" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="17" font-weight="400" fill="#596863" text-anchor="start">The BF16 RYS model is for exploration. The practical claim is quantization resistance in this specific small deployment path.</text>
+  <rect x="58" y="140" width="480" height="292" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <rect x="642" y="140" width="480" height="292" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <text x="92" y="182" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="26" font-weight="850" fill="#275c86" text-anchor="start">BF16 reference</text>
+  <rect x="92" y="202" width="160" height="30" rx="15" fill="#275c86" opacity="0.12"/>
+  <text x="172.0" y="222" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="800" fill="#275c86" text-anchor="middle">exploration</text>
+  <text x="92" y="268" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18" font-weight="600" fill="#596863" text-anchor="start">Large reference artifact</text>
+  <text x="92" y="298" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18" font-weight="600" fill="#596863" text-anchor="start">Useful for inspection and continued work</text>
+  <text x="92" y="328" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18" font-weight="600" fill="#596863" text-anchor="start">Not the normal inference target</text>
+  <text x="676" y="182" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="26" font-weight="850" fill="#126b5d" text-anchor="start">Released IQ4_NL</text>
+  <rect x="676" y="202" width="232" height="30" rx="15" fill="#126b5d" opacity="0.12"/>
+  <text x="792.0" y="222" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="800" fill="#126b5d" text-anchor="middle">deployment target</text>
+  <text x="676" y="268" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18" font-weight="600" fill="#596863" text-anchor="start">Small-form practical file</text>
+  <text x="676" y="298" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18" font-weight="600" fill="#596863" text-anchor="start">Mixed mean: 0.7244 vs 0.7299 BF16</text>
+  <text x="676" y="328" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18" font-weight="600" fill="#596863" text-anchor="start">Main artifact for real use</text>
+  <line x1="548" y1="286" x2="626" y2="286" stroke="#126b5d" stroke-width="4" marker-end="url(#arrow)"/>
+  <rect x="390" y="462" width="400" height="54" rx="8" fill="#eef4ef" stroke="#d7ded8" stroke-width="1"/>
+  <text x="590" y="497" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="20" font-weight="850" fill="#126b5d" text-anchor="middle">-0.0055 absolute / about -0.75% relative</text>
+</svg>

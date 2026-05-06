@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="740" viewBox="0 0 1180 740" role="img">
+  <defs>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#17211f" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L8,3 z" fill="#126b5d"/>
+    </marker>
+  </defs>
+  <rect width="1180" height="740" rx="8" fill="#ffffff"/>
+  <text x="46" y="50" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="34" font-weight="850" fill="#17211f" text-anchor="start">Testing ladder</text>
+  <text x="46" y="80" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="17" font-weight="400" fill="#596863" text-anchor="start">The decision was built step by step. Later rows do not erase earlier checks; they narrow the release shape.</text>
+  <line x1="92" y1="150" x2="92" y2="668" stroke="#d7ded8" stroke-width="3"/>
+  <circle cx="92" cy="150" r="22" fill="#275c86"/>
+  <text x="92" y="157" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18" font-weight="850" fill="#ffffff" text-anchor="middle">1</text>
+  <rect x="138" y="128" width="978" height="54" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <text x="166" y="151" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="17" font-weight="850" fill="#275c86" text-anchor="start">Source selection</text>
+  <text x="386" y="151" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">Use the exact AEON source line; do not assume old official-base results transfer.</text>
+  <circle cx="92" cy="224" r="22" fill="#126b5d"/>
+  <text x="92" y="231" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18" font-weight="850" fill="#ffffff" text-anchor="middle">2</text>
+  <rect x="138" y="202" width="978" height="54" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <text x="166" y="225" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="17" font-weight="850" fill="#126b5d" text-anchor="start">Mechanical RYS build</text>
+  <text x="386" y="225" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">Duplicate tensors and mirror layer metadata so the hybrid execution plan remains coherent.</text>
+  <circle cx="92" cy="298" r="22" fill="#9a5a1c"/>
+  <text x="92" y="305" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18" font-weight="850" fill="#ffffff" text-anchor="middle">3</text>
+  <rect x="138" y="276" width="978" height="54" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <text x="166" y="299" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="17" font-weight="850" fill="#9a5a1c" text-anchor="start">Short scan</text>
+  <text x="386" y="299" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">13 AEON candidate mappings on math_16 and eq_16 to find promising windows.</text>
+  <circle cx="92" cy="372" r="22" fill="#126b5d"/>
+  <text x="92" y="379" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18" font-weight="850" fill="#ffffff" text-anchor="middle">4</text>
+  <rect x="138" y="350" width="978" height="54" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <text x="166" y="373" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="17" font-weight="850" fill="#126b5d" text-anchor="start">Strict scan</text>
+  <text x="386" y="373" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">6 candidates on math_120 and eq_140; 15/20 wins the balanced mean.</text>
+  <circle cx="92" cy="446" r="22" fill="#126b5d"/>
+  <text x="92" y="453" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18" font-weight="850" fill="#ffffff" text-anchor="middle">5</text>
+  <rect x="138" y="424" width="978" height="54" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <text x="166" y="447" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="17" font-weight="850" fill="#126b5d" text-anchor="start">Quantization survival</text>
+  <text x="386" y="447" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">BF16 versus IQ4_NL mixed probes: -0.0055 absolute on the four-probe mean.</text>
+  <circle cx="92" cy="520" r="22" fill="#275c86"/>
+  <text x="92" y="527" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18" font-weight="850" fill="#ffffff" text-anchor="middle">6</text>
+  <rect x="138" y="498" width="978" height="54" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <text x="166" y="521" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="17" font-weight="850" fill="#275c86" text-anchor="start">Runtime path</text>
+  <text x="386" y="521" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">Custom ik-llama fork, graph split, Jinja, DeepSeek reasoning format, long-context checks.</text>
+  <circle cx="92" cy="594" r="22" fill="#9a5a1c"/>
+  <text x="92" y="601" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18" font-weight="850" fill="#ffffff" text-anchor="middle">7</text>
+  <rect x="138" y="572" width="978" height="54" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <text x="166" y="595" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="17" font-weight="850" fill="#9a5a1c" text-anchor="start">MTP research</text>
+  <text x="386" y="595" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">MTP file is structurally valid but stays experimental because no-MTP remained cleaner/faster.</text>
+  <circle cx="92" cy="668" r="22" fill="#126b5d"/>
+  <text x="92" y="675" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18" font-weight="850" fill="#ffffff" text-anchor="middle">8</text>
+  <rect x="138" y="646" width="978" height="54" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
+  <text x="166" y="669" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="17" font-weight="850" fill="#126b5d" text-anchor="start">Practical agent checks</text>
+  <text x="386" y="669" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">Production matrix and canvas-app task motivated later SignalLatch behavior fine-tune.</text>
+</svg>
