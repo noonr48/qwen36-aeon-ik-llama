@@ -825,7 +825,7 @@
           <tr><td>Duplicate span vs file</td><td class="num">6.448%</td><td>Approximate file-level footprint.</td></tr>
           <tr><td>Duplicate span vs block tensors</td><td class="num">7.220%</td><td>Share among transformer block tensor bytes.</td></tr>
           <tr><td>Logical layers</td><td class="num">69</td><td>64 source layers + 5 inserted RYS layers.</td></tr>
-          <tr><td>KV effect at 131k</td><td class="num">about +2.5 GiB FP16 / +5.0 GiB FP32</td><td>Extra five logical layers add KV/cache and compute even if future weight aliasing is implemented.</td></tr>
+          <tr><td>KV effect at 131k</td><td class="num">about +1.0 GiB FP16 / +2.0 GiB FP32</td><td>The inserted window contains two full-attention layers, which add KV/cache; all five inserted layers still add compute even if future weight aliasing is implemented.</td></tr>
         </tbody>
       </table>
       <div class="grid-2">
@@ -882,7 +882,7 @@
         </div>
         <div>
           <strong>Published model card</strong>
-          <span><a href="https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF">Qwen3.6-27B-AEON-RYS-15-20-GGUF</a>, current checked README sha <code>154d7a4f859ef118076743e9f288f0121dbb759d</code>.</span>
+          <span><a href="https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF">Qwen3.6-27B-AEON-RYS-15-20-GGUF</a>.</span>
         </div>
       </div>
     </section>
