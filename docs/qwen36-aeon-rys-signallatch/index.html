@@ -396,6 +396,7 @@
     <p class="dek">A public, evidence-first explanation of the AEON RYS 15/20 IQ4_NL release, the SignalLatch behavior fine-tune, the custom ik-llama runtime path, and the tradeoffs behind the current materialized RYS artifact.</p>
     <div class="hero-actions" aria-label="Release links">
       <a class="button primary" href="https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-SignalLatch-GGUF">SignalLatch on Hugging Face</a>
+      <a class="button" href="../ckpt386-s010-testing-process/index.html">Fine-tune record</a>
       <a class="button" href="../qwen36-aeon-rys-15-20/index.html">Base RYS full record</a>
       <a class="button" href="https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF">Base RYS on Hugging Face</a>
       <a class="button" href="https://github.com/noonr48/qwen36-aeon-ik-llama">Runtime fork</a>
@@ -412,7 +413,7 @@
       </div>
       <div class="metric">
         <strong>-0.75%</strong>
-        <span>Mixed four-probe relative change from RYS BF16 to released RYS IQ4_NL.</span>
+        <span>Base RYS compression result: mixed four-probe relative change from RYS BF16 to released RYS IQ4_NL.</span>
       </div>
       <div class="metric">
         <strong>s0.10</strong>
@@ -512,7 +513,8 @@
       <h2>Evidence summary</h2>
       <p>The model cards carry the compact tables. This page collects the readout in one place so the release does not depend on ad hoc author replies.</p>
 
-      <h3>BF16 vs released RYS IQ4_NL</h3>
+      <h3>Base RYS compression result</h3>
+      <p class="muted">The following table describes the non-finetuned AEON RYS 15/20 base artifact only. It is not a SignalLatch fine-tune score.</p>
       <div class="table-wrap">
         <table>
           <thead>
@@ -529,7 +531,25 @@
       </div>
       <p class="muted">Snapshot change: <code>-0.0055</code> absolute, about <code>-0.75%</code> relative. This is not a broad benchmark suite; it is a release sanity snapshot for the tested deployment path.</p>
 
+      <h3>SignalLatch fine-tune result</h3>
+      <p class="muted">The fine-tune claim comes from the merged ckpt386 Q4_NL practical coding-agent matrix, not from the base BF16-to-Q4_NL compression table above.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Comparison</th><th class="num">Strict pass</th><th class="num">Mean</th><th class="num">Timeout-like</th><th>Scope</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Previous AEON RYS Q4_NL</td><td class="num">1/5</td><td class="num">0.550</td><td class="num">4</td><td>first deploy-format run</td></tr>
+            <tr><td>SignalLatch ckpt386 <code>s0.10</code> IQ4_NL</td><td class="num">4/5</td><td class="num">0.950</td><td class="num">0</td><td>first deploy-format run</td></tr>
+            <tr><td>SignalLatch ckpt386 <code>s0.10</code> repeat stability</td><td class="num">9/15</td><td class="num">0.842</td><td class="num">n/a</td><td>three runs</td></tr>
+            <tr><td>SignalLatch ckpt386 <code>s0.10</code> crash-adjusted</td><td class="num">9/14</td><td class="num">0.884</td><td class="num">n/a</td><td>excludes one invalid server-crash row</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>For the complete fine-tune method, strength sweep, task rows, and caveats, read the <a href="../ckpt386-s010-testing-process/index.html">SignalLatch fine-tune record</a>.</p>
+
       <h3>Practical canvas-agent comparison</h3>
+      <p class="muted">This canvas comparison is not evidence that SignalLatch beats Unsloth IQ4_NL. SignalLatch IQ4_NL and Unsloth IQ4_NL both completed cleanly with verifier <code>1.0</code> and <code>rc=0</code>; the useful SignalLatch read is that it completed cleanly where the non-finetuned AEON RYS base needed a retry.</p>
       <div class="table-wrap">
         <table>
           <thead>
@@ -539,8 +559,8 @@
             <tr><td>SignalLatch IQ4_NL</td><td><code>rc=0</code>, verifier <code>1.0</code></td><td>Clean completion on the isolated canvas app task.</td></tr>
             <tr><td>AEON RYS IQ4_NL attempt 1</td><td><code>rc=1</code>, verifier <code>0.0417</code></td><td>Invalid tool/diff failure before usable files.</td></tr>
             <tr><td>AEON RYS IQ4_NL retry 1</td><td><code>rc=0</code>, verifier <code>1.0</code></td><td>Clean retry, showing the base can complete the task but was less reliable in the first attempt.</td></tr>
-            <tr><td>Unsloth IQ4_NL</td><td><code>rc=0</code>, verifier <code>1.0</code></td><td>Clean comparison pass.</td></tr>
-            <tr><td>Unsloth Q8_0</td><td><code>rc=124</code>, verifier <code>1.0</code></td><td>Files passed verification but the agent timed out during final wrap-up.</td></tr>
+            <tr><td>unsloth/Qwen3.6-27B-GGUF IQ4_NL</td><td><code>rc=0</code>, verifier <code>1.0</code></td><td>Clean external comparison pass.</td></tr>
+            <tr><td>unsloth/Qwen3.6-27B-GGUF Q8_0</td><td><code>rc=124</code>, verifier <code>1.0</code></td><td>Files passed verification but the agent timed out during final wrap-up.</td></tr>
           </tbody>
         </table>
       </div>

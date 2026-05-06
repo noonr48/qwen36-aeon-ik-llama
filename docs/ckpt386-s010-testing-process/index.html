@@ -1,0 +1,893 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SignalLatch Fine-Tune Record</title>
+  <meta name="description" content="Self-contained public record for the Qwen3.6 AEON RYS SignalLatch ckpt386 s0.10 fine-tune, testing process, runtime setup, and release decision.">
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f7f5ee;
+      --paper-2: #ede9dc;
+      --ink: #111816;
+      --muted: #586560;
+      --line: #d2d7ce;
+      --panel: #ffffff;
+      --panel-2: #fbfaf5;
+      --code: #eef1ea;
+      --green: #0f7667;
+      --green-dark: #09564c;
+      --blue: #275f86;
+      --rust: #9a5a1c;
+      --red: #943b34;
+      --gold: #b48412;
+      --shadow: 0 18px 46px rgba(17, 24, 22, 0.10);
+      --soft-shadow: 0 10px 24px rgba(17, 24, 22, 0.07);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(17, 24, 22, 0.035) 1px, transparent 1px) 0 0 / 38px 38px,
+        linear-gradient(180deg, var(--paper), #fbfaf5 34rem, var(--paper));
+      font: 16px/1.62 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+      overflow-x: hidden;
+    }
+
+    a {
+      color: var(--green-dark);
+      text-decoration-thickness: 0.08em;
+      text-underline-offset: 0.18em;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 0.93em;
+    }
+
+    .wrap {
+      width: min(1180px, calc(100% - 36px));
+      margin: 0 auto;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(247, 245, 238, 0.92);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 58px;
+      font-size: 0.9rem;
+    }
+
+    nav .brand {
+      color: var(--ink);
+      font-weight: 900;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    nav .links {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px 16px;
+      flex-wrap: wrap;
+    }
+
+    nav .links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    nav .links a:hover { color: var(--green-dark); }
+
+    .hero {
+      padding: 76px 0 46px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(237, 233, 220, 0.9), rgba(247, 245, 238, 0.22)),
+        linear-gradient(90deg, rgba(15, 118, 103, 0.08), rgba(39, 95, 134, 0.08));
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--rust);
+      font-size: 0.78rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 34px;
+      height: 2px;
+      background: var(--rust);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 1080px;
+      font-size: clamp(2.35rem, 5.3vw, 5.6rem);
+      line-height: 0.99;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .dek {
+      max-width: 920px;
+      margin: 24px 0 0;
+      color: var(--muted);
+      font-size: clamp(1.03rem, 1.7vw, 1.28rem);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 15px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--panel);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 800;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .button.primary {
+      background: var(--green);
+      border-color: var(--green);
+      color: #ffffff;
+    }
+
+    .quick {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 36px;
+    }
+
+    .metric {
+      min-height: 126px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.72rem;
+      line-height: 1.08;
+      margin-bottom: 8px;
+      overflow-wrap: anywhere;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    main { padding: 26px 0 74px; }
+
+    section {
+      padding: 42px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: clamp(1.7rem, 3vw, 2.65rem);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 1.12rem;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 16px;
+      max-width: 900px;
+    }
+
+    .muted { color: var(--muted); }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(0, 0.98fr) minmax(320px, 1.02fr);
+      gap: 32px;
+      align-items: start;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .card.flat {
+      background: var(--panel-2);
+      box-shadow: none;
+    }
+
+    .card.good { border-left: 5px solid var(--green); }
+    .card.warn { border-left: 5px solid var(--gold); }
+    .card.risk { border-left: 5px solid var(--red); }
+    .card.blue { border-left: 5px solid var(--blue); }
+
+    .card p:last-child { margin-bottom: 0; }
+
+    .callout {
+      border-left: 4px solid var(--green);
+      background: rgba(15, 118, 103, 0.08);
+      padding: 18px 20px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      margin: 18px 0;
+      max-width: 980px;
+    }
+
+    .callout.warn {
+      border-left-color: var(--gold);
+      background: rgba(180, 132, 18, 0.10);
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .flow .step {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      min-height: 118px;
+    }
+
+    .step b {
+      display: block;
+      color: var(--green-dark);
+      margin-bottom: 8px;
+    }
+
+    .figure {
+      margin: 24px 0 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--soft-shadow);
+    }
+
+    .figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 6px;
+      background: #ffffff;
+    }
+
+    .caption {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--soft-shadow);
+      margin: 18px 0 26px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 740px;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--paper-2);
+      color: var(--ink);
+      font-weight: 900;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+    .num { text-align: right; white-space: nowrap; }
+    .pass { color: var(--green-dark); font-weight: 800; }
+    .fail { color: var(--red); font-weight: 800; }
+    .soft { color: var(--muted); }
+
+    pre {
+      overflow-x: auto;
+      background: var(--code);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      color: var(--ink);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .split-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin: 0 0 16px;
+    }
+
+    li { margin: 6px 0; }
+
+    footer {
+      padding: 32px 0 52px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 920px) {
+      nav { align-items: flex-start; flex-direction: column; padding: 12px 0; }
+      nav .links { justify-content: flex-start; }
+      .hero { padding-top: 46px; }
+      .quick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-2 { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .cards, .split-list { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      .wrap { width: min(100% - 24px, 1180px); }
+      .quick { grid-template-columns: 1fr; }
+      .metric { min-height: auto; }
+      table { min-width: 680px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <nav aria-label="Page navigation">
+        <a class="brand" href="../index.html">Qwen3.6 AEON RYS Docs</a>
+        <div class="links">
+          <a href="#why">Why</a>
+          <a href="#training">Training</a>
+          <a href="#testing">Testing</a>
+          <a href="#selection">Selection</a>
+          <a href="#canvas">Canvas</a>
+          <a href="#runtime">Runtime</a>
+          <a href="#caveats">Caveats</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="wrap">
+      <div class="eyebrow">SignalLatch fine-tune record</div>
+      <h1>How the ckpt386 s0.10 release was made, tested, and selected.</h1>
+      <p class="dek">This page is the self-contained public record for the SignalLatch behavior fine-tune on top of Qwen3.6 AEON RYS 15/20. It focuses on the fine-tuning work only: the training aim, merge path, test harnesses, strength sweeps, repeat checks, practical canvas task, caveats, and final release decision.</p>
+      <div class="actions">
+        <a class="button primary" href="https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-SignalLatch-GGUF">SignalLatch on Hugging Face</a>
+        <a class="button" href="../qwen36-aeon-rys-15-20/index.html">Base AEON RYS record</a>
+        <a class="button" href="../qwen36-aeon-rys-signallatch/index.html">Release overview</a>
+        <a class="button" href="https://github.com/noonr48/qwen36-aeon-ik-llama">Runtime fork</a>
+      </div>
+      <div class="quick" aria-label="Key release facts">
+        <div class="metric">
+          <strong>ckpt386</strong>
+          <span>Final one-epoch behavioral LoRA checkpoint used for the merge.</span>
+        </div>
+        <div class="metric">
+          <strong>s0.10</strong>
+          <span>Selected merge strength after deploy-format IQ4_NL sweeps and repeats.</span>
+        </div>
+        <div class="metric">
+          <strong>4/5</strong>
+          <span>First deploy-format s0.10 practical matrix pass count, mean 0.950.</span>
+        </div>
+        <div class="metric">
+          <strong>9/15</strong>
+          <span>Strict three-run stability count for s0.10; 9/14 crash-adjusted.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <section id="claim">
+      <h2>The Short Claim</h2>
+      <p>SignalLatch is a small behavior fine-tune merged into the already released Qwen3.6 AEON RYS 15/20 model line. The selected public artifact is a merged <code>IQ4_NL</code> GGUF file, not a live LoRA adapter.</p>
+      <div class="callout">
+        <p><strong>Most accurate one-sentence read:</strong> on our practical Q4_NL coding-agent matrix, the selected ckpt386 <code>s0.10</code> merged GGUF improved the previous AEON RYS Q4_NL baseline from <code>1/5</code>, mean <code>0.550</code>, to <code>4/5</code>, mean <code>0.950</code> on the first deploy-format run, and was the most defensible upload default after the repeat runs we performed.</p>
+      </div>
+      <div class="cards">
+        <div class="card good">
+          <h3>What this supports</h3>
+          <p>A narrow claim: ckpt386 at strength 0.10 improved practical coding-agent behavior in the tested merged IQ4_NL deployment path.</p>
+        </div>
+        <div class="card risk">
+          <h3>What this does not prove</h3>
+          <p>It does not prove a universal benchmark win, a solved coding agent, a stock llama.cpp target, or that live LoRA serving is the recommended path.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="why">
+      <div class="grid-2">
+        <div>
+          <h2>Why we fine-tuned it</h2>
+          <p>The base AEON RYS 15/20 Q4_NL release was already a practical small-form-factor model. The fine-tune goal was narrower: improve coding-agent behavior on repo-shaped tasks where the model has to review context, apply a targeted patch, respect tool-shaped instructions, and finish cleanly instead of drifting into stalled or over-broad work.</p>
+          <p>The training target was a behavior loop, not a new knowledge domain. The name SignalLatch refers to the behavior we wanted to promote: review the available signal, align to the actual goal and constraints, latch onto concrete tool/command evidence, repair the specific issue, and confirm through validation.</p>
+        </div>
+        <div class="card">
+          <h3>Behavior Loop</h3>
+          <div class="flow" aria-label="SignalLatch behavior loop">
+            <div class="step"><b>Review</b><span>Read local context before proposing broad fixes.</span></div>
+            <div class="step"><b>Align</b><span>Keep the patch scoped to the user goal and repo constraints.</span></div>
+            <div class="step"><b>Latch</b><span>Wait for concrete signals from files, tools, logs, and tests.</span></div>
+            <div class="step"><b>Repair</b><span>Change the smallest useful surface based on evidence.</span></div>
+            <div class="step"><b>Confirm</b><span>Validate the outcome and report caveats clearly.</span></div>
+          </div>
+        </div>
+      </div>
+      <figure class="figure">
+        <img src="assets/story_arc_casual.svg" alt="Process arc from AEON RYS base through behavior fine-tune, GGUF testing, repeats, and s0.10 selection.">
+        <figcaption class="caption">The release decision was a funnel. Early tests showed whether the LoRA had useful behavior; only the final merged IQ4_NL repeats answered the deployment question.</figcaption>
+      </figure>
+    </section>
+
+    <section id="training">
+      <h2>What exactly was trained</h2>
+      <p>The adapter was trained against the AEON RYS 15/20 HF-format base. The resulting release is not another RYS layer surgery pass; it is a behavior LoRA merged into the existing AEON RYS 15/20 model and then exported to the practical GGUF target.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Item</th><th>Value</th><th>Why it matters</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Base model line</td><td><code>Qwen3.6-27B-AEON-RYS-15-20</code></td><td>The non-finetuned RYS model this behavior merge was built from.</td></tr>
+            <tr><td>Upstream source line</td><td><code>AEON-7/Qwen3.6-27B-AEON-Ultimate-Uncensored</code></td><td>The AEON source family used before the RYS 15/20 base was made.</td></tr>
+            <tr><td>Public base release</td><td><a href="https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF">AEON RYS 15/20 GGUF</a></td><td>Existing small-form-factor Q4_NL deployment target.</td></tr>
+            <tr><td>Final checkpoint</td><td><code>checkpoint-386</code></td><td>Final checkpoint from the completed one-epoch run.</td></tr>
+            <tr><td>Training completion</td><td><code>global_step=386</code>, <code>epoch=1.0</code>, <code>max_steps=386</code></td><td>The adapter was not an interrupted midpoint chosen by accident.</td></tr>
+            <tr><td>PEFT type</td><td><code>LORA</code></td><td>Small adapter merged into the base before release.</td></tr>
+            <tr><td>Rank / alpha / dropout</td><td><code>r=8</code>, <code>alpha=32</code>, <code>dropout=0.05</code></td><td>Low-rank behavior adapter rather than full model retraining.</td></tr>
+            <tr><td>Bias / task type</td><td><code>bias=none</code>, <code>CAUSAL_LM</code></td><td>Standard causal-language-model LoRA setup.</td></tr>
+            <tr><td>Target modules</td><td><code>q_proj</code>, <code>k_proj</code>, <code>v_proj</code>, <code>o_proj</code>, <code>gate_proj</code>, <code>up_proj</code>, <code>down_proj</code>, <code>out_proj</code>, <code>in_proj_qkv</code>, <code>in_proj_a</code>, <code>in_proj_b</code>, <code>in_proj_z</code></td><td>Covers the relevant attention, MLP, and Qwen3.6 hybrid projection surfaces used by this model line.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Training data shape</h3>
+      <p>The raw training dataset is not published with this release, so this page records the shape and supervision method rather than asking readers to trust a private file path.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Data fact</th><th>Value</th><th>Interpretation</th></tr></thead>
+          <tbody>
+            <tr><td>Internal dataset filename</td><td><code>qwen36_behavioral_ms_swift_train.jsonl</code></td><td>OpenAI-style message rows normalized for local training.</td></tr>
+            <tr><td>Rows</td><td><code>10,800</code></td><td>Behavior-tuning scale, not broad corpus scale.</td></tr>
+            <tr><td>File size</td><td><code>17,854,170</code> bytes</td><td>About 18 MB on disk.</td></tr>
+            <tr><td>Role counts</td><td><code>system=10800</code>, <code>user=10800</code>, <code>assistant=34717</code>, <code>tool=23917</code></td><td>Data emphasizes assistant/tool-loop behavior.</td></tr>
+            <tr><td>Message-count distribution</td><td><code>3-message=3200</code>, <code>7-message=2149</code>, <code>9-message=2185</code>, <code>11-message=3266</code></td><td>Mix of simple one-turn rows and multi-step tool-loop rows.</td></tr>
+            <tr><td>Rows without tool messages</td><td><code>3200</code></td><td>Not every row was tool-using; some were direct behavior examples.</td></tr>
+            <tr><td>Tokenized length stats</td><td><code>kept=10800</code>, <code>dropped=0</code>, mean <code>323.68</code>, std <code>98.60</code>, min <code>113</code>, max <code>602</code>, max length <code>640</code></td><td>All rows fit the training length budget.</td></tr>
+            <tr><td>Preprocessing</td><td>OpenAI-style messages normalized to messages JSONL; <code>tool_response</code> became <code>tool</code>; tool outputs were JSON-wrapped; extra metadata was stripped.</td><td>Kept the training signal centered on conversation/tool behavior.</td></tr>
+            <tr><td>Supervision</td><td>Only assistant tokens were trained; system, user, and tool tokens were masked.</td><td>The adapter learned assistant behavior, not to imitate tool output.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Training method</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Method fact</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>Trainer</td><td>Local Hugging Face Transformers + PEFT training script over MS-Swift-style messages data; not a stock MS-Swift CLI run.</td></tr>
+            <tr><td>Precision</td><td><code>BF16</code></td></tr>
+            <tr><td>Trainable parameters</td><td><code>62,880,000 / 28,853,208,480</code>, about <code>0.2179%</code></td></tr>
+            <tr><td>Learning rate / schedule</td><td><code>5e-5</code>, cosine schedule, warmup <code>0</code></td></tr>
+            <tr><td>Optimizer / regularization</td><td><code>adamw_torch_fused</code>, weight decay <code>0</code></td></tr>
+            <tr><td>Batch shape</td><td>7 GPUs, per-device batch <code>2</code>, gradient accumulation <code>2</code>, effective update batch <code>28</code></td></tr>
+            <tr><td>Training stack</td><td>Torch <code>2.11.0+cu128</code>, CUDA <code>12.8</code>, Transformers <code>5.6.2</code>, PEFT <code>0.19.1</code>, DeepSpeed <code>0.18.9</code>, datasets <code>3.6.0</code></td></tr>
+            <tr><td>Hardware used</td><td>Six RTX 5060 Ti GPUs plus one RTX 5090.</td></tr>
+            <tr><td>Checkpoint selection</td><td>No in-training eval split selected the release. Downstream practical evals selected checkpoint 386 at merge strength <code>0.10</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warn">
+        <p>The important public point is that the adapter was small, behavior-focused, trained on the AEON RYS 15/20 base, and selected only after testing the merged Q4_NL deployment format. This page does not claim the private training data is released.</p>
+      </div>
+    </section>
+
+    <section id="path">
+      <h2>Why merged GGUF, not live LoRA?</h2>
+      <p>The final serving target uses the custom AEON ik-llama fork with graph split and flash attention. In this setup, live/native LoRA serving was not the stable deployment path we wanted to publish. The long-term release path became: merge the adapter into the model first, then export and quantize the merged model into the final GGUF file.</p>
+      <div class="cards">
+        <div class="card blue">
+          <h3>Scouting path</h3>
+          <p>Direct adapter and BF16 checks helped us learn whether checkpoints and strengths had useful behavior. Those results were useful, but not the final deployment evidence.</p>
+        </div>
+        <div class="card good">
+          <h3>Release path</h3>
+          <p>The public artifact is a full merged <code>IQ4_NL</code> GGUF served through the custom runtime. That is the path used for the final selection matrix.</p>
+        </div>
+      </div>
+      <figure class="figure">
+        <img src="assets/testing_ladder_full_process.svg" alt="Testing ladder from behavior probes to direct adapter checks, merged GGUF checks, Q4NL sweep, and repeat validation.">
+        <figcaption class="caption">The testing ladder matters because the early negative live-adapter results did not match the later merged-GGUF behavior.</figcaption>
+      </figure>
+      <h3>Artifact lineage</h3>
+      <pre><code>AEON RYS 15/20 HF base
+  -> ckpt386 behavior LoRA
+  -> merge at scale 0.10 in BF16
+  -> BF16 GGUF
+  -> IQ4_NL GGUF release file</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Public artifact</th><th class="num">Size</th><th>SHA256</th><th>Role</th></tr></thead>
+          <tbody>
+            <tr><td><code>Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf</code></td><td class="num"><code>16,554,833,600</code> bytes</td><td><code>d70ac4931efb496511f15242381ce241435f207f48b71d0c9b7ac756407c7ef8</code></td><td>Main deployment artifact.</td></tr>
+            <tr><td><code>Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-BF16.gguf</code></td><td class="num"><code>57,597,296,000</code> bytes</td><td><code>2a14f7173979509b5075fabc31b18eacd693d2c17fdec5db8fae00f758353992</code></td><td>Source-quality exploration artifact.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <p><strong>Artifact naming note:</strong> some internal notes used an <code>-imatrix</code> suffix for the selected IQ4_NL export. The public Hugging Face filename drops that internal suffix. The released <code>Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf</code> is the selected imatrix-assisted IQ4_NL export, not a separate non-imatrix artifact.</p>
+      </div>
+    </section>
+
+    <section id="testing">
+      <h2>Testing Journey</h2>
+      <p>The testing was not a single clean benchmark. It was an engineering selection process. We started with small behavior checks and practical app-building probes, then moved toward the exact merged Q4_NL format we intended to release.</p>
+
+      <h3>Early behavior probes</h3>
+      <p>In the first response-style checkpoint eval, the raw checkpoints did not beat the base. This looked discouraging, but it was a scouting lane, not the final merged-GGUF serving path.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Candidate</th><th class="num">Mean</th><th>Read</th></tr></thead>
+          <tbody>
+            <tr><td>base</td><td class="num"><code>0.6333</code></td><td>Strongest in that early probe format.</td></tr>
+            <tr><td>ckpt245</td><td class="num"><code>0.1167</code></td><td>Weak.</td></tr>
+            <tr><td>ckpt280</td><td class="num"><code>0.1667</code></td><td>Weak.</td></tr>
+            <tr><td>ckpt300</td><td class="num"><code>0.1250</code></td><td>Weak.</td></tr>
+            <tr><td>ckpt350</td><td class="num"><code>0.1667</code></td><td>Weak.</td></tr>
+            <tr><td>ckpt385</td><td class="num"><code>0.2083</code></td><td>Weak.</td></tr>
+            <tr><td>ckpt386</td><td class="num"><code>0.2417</code></td><td>Weak, but best checkpoint in that group.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Early strength sweep</h3>
+      <p>The next useful pattern was clear: full-strength LoRA was too aggressive. Lower strengths produced more useful behavior and longer, more complete outputs.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Candidate</th><th class="num">Mean</th><th class="num">Min</th><th class="num">Avg output tokens</th><th>Read</th></tr></thead>
+          <tbody>
+            <tr><td>ckpt350 <code>s0.25</code></td><td class="num"><code>0.7000</code></td><td class="num"><code>0.5000</code></td><td class="num"><code>406.8</code></td><td>Best early behavior sweep point.</td></tr>
+            <tr><td>ckpt386 <code>s0.25</code></td><td class="num"><code>0.6375</code></td><td class="num"><code>0.2500</code></td><td class="num"><code>406.8</code></td><td>Close second.</td></tr>
+            <tr><td>ckpt350 <code>s0.50</code></td><td class="num"><code>0.4750</code></td><td class="num"><code>0.2500</code></td><td class="num"><code>132.5</code></td><td>Weaker.</td></tr>
+            <tr><td>ckpt386 <code>s0.50</code></td><td class="num"><code>0.4750</code></td><td class="num"><code>0.2500</code></td><td class="num"><code>134.8</code></td><td>Weaker.</td></tr>
+            <tr><td>ckpt350 <code>s0.75</code></td><td class="num"><code>0.1750</code></td><td class="num"><code>0.0000</code></td><td class="num"><code>87.8</code></td><td>Too strong.</td></tr>
+            <tr><td>ckpt386 <code>s0.75</code></td><td class="num"><code>0.1750</code></td><td class="num"><code>0.0000</code></td><td class="num"><code>72.5</code></td><td>Too strong.</td></tr>
+            <tr><td>ckpt350 <code>s1.00</code></td><td class="num"><code>0.1250</code></td><td class="num"><code>0.0000</code></td><td class="num"><code>74.2</code></td><td>Too strong.</td></tr>
+            <tr><td>ckpt386 <code>s1.00</code></td><td class="num"><code>0.1750</code></td><td class="num"><code>0.0000</code></td><td class="num"><code>74.5</code></td><td>Too strong.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>First exhaustive canvas matrix</h3>
+      <p>The first practical canvas matrix tested all 36 combinations across checkpoints <code>210</code>, <code>245</code>, <code>250</code>, <code>280</code>, <code>300</code>, <code>315</code>, <code>350</code>, <code>385</code>, <code>386</code> and strengths <code>0.25</code>, <code>0.50</code>, <code>0.75</code>, <code>1.00</code>. No variant passed in that path. The distribution was:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Result group</th><th class="num">Count</th><th>Read</th></tr></thead>
+          <tbody>
+            <tr><td>Score <code>0.625</code>, timeout after <code>480s</code></td><td class="num"><code>15</code></td><td>Partial first-file scaffolding; <code>index.html</code> existed, but no full app.</td></tr>
+            <tr><td>Score <code>0.0417</code></td><td class="num"><code>21</code></td><td>Eight early false-success empty workspaces plus thirteen timeouts with no useful deliverables.</td></tr>
+            <tr><td>Runs with <code>styles.css</code> or <code>app.js</code></td><td class="num"><code>0</code></td><td>The direct path was not producing complete apps.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The conclusion was not "the LoRA cannot work." The better conclusion was that the direct adapter/runtime path was not stable enough to judge the deployment artifact.</p>
+
+      <h3>Merged BF16 GGUF canvas check</h3>
+      <p>After merging the finalists into full GGUF models, the same practical canvas task changed the picture.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Variant</th><th>Format</th><th class="num">Verifier</th><th>Read</th></tr></thead>
+          <tbody>
+            <tr><td>ckpt350 <code>s0.25</code></td><td>merged BF16 GGUF</td><td class="num"><code>0.9167</code>, pass</td><td>Passed with one minor layer-model heuristic miss.</td></tr>
+            <tr><td>ckpt386 <code>s0.25</code></td><td>merged BF16 GGUF</td><td class="num"><code>1.0000</code>, pass</td><td>Full practical canvas pass.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>That result corrected the earlier negative read: the LoRA was useful when merged and served through the GGUF path.</p>
+    </section>
+
+    <section id="matrix">
+      <h2>The Deploy-Format Q4_NL Matrix</h2>
+      <p>The final selection needed to answer one question: what should we actually upload and recommend? For that, we tested checkpoint 386 as merged IQ4_NL GGUF files across smaller strengths.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Merge strength</th><th>Public interpretation</th></tr></thead>
+          <tbody>
+            <tr><td><code>s0.05</code></td><td>Very light behavior merge, still weak in first deploy sweep.</td></tr>
+            <tr><td><code>s0.075</code></td><td>Strong first run but missed web-race and kill-excess patterns.</td></tr>
+            <tr><td><code>s0.10</code></td><td>Selected default after repeat checks.</td></tr>
+            <tr><td><code>s0.125</code></td><td>Weaker first sweep than nearby candidates.</td></tr>
+            <tr><td><code>s0.15</code></td><td>Decent, but not the most defensible default.</td></tr>
+            <tr><td><code>s0.20</code></td><td>Perfect first run, degraded across repeats.</td></tr>
+            <tr><td><code>s0.25</code></td><td>Perfect first run, collapsed on repeat.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Each tested IQ4_NL file was approximately <code>16,554,833,600</code> bytes. The exact release file was renamed for public clarity as:</p>
+      <pre><code>Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf</code></pre>
+
+      <h3>Five practical code-agent patch tasks</h3>
+      <p>The matrix used small but concrete repo-editing tasks with verifier checks. These were not broad public benchmarks; they were production-style checks for tool discipline, targeted fixes, and patch completion.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Task</th><th>What it tested</th></tr></thead>
+          <tbody>
+            <tr><td><code>github_mcp_commits_fix_repeat</code></td><td>Branch handling, schema update, request parameter use, docs mention, build.</td></tr>
+            <tr><td><code>github_mcp_pr_details_fix</code></td><td>Using the PR detail endpoint instead of list fields for additions, deletions, and changed files.</td></tr>
+            <tr><td><code>local_search_kill_excess_fix</code></td><td>Targeted process cleanup instead of broad kill behavior.</td></tr>
+            <tr><td><code>local_search_search_timeout_fix</code></td><td>Carrying timeout through schema, handler, and backend call.</td></tr>
+            <tr><td><code>local_search_web_search_race_fix</code></td><td>First-success race behavior instead of waiting for all engines.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Scoring method</h3>
+      <ul>
+        <li>Each task had a verifier that assigned a fractional score from <code>0.0</code> to <code>1.0</code>.</li>
+        <li>A strict pass only counted when the verifier marked <code>pass=True</code>.</li>
+        <li>Timeout-like runs were tracked separately because stalled completion behavior matters for agent deployment.</li>
+        <li>First-run results were not enough for selection; finalist strengths were repeated on the same five-task matrix.</li>
+      </ul>
+    </section>
+
+    <section id="selection">
+      <h2>Strength Selection</h2>
+      <p>The first deploy-format sweep proved the LoRA helped, but it also showed why a one-run perfect score was not enough.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Candidate</th><th class="num">Pass</th><th class="num">Mean</th><th class="num">Elapsed</th><th class="num">Timeout-ish</th><th>Read</th></tr></thead>
+          <tbody>
+            <tr><td>base Q4_NL</td><td class="num"><code>1/5</code></td><td class="num"><code>0.550</code></td><td class="num"><code>2660s</code></td><td class="num"><code>4</code></td><td>Weak baseline for this matrix.</td></tr>
+            <tr><td>ckpt386 <code>s0.05</code></td><td class="num"><code>2/5</code></td><td class="num"><code>0.600</code></td><td class="num"><code>2418s</code></td><td class="num"><code>3</code></td><td>Still weak.</td></tr>
+            <tr><td>ckpt386 <code>s0.075</code></td><td class="num"><code>3/5</code></td><td class="num"><code>0.900</code></td><td class="num"><code>1638s</code></td><td class="num"><code>0</code></td><td>Strong but missed web-race and kill-excess patterns.</td></tr>
+            <tr><td>ckpt386 <code>s0.10</code></td><td class="num"><code>4/5</code></td><td class="num"><code>0.950</code></td><td class="num"><code>1106s</code></td><td class="num"><code>0</code></td><td>Best stable-looking first run.</td></tr>
+            <tr><td>ckpt386 <code>s0.125</code></td><td class="num"><code>2/5</code></td><td class="num"><code>0.775</code></td><td class="num"><code>1190s</code></td><td class="num"><code>0</code></td><td>Weaker.</td></tr>
+            <tr><td>ckpt386 <code>s0.15</code></td><td class="num"><code>3/5</code></td><td class="num"><code>0.875</code></td><td class="num"><code>1186s</code></td><td class="num"><code>0</code></td><td>Decent, not best.</td></tr>
+            <tr><td>ckpt386 <code>s0.20</code></td><td class="num"><code>5/5</code></td><td class="num"><code>1.000</code></td><td class="num"><code>1568s</code></td><td class="num"><code>1</code></td><td>Perfect score, but PR-details hit full timeout.</td></tr>
+            <tr><td>ckpt386 <code>s0.25</code> first</td><td class="num"><code>5/5</code></td><td class="num"><code>1.000</code></td><td class="num"><code>1328s</code></td><td class="num"><code>0</code></td><td>Perfect first score.</td></tr>
+            <tr><td>ckpt386 <code>s0.25</code> repeat</td><td class="num"><code>1/5</code></td><td class="num"><code>0.750</code></td><td class="num"><code>1343s</code></td><td class="num"><code>0</code></td><td>Did not reproduce.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure class="figure">
+        <img src="assets/strength_selection_scoreboard.svg" alt="Scoreboard showing why s0.10 won the release slot despite stronger first-run scores from s0.20 and s0.25.">
+        <figcaption class="caption">The selected default was not the flashiest first row. It was the strength with the best balance of improvement, completion discipline, and repeat evidence.</figcaption>
+      </figure>
+
+      <h3>Task-level base versus selected s0.10</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Task</th><th>Base AEON RYS Q4_NL</th><th>ckpt386 s0.10 IQ4_NL</th><th>Read</th></tr></thead>
+          <tbody>
+            <tr><td>commits branch fix</td><td><code>0.75</code>, fail, <code>260s</code></td><td><code>1.00</code>, pass, <code>311s</code></td><td>Fixed branch/schema/request behavior.</td></tr>
+            <tr><td>PR details fix</td><td><code>1.00</code>, pass, <code>600s</code> timeout</td><td><code>1.00</code>, pass, <code>271s</code></td><td>Both passed, but s0.10 completed much cleaner.</td></tr>
+            <tr><td>kill excess process fix</td><td><code>0.25</code>, fail, <code>600s</code> timeout</td><td><code>1.00</code>, pass, <code>126s</code></td><td>Large improvement.</td></tr>
+            <tr><td>search timeout fix</td><td><code>0.25</code>, fail, <code>600s</code> timeout</td><td><code>0.75</code>, fail, <code>256s</code></td><td>Partial improvement; handler still missed passthrough.</td></tr>
+            <tr><td>web search race fix</td><td><code>0.50</code>, fail, <code>600s</code> timeout</td><td><code>1.00</code>, pass, <code>142s</code></td><td>Large improvement.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure class="figure">
+        <img src="assets/base_vs_s010_task_scores.svg" alt="Task-level base versus s0.10 scores across commits, PR details, kill excess, timeout, and web race tasks.">
+        <figcaption class="caption">The practical improvement was not just score movement; the selected strength reduced full-timeout behavior and completed more targeted patches.</figcaption>
+      </figure>
+
+      <h3>Repeat stability</h3>
+      <p>After s0.20 and s0.25 produced perfect first runs, the finalists were repeated. That is where the selection changed.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Candidate</th><th class="num">Runs</th><th class="num">Strict pass</th><th class="num">Strict mean</th><th>Decision read</th></tr></thead>
+          <tbody>
+            <tr><td>ckpt386 <code>s0.10</code></td><td class="num"><code>3</code></td><td class="num"><code>9/15</code></td><td class="num"><code>0.842</code></td><td>Best default candidate after repeats.</td></tr>
+            <tr><td>ckpt386 <code>s0.10</code> crash-adjusted</td><td class="num"><code>3</code></td><td class="num"><code>9/14</code></td><td class="num"><code>0.884</code></td><td>Excludes one invalid runtime/server-crash task.</td></tr>
+            <tr><td>ckpt386 <code>s0.20</code></td><td class="num"><code>3</code></td><td class="num"><code>8/15</code></td><td class="num"><code>0.850</code></td><td>Degraded after its perfect first run.</td></tr>
+            <tr><td>ckpt386 <code>s0.25</code></td><td class="num"><code>2</code></td><td class="num"><code>6/10</code></td><td class="num"><code>0.875</code></td><td>First 5/5 collapsed to 1/5 on repeat.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure class="figure">
+        <img src="assets/q4nl_results_heatmap.svg" alt="Heatmap of repeat behavior across base, s0.10, s0.20, and s0.25 runs.">
+        <figcaption class="caption">The repeat heatmap is the reason the release default is s0.10 rather than the stronger first-run settings.</figcaption>
+      </figure>
+    </section>
+
+    <section id="canvas">
+      <h2>Practical Canvas-Agent Test</h2>
+      <p>We also tested the release candidate on a larger practical app task: build an isolated Krita-like raster canvas application with layers, brush and eraser, transforms, opacity, and a local-only AI image generation stub. The AI hook did not need to call a real Sloane service; it was a practical agent-completion test.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Shared harness setting</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>Endpoint</td><td>custom ik-llama llama-server through an OpenAI-compatible agent harness</td></tr>
+            <tr><td>Temperature</td><td><code>0.7</code></td></tr>
+            <tr><td>Context</td><td><code>131072</code></td></tr>
+            <tr><td>KV cache for this test</td><td><code>-ctk f32 -ctv f32</code>, used as conservative isolation against KV precision questions</td></tr>
+            <tr><td>Attention and split</td><td><code>-fa on</code>, <code>-sm graph</code></td></tr>
+            <tr><td>Chat formatting</td><td><code>--jinja</code>, <code>--reasoning-format deepseek</code></td></tr>
+            <tr><td>Agent cap</td><td><code>CLAW_MAX_TOKENS=1800</code>, <code>TIMEOUT_SECONDS=900</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Run</th><th class="num">RC</th><th class="num">Time</th><th class="num">Verifier</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>AEON RYS IQ4_NL attempt 1</td><td class="num"><code>1</code></td><td class="num"><code>337s</code></td><td class="num"><code>0.0417</code> / false</td><td>Failed before usable files due to invalid tool/diff behavior while writing CSS/app JS.</td></tr>
+            <tr><td>AEON RYS IQ4_NL retry 1</td><td class="num"><code>0</code></td><td class="num"><code>803s</code></td><td class="num"><code>1.0</code> / true</td><td>Clean retry after the first formatting failure.</td></tr>
+            <tr><td>SignalLatch IQ4_NL</td><td class="num"><code>0</code></td><td class="num"><code>802s</code></td><td class="num"><code>1.0</code> / true</td><td>Clean completion from the selected release candidate.</td></tr>
+            <tr><td>Unsloth IQ4_NL</td><td class="num"><code>0</code></td><td class="num"><code>826s</code></td><td class="num"><code>1.0</code> / true</td><td>Clean pass for the external Q4-family comparison.</td></tr>
+            <tr><td>Unsloth Q8_0</td><td class="num"><code>124</code></td><td class="num"><code>900s</code></td><td class="num"><code>1.0</code> / true</td><td>Produced complete verified files but timed out during final agent wrap-up.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The canvas test is not a broad benchmark. It is useful because it exposed formatting reliability, timeout behavior, and whether a compressed model could still finish a real multi-file tool-style task.</p>
+    </section>
+
+    <section id="runtime">
+      <h2>Runtime Profile Used for Selection</h2>
+      <p>The selected public runtime is the custom AEON ik-llama fork. The fine-tuned GGUF should be treated as an artifact for that fork, not as a stock llama.cpp compatibility claim.</p>
+      <pre><code>./build/bin/llama-server \
+  -m /path/to/Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf \
+  -c 65536 \
+  -ngl 999 \
+  -np 1 \
+  -fa on \
+  -sm graph \
+  --temp 0.7 \
+  --jinja \
+  --reasoning-format deepseek \
+  --reasoning-budget 0 \
+  -cram 0 \
+  --ctx-checkpoints 0</code></pre>
+      <p>For the 131k canvas comparison, the same shape was used with a larger context and FP32 KV as an isolation setting:</p>
+      <pre><code>-c 131072 \
+  -ctk f32 \
+  -ctv f32</code></pre>
+      <div class="cards">
+        <div class="card good">
+          <h3>Recommended file</h3>
+          <p><code>Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf</code></p>
+        </div>
+        <div class="card blue">
+          <h3>Exploration file</h3>
+          <p><code>Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-BF16.gguf</code> exists for inspection, re-quantization, or continued work, not normal inference.</p>
+        </div>
+      </div>
+      <div class="callout warn">
+        <p><strong>Tested runtime boundary:</strong> use the public <a href="https://github.com/noonr48/qwen36-aeon-ik-llama">qwen36-aeon-ik-llama</a> fork, with SignalLatch support documented in the fork history at commit <code>f0910a49</code> and later docs commits on top. Do not read this as support for arbitrary upstream llama.cpp or for live LoRA loading with the public serving profile.</p>
+      </div>
+    </section>
+
+    <section id="caveats">
+      <h2>Caveats and Boundaries</h2>
+      <div class="split-list">
+        <div class="card good">
+          <h3>What we are comfortable saying</h3>
+          <ul>
+            <li>The merged Q4_NL LoRA path improved over the previous AEON RYS Q4_NL baseline on the five-task practical matrix.</li>
+            <li>The useful merge strength was low. Full-strength LoRA was too aggressive in early probes.</li>
+            <li>The merged GGUF path is the right path to judge for this release.</li>
+            <li>s0.10 is the selected default among the tested strengths because it balanced improvement and repeat stability.</li>
+          </ul>
+        </div>
+        <div class="card risk">
+          <h3>What we are not claiming</h3>
+          <ul>
+            <li>We are not claiming the fine-tune is better for all tasks or all users.</li>
+            <li>We are not claiming BF16 benchmark dominance.</li>
+            <li>We are not claiming s0.10 is globally optimal.</li>
+            <li>We are not claiming stock llama.cpp compatibility.</li>
+            <li>We are not recommending live LoRA loading for the public serving profile.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout warn">
+        <p>One s0.10 repeat3 row was treated as a runtime/server stability incident. The task scored <code>0.25</code>, but the agent failed immediately after API retries and the server log showed <code>std::runtime_error</code> with <code>Invalid diff</code>. Strict scoring still counts the failed row, but the selection notes separate it from normal model-output misses.</p>
+      </div>
+      <figure class="figure">
+        <img src="assets/claims_and_caveats.svg" alt="Claim boundary showing supported claims, unsupported claims, and runtime caveats.">
+        <figcaption class="caption">The release language should stay narrow: useful practical improvement, not a universal solved-model claim.</figcaption>
+      </figure>
+    </section>
+
+    <section id="evidence">
+      <h2>Evidence Included on This Page</h2>
+      <p>This page intentionally embeds the relevant numbers rather than relying on local workspaces. The public evidence bundle in this directory remains useful for audit trails, but readers should not need private paths to understand the decision.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Evidence topic</th><th>Numbers included here</th></tr></thead>
+          <tbody>
+            <tr><td>Training shape</td><td>Example count, checkpoint, epoch, LoRA config, target modules.</td></tr>
+            <tr><td>Early probes</td><td>Checkpoint means and lower-strength behavior sweep table.</td></tr>
+            <tr><td>Direct canvas failure</td><td>36-combination direct-path distribution and failure read.</td></tr>
+            <tr><td>Merged GGUF correction</td><td>ckpt350 s0.25 and ckpt386 s0.25 BF16 GGUF canvas pass scores.</td></tr>
+            <tr><td>Deploy Q4_NL matrix</td><td>All first sweep strengths, pass counts, means, elapsed, timeout-ish rows.</td></tr>
+            <tr><td>Selected s0.10 comparison</td><td>Task-level base versus s0.10 scores and elapsed times.</td></tr>
+            <tr><td>Repeat stability</td><td>s0.10, s0.20, s0.25 strict and crash-adjusted comparison.</td></tr>
+            <tr><td>Canvas comparison</td><td>SignalLatch, base AEON RYS, Unsloth IQ4_NL, and Unsloth Q8_0 results.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      Last updated: 2026-05-06. This page documents the SignalLatch ckpt386 s0.10 fine-tune and testing process for the Qwen3.6 AEON RYS 15/20 GGUF line.
+    </div>
+  </footer>
+</body>
+</html>
