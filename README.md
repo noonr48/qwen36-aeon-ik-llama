@@ -27,8 +27,10 @@ Model releases:
 - fine-tuned SignalLatch: `https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-SignalLatch-GGUF`
 
 Comprehensive public documentation:
-- webpage: `https://noonr48.github.io/qwen36-aeon-ik-llama/qwen36-aeon-rys-signallatch/`
-- source: [`docs/qwen36-aeon-rys-signallatch`](docs/qwen36-aeon-rys-signallatch)
+- non-finetuned AEON RYS 15/20 record: `https://noonr48.github.io/qwen36-aeon-ik-llama/qwen36-aeon-rys-15-20/`
+- SignalLatch fine-tune page: `https://noonr48.github.io/qwen36-aeon-ik-llama/qwen36-aeon-rys-signallatch/`
+- docs index: `https://noonr48.github.io/qwen36-aeon-ik-llama/`
+- source: [`docs/qwen36-aeon-rys-15-20`](docs/qwen36-aeon-rys-15-20), [`docs/qwen36-aeon-rys-signallatch`](docs/qwen36-aeon-rys-signallatch)
 
 RYS build guide:
 - [`docs/rys-layer-duplication-guide`](docs/rys-layer-duplication-guide)
