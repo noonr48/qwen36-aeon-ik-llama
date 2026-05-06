@@ -1,0 +1,950 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Open Design Draft - Qwen3.6 AEON RYS 15/20 Release Record</title>
+  <meta name="description" content="Comprehensive public record for the non-finetuned Qwen3.6 AEON RYS 15/20 IQ4_NL GGUF release.">
+  <style>
+
+    :root {
+      color-scheme: light;
+      --paper: #f7f5ee;
+      --paper-2: #ece8dc;
+      --ink: #111816;
+      --muted: #586560;
+      --line: #d2d6cc;
+      --panel: #ffffff;
+      --panel-2: #fdfcf8;
+      --code: #eef1ea;
+      --green: #0f7667;
+      --green-dark: #09564c;
+      --blue: #245f8f;
+      --rust: #a45c18;
+      --red: #943b34;
+      --gold: #ba8a13;
+      --shadow: 0 18px 46px rgba(17, 24, 22, 0.10);
+      --soft-shadow: 0 10px 24px rgba(17, 24, 22, 0.07);
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(17,24,22,0.035) 1px, transparent 1px) 0 0 / 38px 38px,
+        linear-gradient(180deg, var(--paper), #fbfaf5 34rem, var(--paper));
+      font: 16px/1.62 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+      overflow-x: hidden;
+    }
+    a {
+      color: var(--green-dark);
+      text-decoration-thickness: 0.08em;
+      text-underline-offset: 0.18em;
+    }
+    .wrap {
+      width: min(1180px, calc(100% - 36px));
+      margin: 0 auto;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(247, 245, 238, 0.92);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 58px;
+      font-size: 0.9rem;
+    }
+    nav .brand {
+      color: var(--ink);
+      font-weight: 900;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+    nav .links {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px 16px;
+      flex-wrap: wrap;
+    }
+    nav .links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 700;
+    }
+    nav .links a:hover { color: var(--green-dark); }
+    .draft-ribbon {
+      background: #17211f;
+      color: #f8f5ec;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      font-size: 0.84rem;
+    }
+    .draft-ribbon .wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      padding: 9px 0;
+      flex-wrap: wrap;
+    }
+    .draft-ribbon span { min-width: 0; overflow-wrap: anywhere; }
+    .draft-ribbon a { color: #b8e5d6; }
+    .hero {
+      padding: 76px 0 46px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(236, 232, 220, 0.88), rgba(247, 245, 238, 0.22)),
+        linear-gradient(90deg, rgba(15, 118, 103, 0.08), rgba(36, 95, 143, 0.08));
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--rust);
+      font-size: 0.78rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 18px;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 34px;
+      height: 2px;
+      background: var(--rust);
+    }
+    h1 {
+      margin: 0;
+      max-width: 1040px;
+      font-size: clamp(2.45rem, 5.4vw, 5.7rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+    .dek {
+      max-width: 920px;
+      margin: 24px 0 0;
+      color: var(--muted);
+      font-size: 1.18rem;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 24px;
+      align-items: start;
+      margin-top: 34px;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .metric, .note, .toc, .callout, .decision, .artifact, .claim-box {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--soft-shadow);
+    }
+    .metric {
+      min-height: 124px;
+      padding: 16px;
+      border-top: 5px solid var(--green);
+    }
+    .metric:nth-child(2) { border-top-color: var(--blue); }
+    .metric:nth-child(3) { border-top-color: var(--rust); }
+    .metric:nth-child(4) { border-top-color: var(--gold); }
+    .metric strong {
+      display: block;
+      color: var(--ink);
+      font-size: 1.48rem;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    .metric span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .note {
+      padding: 22px;
+      border-left: 6px solid var(--green);
+    }
+    .note h2, .toc h2, .callout h3, .decision h3, .artifact h3, .claim-box h3 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      letter-spacing: 0;
+    }
+    .note p, .callout p, .decision p, .artifact p, .claim-box p {
+      margin: 0;
+      color: var(--muted);
+    }
+    main {
+      padding: 42px 0 82px;
+    }
+    section {
+      margin: 0;
+      padding: 44px 0;
+      border-top: 1px solid rgba(210, 214, 204, 0.92);
+      scroll-margin-top: 86px;
+    }
+    section:first-child { border-top: 0; }
+    section > h2 {
+      margin: 0 0 12px;
+      max-width: 880px;
+      font-size: clamp(1.72rem, 3vw, 2.75rem);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    section > p {
+      max-width: 890px;
+      color: var(--muted);
+      margin: 0 0 22px;
+      font-size: 1.01rem;
+    }
+    .toc {
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .toc::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 6px;
+      background: linear-gradient(var(--green), var(--blue), var(--rust));
+    }
+    .toc ol {
+      margin: 0;
+      padding-left: 22px;
+      columns: 2;
+      column-gap: 34px;
+    }
+    .toc li {
+      break-inside: avoid;
+      margin: 0 0 7px;
+      color: var(--muted);
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      align-items: stretch;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      align-items: stretch;
+    }
+    .callout, .decision, .artifact, .claim-box {
+      padding: 20px;
+    }
+    .artifact, .claim-box {
+      border-top: 4px solid var(--blue);
+    }
+    .grid-2 .artifact:nth-child(2n), .grid-3 .claim-box:nth-child(2) { border-top-color: var(--green); }
+    .grid-2 .artifact:nth-child(3n), .grid-3 .claim-box:nth-child(3) { border-top-color: var(--rust); }
+    .decision {
+      border-left: 6px solid var(--green);
+      box-shadow: none;
+    }
+    .decision.warn { border-left-color: var(--rust); }
+    .decision.negative { border-left-color: var(--red); }
+    figure {
+      margin: 26px 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #fff;
+    }
+    figcaption {
+      border-top: 1px solid var(--line);
+      padding: 12px 16px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      background: var(--panel-2);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--soft-shadow);
+      margin: 22px 0;
+      font-size: 0.93rem;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    th {
+      background: #ecefe6;
+      color: #1d2825;
+      font-weight: 900;
+    }
+    tr:nth-child(even) td { background: rgba(247, 245, 238, 0.44); }
+    tr:last-child td { border-bottom: 0; }
+    td.num, th.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+    code {
+      background: var(--code);
+      padding: 0.13em 0.34em;
+      border-radius: 5px;
+      font-size: 0.92em;
+    }
+    pre {
+      background: #101816;
+      color: #f5f8f3;
+      padding: 18px;
+      border-radius: var(--radius);
+      overflow-x: auto;
+      box-shadow: var(--soft-shadow);
+    }
+    .ledger {
+      display: grid;
+      gap: 10px;
+    }
+    .ledger > div {
+      display: grid;
+      grid-template-columns: 230px minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+    }
+    .ledger strong {
+      color: var(--green-dark);
+    }
+    .ledger span {
+      color: var(--muted);
+      min-width: 0;
+    }
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 28px 0 42px;
+      color: var(--muted);
+      background: rgba(236, 232, 220, 0.55);
+    }
+    @media (max-width: 900px) {
+      nav { align-items: flex-start; flex-direction: column; padding: 12px 0; }
+      nav .brand { white-space: normal; }
+      .draft-ribbon .wrap { align-items: flex-start; flex-direction: column; }
+      .hero { padding: 52px 0 34px; }
+      .hero-grid, .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .toc ol { columns: 1; }
+      .ledger > div { grid-template-columns: 1fr; gap: 6px; }
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: normal;
+      }
+    }
+    @media (max-width: 560px) {
+      .wrap {
+        width: min(366px, calc(100% - 24px));
+        margin-left: 12px;
+        margin-right: auto;
+      }
+      .summary { grid-template-columns: 1fr; }
+      h1 {
+        font-size: clamp(1.95rem, 9vw, 2.45rem);
+        line-height: 1.06;
+      }
+      section { padding: 34px 0; }
+      th, td { padding: 9px 10px; }
+    }
+
+  </style>
+</head>
+<body>
+<div class="draft-ribbon"><div class="wrap"><span>Open Design draft. Baseline saved as a Git tag before this pass.</span><a href="../qwen36-aeon-rys-15-20/index.html">Current public page</a></div></div>
+  <header>
+    <nav class="wrap" aria-label="Primary">
+      <div class="brand">AEON RYS 15/20 · Open Design Draft</div>
+      <div class="links">
+        <a href="../">Docs Home</a>
+        <a href="https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF">Hugging Face</a>
+        <a href="https://github.com/noonr48/qwen36-aeon-ik-llama">Runtime Fork</a>
+      </div>
+    </nav>
+  </header>
+
+  <section class="hero" data-od-id="hero">
+    <div class="wrap">
+      <div class="eyebrow">Non-finetuned release record</div>
+      <h1>Qwen3.6 AEON RYS 15/20: what we tested, what won, and what did not.</h1>
+      <p class="dek">This is the long-form audit trail for the base, non-finetuned AEON RYS 15/20 GGUF release. It records the source model choice, layer-window selection, quantization evidence, runtime work, rejected variants, known tradeoffs, and the practical tests that shaped the final default file.</p>
+      <div class="hero-grid">
+        <div class="summary" aria-label="Release metrics">
+          <div class="metric"><strong>15,20</strong><span>RYS window. Source layers 15..19 are duplicated into output layers 20..24.</span></div>
+          <div class="metric"><strong>IQ4_NL</strong><span>Main deployment artifact. BF16 exists for exploration, not normal inference.</span></div>
+          <div class="metric"><strong>-0.75%</strong><span>Mixed four-probe mean change from RYS BF16 to released IQ4_NL.</span></div>
+          <div class="metric"><strong>0.994 GiB</strong><span>Materialized duplicate-layer tensor span in the released GGUF.</span></div>
+        </div>
+        <div class="note">
+          <h2>Short Read</h2>
+          <p>The public claim is narrow: this exact AEON RYS 15/20 branch, served through the custom ik-llama fork, produced a practical Q4-class release whose mixed probe score stayed close to its BF16 source. The release is not claiming a universal RYS recipe, a stock llama.cpp target, or that 15/20 beats every other window on every later probe.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="wrap">
+    <section data-od-id="contents">
+      <div class="toc">
+        <h2>Contents</h2>
+        <ol>
+          <li><a href="#claim">What This Page Claims</a></li>
+          <li><a href="#artifacts">Released Artifacts</a></li>
+          <li><a href="#timeline">Experiment Timeline</a></li>
+          <li><a href="#test-counts">Test Coverage Snapshot</a></li>
+          <li><a href="#candidate-list">Complete Candidate Lists</a></li>
+          <li><a href="#source">Source Model And RYS Build</a></li>
+          <li><a href="#selection">Layer-Window Selection</a></li>
+          <li><a href="#quant">Quantization Survival</a></li>
+          <li><a href="#runtime">Runtime Profile</a></li>
+          <li><a href="#mtp">MTP And Speed Work</a></li>
+          <li><a href="#rejected">Rejected Or Non-Default Variants</a></li>
+          <li><a href="#practical">Practical Agent Tests</a></li>
+          <li><a href="#tradeoffs">Known Tradeoffs</a></li>
+          <li><a href="#ledger">Evidence Ledger</a></li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="claim" data-od-id="claim">
+      <h2>What This Page Claims</h2>
+      <p>This page is intentionally written as a record, not a leaderboard page. It explains why the release default became the non-MTP IQ4_NL GGUF and where the evidence is strong, weak, or mixed.</p>
+      <div class="grid-3">
+        <div class="claim-box">
+          <h3>Claimed</h3>
+          <p>On the mixed BF16-vs-IQ4_NL snapshot, this RYS 15/20 branch lost less than 1% relative mean score after compression to the released practical GGUF.</p>
+        </div>
+        <div class="claim-box">
+          <h3>Claimed</h3>
+          <p>The custom ik-llama fork is the intended runtime path. The model card and this page should not be read as stock llama.cpp compatibility claims.</p>
+        </div>
+        <div class="claim-box">
+          <h3>Not Claimed</h3>
+          <p>15/20 is not presented as universally best. A later 11/14 long-reasoning comparison was cleaner on repetition, and that remains an important caveat.</p>
+        </div>
+      </div>
+      <figure>
+        <img src="../qwen36-aeon-rys-15-20/assets/release_route_map.svg" alt="Explanatory route map from AEON base to RYS 15/20, strict scan, IQ4_NL quantization, and release default.">
+        <figcaption>The release story is a path, not a single score. The practical claim depends on the RYS build, strict selection, quantization survival, and tested runtime path together.</figcaption>
+      </figure>
+      <figure>
+        <img src="../qwen36-aeon-rys-15-20/assets/caveat_map.svg" alt="Four caveat cards distinguishing strong evidence, the 11/14 repetition caveat, experimental MTP, and duplicate-weight tradeoff.">
+        <figcaption>The page separates strong claims, real caveats, experimental branches, and known tradeoffs so readers do not need to reconstruct that hierarchy from the tables.</figcaption>
+      </figure>
+    </section>
+
+    <section id="artifacts" data-od-id="artifacts">
+      <h2>Released Artifacts</h2>
+      <p>The public Hugging Face repo contains the practical inference file, an experimental MTP file, a BF16 GGUF reference, and the BF16 safetensors folder for continued work.</p>
+      <table>
+        <thead>
+          <tr><th>File</th><th>Purpose</th><th class="num">Size</th><th>Decision</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-ik-llama-custom-mixed.gguf</code></td>
+            <td>Main non-finetuned inference artifact.</td>
+            <td class="num">16,554,834,080 bytes</td>
+            <td>Default release file.</td>
+          </tr>
+          <tr>
+            <td><code>Qwen3.6-27B-AEON-RYS-MaxThinkCoder-SpeedBoosted-IQ4_NL-MTP-Experimental.gguf</code></td>
+            <td>MTP-capable IQ4_NL artifact with MTP-tail imatrix coverage.</td>
+            <td class="num">16,794,473,728 bytes</td>
+            <td>Experimental; not the default.</td>
+          </tr>
+          <tr>
+            <td><code>Qwen3.6-27B-AEON-RYS-MaxThinkCoder-BF16.gguf</code></td>
+            <td>Source-quality GGUF reference for inspection, conversion, and comparison.</td>
+            <td class="num">57,597,296,608 bytes</td>
+            <td>Exploration artifact.</td>
+          </tr>
+          <tr>
+            <td><code>bf16-safetensors/</code></td>
+            <td>HF-format checkpoint for Transformers, LoRA, SFT, continued training, or conversion work.</td>
+            <td class="num">11 shards</td>
+            <td>Training/workflow artifact.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="decision">
+        <h3>Decision</h3>
+        <p>For normal users, the intended file is the non-MTP IQ4_NL GGUF. The BF16 files exist so people can inspect or continue the work; they are not the small-form deployment claim.</p>
+      </div>
+    </section>
+
+    <section id="timeline" data-od-id="timeline">
+      <h2>Experiment Timeline</h2>
+      <p>The release moved through source selection, RYS construction, strict scanning, quantization screening, runtime work, and practical validation. Later fine-tune work built on this base, but is separate from the non-finetuned record here.</p>
+      <div class="grid-2">
+        <div class="artifact">
+          <h3>1. Source Branch</h3>
+          <p>Use AEON-7/Qwen3.6-27B-AEON-Ultimate-Uncensored as the source branch instead of the earlier official-base line or other abliterated candidates.</p>
+        </div>
+        <div class="artifact">
+          <h3>2. RYS Build</h3>
+          <p>Build safetensors-first RYS checkpoints with correct tensor remapping and per-layer metadata remapping for Qwen3.6 hybrid attention.</p>
+        </div>
+        <div class="artifact">
+          <h3>3. Strict Window Scan</h3>
+          <p>Compare candidate RYS windows against AEON baseline on strict math and EQ validation files. Select 15/20 as the balanced winner.</p>
+        </div>
+        <div class="artifact">
+          <h3>4. Quantization Screen</h3>
+          <p>Convert to GGUF, build imatrix calibration, quantize to IQ4_NL, and compare BF16 against the quantized release candidate.</p>
+        </div>
+        <div class="artifact">
+          <h3>5. Runtime Work</h3>
+          <p>Patch and package the ik-llama fork for the custom mixed GGUF layout, Qwen3.6 hybrid handling, graph split, Jinja, and DeepSeek reasoning format.</p>
+        </div>
+        <div class="artifact">
+          <h3>6. Release Decision</h3>
+          <p>Publish the non-MTP IQ4_NL as the default, keep MTP as experimental, keep BF16 as exploration/reference, and document known caveats.</p>
+        </div>
+      </div>
+      <figure>
+        <img src="../qwen36-aeon-rys-15-20/assets/testing_ladder_release.svg" alt="Testing ladder showing source selection, mechanical RYS build, short scan, strict scan, quantization survival, runtime path, MTP research, and practical agent checks.">
+        <figcaption>The ladder view shows the full release process without asking readers to parse every table first.</figcaption>
+      </figure>
+    </section>
+
+    <section id="test-counts" data-od-id="test-counts">
+      <h2>Test Coverage Snapshot</h2>
+      <p>This is the compact count of the evidence behind the release. The exact datasets and files are listed again in the evidence ledger.</p>
+      <table>
+        <thead>
+          <tr><th>Stage</th><th>Coverage</th><th>What It Answered</th><th>Decision Impact</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Early AEON short scan</td><td>13 candidate mappings across <code>math_16</code> and <code>eq_16</code>.</td><td>Which windows looked promising before the strict pass?</td><td>Exploratory only; not final selection basis.</td></tr>
+          <tr><td>AEON strict scan</td><td>6 candidate mappings across <code>math_120</code> and historical <code>eq_140</code> files.</td><td>Which RYS window had the best balanced strict score?</td><td>Selected <code>15,20</code>.</td></tr>
+          <tr><td>15/20 BF16 vs IQ4_NL</td><td>Four mixed probes: <code>math_16</code>, <code>eq_16</code>, <code>math_4</code>, <code>gsm8k_5</code>; 41 prompt items total.</td><td>Did the release quant survive compression?</td><td>Confirmed IQ4_NL as the practical target.</td></tr>
+          <tr><td>11/14 quant caveats</td><td>Reasoning slice plus no-think math/EQ quant comparison files.</td><td>Was 11/14 obviously better after quantization?</td><td>No; it was promising but volatile and not strict-balanced winner.</td></tr>
+          <tr><td>Long fair comparison</td><td>2 IQ4_NL branches, 21 numeric questions, 2048-token reasoning budget.</td><td>Did 15/20 have repetition weaknesses against 11/14?</td><td>Yes; documented as a real caveat.</td></tr>
+          <tr><td>Mixed-Q8 probe</td><td>2 quant variants, 9-item quick paired eval.</td><td>Would protecting the RYS window in Q8 improve the default?</td><td>No replacement.</td></tr>
+          <tr><td>MTP work</td><td>MTP-tail imatrix, 512/2048 quality checks, short and long speed matrices.</td><td>Should the MTP file become the default?</td><td>No; keep experimental.</td></tr>
+          <tr><td>Practical agent checks</td><td>5-task production matrix plus 5-run canvas comparison set.</td><td>Could the compressed model act as a coding-agent base?</td><td>Yes with caveats; behavior reliability motivated later SignalLatch.</td></tr>
+        </tbody>
+      </table>
+      <div class="decision">
+        <h3>Spreadsheet Source</h3>
+        <p>The chart data is collected into an OnlyOffice workbook: <a href="../qwen36-aeon-rys-15-20/assets/qwen36_aeon_rys_stats.xlsx">qwen36_aeon_rys_stats.xlsx</a>. It contains the short scan, strict scan, quantization snapshot, 11/14 long-reasoning comparison, MTP speed notes, and duplicate-window cost sheet.</p>
+      </div>
+    </section>
+
+    <section id="candidate-list" data-od-id="candidate-list">
+      <h2>Complete Candidate Lists</h2>
+      <p>The first version of this page summarized the scan coverage and listed the decision rows, but did not spell out every tested mapping. This section is the explicit candidate appendix from the AEON scan files.</p>
+      <div class="decision warn">
+        <h3>Single-Layer Note</h3>
+        <p>The early short scan contains one true single-layer duplication candidate: <code>blocks:20,21</code>, which duplicates source layer 20 only. The file named <code>aeon_single_blocks_15_20_math120.pkl</code> is misleadingly named for this question: it contains one entry for the <code>15,20</code> block candidate, not a full single-layer sweep.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Early short-scan candidate</th><th class="num">math_16</th><th class="num">eq_16</th><th class="num">Mean</th><th>Read</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>blocks:24,32</code></td><td class="num">0.821109</td><td class="num">0.714006</td><td class="num">0.767558</td><td>Best short-scan mean; not final strict winner.</td></tr>
+          <tr><td><code>blocks:15,20</code></td><td class="num">0.818587</td><td class="num">0.712340</td><td class="num">0.765463</td><td>Strong short-scan candidate; later strict-balanced winner.</td></tr>
+          <tr><td><code>blocks:11,14</code></td><td class="num">0.802940</td><td class="num">0.715609</td><td class="num">0.759275</td><td>Strong math/reasoning branch, later caveated.</td></tr>
+          <tr><td><code>blocks:31,34</code></td><td class="num">0.790785</td><td class="num">0.713317</td><td class="num">0.752051</td><td>Close strict-scan runner-up later.</td></tr>
+          <tr><td><code>blocks:30,35</code></td><td class="num">0.800002</td><td class="num">0.701506</td><td class="num">0.750754</td><td>Official-base winner did not transfer as AEON winner.</td></tr>
+          <tr><td><code>blocks:0,0</code></td><td class="num">0.794387</td><td class="num">0.706506</td><td class="num">0.750447</td><td>AEON baseline.</td></tr>
+          <tr><td><code>blocks:11,14;30,35</code></td><td class="num">0.771005</td><td class="num">0.709006</td><td class="num">0.740006</td><td>Two-window mesh; did not beat simpler candidates.</td></tr>
+          <tr><td><code>blocks:15,27</code></td><td class="num">0.756966</td><td class="num">0.714423</td><td class="num">0.735695</td><td>Wider mid-window candidate.</td></tr>
+          <tr><td><code>blocks:28,36</code></td><td class="num">0.766733</td><td class="num">0.700577</td><td class="num">0.733655</td><td>Late-window candidate.</td></tr>
+          <tr><td><code>blocks:9,17</code></td><td class="num">0.730846</td><td class="num">0.723526</td><td class="num">0.727186</td><td>Good EQ, weaker math.</td></tr>
+          <tr><td><code>blocks:30,34</code></td><td class="num">0.713382</td><td class="num">0.716506</td><td class="num">0.714944</td><td>Late-window candidate.</td></tr>
+          <tr><td><code>blocks:8,17</code></td><td class="num">0.664031</td><td class="num">0.724776</td><td class="num">0.694403</td><td>High EQ but poor math balance.</td></tr>
+          <tr><td><code>blocks:20,21</code></td><td class="num">0.680363</td><td class="num">0.703526</td><td class="num">0.691944</td><td>Only true single-layer duplication candidate in this short scan.</td></tr>
+        </tbody>
+      </table>
+      <table>
+        <thead>
+          <tr><th>Strict-scan candidate</th><th class="num">math_120</th><th class="num">eq_140</th><th class="num">Mean</th><th>Decision role</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>blocks:15,20</code></td><td class="num">0.971441</td><td class="num">0.647347</td><td class="num">0.809394</td><td>Winner.</td></tr>
+          <tr><td><code>blocks:31,34</code></td><td class="num">0.977269</td><td class="num">0.640750</td><td class="num">0.809010</td><td>Very close runner-up.</td></tr>
+          <tr><td><code>blocks:11,14</code></td><td class="num">0.981498</td><td class="num">0.634929</td><td class="num">0.808214</td><td>Best strict math, not combined winner.</td></tr>
+          <tr><td><code>blocks:24,32</code></td><td class="num">0.971823</td><td class="num">0.628559</td><td class="num">0.800191</td><td>Near baseline.</td></tr>
+          <tr><td><code>blocks:0,0</code></td><td class="num">0.970181</td><td class="num">0.629710</td><td class="num">0.799945</td><td>AEON baseline.</td></tr>
+          <tr><td><code>blocks:30,35</code></td><td class="num">0.964841</td><td class="num">0.627521</td><td class="num">0.796181</td><td>Official-base winner, not AEON winner.</td></tr>
+        </tbody>
+      </table>
+      <figure>
+        <img src="../qwen36-aeon-rys-15-20/assets/strict_scan_mean.svg" alt="Bar chart of AEON strict scan mean scores for 15/20, 31/34, 11/14, 24/32, baseline, and 30/35.">
+        <figcaption>The strict mean chart uses the same values as the table above. The score axis is intentionally narrowed and labelled because these candidates are close together.</figcaption>
+      </figure>
+      <div class="decision">
+        <h3>Decision From The Full List</h3>
+        <p>The page should not imply that every possible single-layer duplication across all 64 layers was run. The documented evidence supports: 13 early AEON short-scan mappings, 6 strict AEON mappings, one true single-layer candidate in the short scan, and a separate single-entry strict file for <code>15,20</code>.</p>
+      </div>
+    </section>
+
+    <section id="source" data-od-id="source">
+      <h2>Source Model And RYS Build</h2>
+      <p>The source branch for this release is AEON-7/Qwen3.6-27B-AEON-Ultimate-Uncensored. The RYS operation was a checkpoint transformation: duplicate a trained layer window and insert it back into the stack.</p>
+      <figure>
+        <img src="../rys-layer-duplication-guide/assets/rys_insert_mapping_blocks_15_20.png" alt="RYS 15/20 insert mapping showing source layers 15 to 19 duplicated into output layers 20 to 24.">
+        <figcaption>For <code>blocks:15,20</code>, source layers <code>15..19</code> are duplicated after source layer 19. Output layers <code>20..24</code> are the copied window, and source layer 20 resumes at output layer 25.</figcaption>
+      </figure>
+      <div class="grid-2">
+        <div class="decision">
+          <h3>Build Rule</h3>
+          <p>Every output layer must copy its weights and execution metadata from the same source layer. For Qwen3.6 hybrid models, remapping <code>text_config.layer_types</code> with the same output-to-source map was execution-critical.</p>
+        </div>
+        <div class="decision warn">
+          <h3>Failure Mode</h3>
+          <p>A broken RYS checkpoint can load and still generate badly. The key trap was treating the copied tensors and the per-layer execution plan as separate ledgers.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="selection" data-od-id="selection">
+      <h2>Layer-Window Selection</h2>
+      <p>The selected window was not chosen because it had the highest score on every possible slice. It was chosen because it won the balanced AEON strict scan and later survived the practical Q4_NL compression screen better than the stronger math-leaning branch.</p>
+      <figure>
+        <img src="../rys-layer-duplication-guide/assets/strict_probe_results_chart.png" alt="Strict probe chart comparing AEON RYS candidate windows.">
+        <figcaption>The strict scan used AEON validation files, not the older official-base scan. The official-base winner did not transfer as the AEON winner.</figcaption>
+      </figure>
+      <table>
+        <thead>
+          <tr><th>Spec</th><th class="num">math_120</th><th class="num">eq_140</th><th class="num">Combined</th><th class="num">Delta vs AEON baseline</th><th>Read</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>blocks:15,20</code></td><td class="num">0.971441</td><td class="num">0.647347</td><td class="num">0.809394</td><td class="num">+1.181%</td><td>Best balanced strict candidate.</td></tr>
+          <tr><td><code>blocks:31,34</code></td><td class="num">0.977269</td><td class="num">0.640750</td><td class="num">0.809010</td><td class="num">+1.133%</td><td>Very close second.</td></tr>
+          <tr><td><code>blocks:11,14</code></td><td class="num">0.981498</td><td class="num">0.634929</td><td class="num">0.808214</td><td class="num">+1.034%</td><td>Best strict math, not combined winner.</td></tr>
+          <tr><td><code>blocks:24,32</code></td><td class="num">0.971823</td><td class="num">0.628559</td><td class="num">0.800191</td><td class="num">+0.031%</td><td>Near baseline.</td></tr>
+          <tr><td><code>blocks:0,0</code></td><td class="num">0.970181</td><td class="num">0.629710</td><td class="num">0.799945</td><td class="num">baseline</td><td>AEON baseline.</td></tr>
+          <tr><td><code>blocks:30,35</code></td><td class="num">0.964841</td><td class="num">0.627521</td><td class="num">0.796181</td><td class="num">-0.471%</td><td>Official-base winner, not AEON winner.</td></tr>
+        </tbody>
+      </table>
+      <div class="grid-2">
+        <div class="decision">
+          <h3>Final Materialized 15/20 Check</h3>
+          <p>After the materialized 15/20 artifact was built, strict checks recorded <code>0.983317798162</code> on <code>artifact_15_20_strict_math120.pkl</code> with <code>120/120</code>, and <code>0.647756674780</code> on <code>artifact_15_20_strict_eq140.pkl</code> with <code>139/139</code>. Combined: <code>0.815537236471</code>.</p>
+        </div>
+        <div class="decision warn">
+          <h3>Short Scan Caveat</h3>
+          <p>The earlier 13-candidate short scan was not the final selection basis. In that short <code>math_16 + eq_16</code> view, <code>24,32</code> was slightly higher than <code>15,20</code>, so the release choice depends on the stricter balanced scan plus quantization survival.</p>
+        </div>
+      </div>
+      <div class="decision">
+        <h3>Decision</h3>
+        <p>Select <code>15,20</code> for the AEON release branch because it had the best balanced strict result. Keep <code>11,14</code> in mind as a math-leaning research branch, not the default release target.</p>
+      </div>
+    </section>
+
+    <section id="quant" data-od-id="quant">
+      <h2>Quantization Survival</h2>
+      <p>This is the main reason the public release exists as a Q4-class model. The RYS BF16 did not produce a huge headline gain by itself. The useful result was that the selected branch held up unusually well after compression.</p>
+      <figure>
+        <img src="../rys-layer-duplication-guide/assets/quantization_survival_cards.png" alt="Quantization survival cards comparing RYS candidate behavior after quantization.">
+        <figcaption>The quantization result is the core release argument: make the small file useful, not just make a larger BF16 variant.</figcaption>
+      </figure>
+      <figure>
+        <img src="../qwen36-aeon-rys-15-20/assets/q4nl_claim_visual.svg" alt="Visual comparison of BF16 reference artifact versus released IQ4_NL deployment target.">
+        <figcaption>The BF16 files are for exploration and continued work. The named project target is the compressed IQ4_NL release path.</figcaption>
+      </figure>
+      <table>
+        <thead>
+          <tr><th>Probe</th><th class="num">RYS BF16</th><th class="num">Released IQ4_NL</th><th class="num">Change</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Mixed four-probe mean</td><td class="num">0.729899</td><td class="num">0.724435</td><td class="num">-0.005465 / -0.7487%</td></tr>
+          <tr><td><code>math_16</code></td><td class="num">0.842143</td><td class="num">0.789686</td><td class="num">down</td></tr>
+          <tr><td><code>eq_16</code></td><td class="num">0.712340</td><td class="num">0.711090</td><td class="num">near flat</td></tr>
+          <tr><td><code>math_4</code></td><td class="num">0.485116</td><td class="num">0.516963</td><td class="num">up</td></tr>
+          <tr><td><code>gsm8k_5</code></td><td class="num">0.880000</td><td class="num">0.880000</td><td class="num">flat</td></tr>
+        </tbody>
+      </table>
+      <figure>
+        <img src="../qwen36-aeon-rys-15-20/assets/quantization_survival.svg" alt="Grouped bar chart comparing BF16 and released IQ4_NL scores across the mixed mean, math_16, eq_16, math_4, and gsm8k_5 probes.">
+        <figcaption>The released IQ4_NL stayed within <code>-0.0055</code> absolute of the BF16 mixed four-probe mean, while the individual probes moved in different directions.</figcaption>
+      </figure>
+      <div class="grid-2">
+        <div class="decision">
+          <h3>Decision</h3>
+          <p>Keep the main release centered on IQ4_NL because the mixed four-probe drop was small relative to the size reduction: about 57.6 GB BF16 GGUF to 16.6 GB IQ4_NL.</p>
+        </div>
+        <div class="decision warn">
+          <h3>Important Caveat</h3>
+          <p>The <code>11,14</code> quant headline is not the same scoreboard. Its two-probe reasoning slice went from 0.854324 BF16 to 0.729260 IQ4_NL, a much larger drop, but that file only used <code>math_4</code> and <code>gsm8k_5</code>. A separate no-think <code>math_16 + eq_16</code> file showed a smaller drop, 0.759275 to 0.738754. Defensible read: 11/14 was strong on some probes but more volatile, and it did not win the strict-balanced scan.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="runtime" data-od-id="runtime">
+      <h2>Runtime Profile</h2>
+      <p>The model is released for the custom AEON ik-llama fork. That is not packaging trivia; it is part of the tested artifact. The fork carries the Qwen3.6 hybrid and graph-split work needed for this line.</p>
+      <pre><code>./build/bin/llama-server \
+  -m /path/to/Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-ik-llama-custom-mixed.gguf \
+  -c 65536 \
+  -ngl 999 \
+  -np 1 \
+  -fa on \
+  -sm graph \
+  --temp 0.7 \
+  --jinja \
+  --reasoning-format deepseek \
+  --reasoning-budget 0 \
+  -cram 0 \
+  --ctx-checkpoints 0</code></pre>
+      <div class="grid-2">
+        <div class="decision">
+          <h3>Why the Fork Exists</h3>
+          <p>The project needed custom mixed-GGUF support, Qwen3.6/Qwen3.5 hybrid handling, graph-split stability work, Jinja chat formatting, DeepSeek reasoning extraction, and May 2026 duplicate tool-call filtering.</p>
+        </div>
+        <div class="decision">
+          <h3>Long Context</h3>
+          <p>The public profile starts with <code>-c 65536</code>. The same family was also used for <code>131072</code> context comparisons, and default/FP16 KV was separately tested to about 160k context without the earlier failure pattern. FP32 KV was a conservative validation setting, not a requirement.</p>
+        </div>
+      </div>
+      <figure>
+        <img src="../qwen36-aeon-rys-15-20/assets/runtime_tradeoff_cards.svg" alt="Runtime and tradeoff cards for the required fork, materialized RYS, long-context KV caveat, and experimental MTP branch.">
+        <figcaption>The runtime cards collect the practical constraints that matter before someone treats the file as a stock GGUF.</figcaption>
+      </figure>
+      <table>
+        <thead>
+          <tr><th>Runtime Check</th><th>Setup</th><th class="num">Decode</th><th>Decision</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Recommended custom path</td><td>Graph split, long-context deployment profile, FP32 KV validation snapshot.</td><td class="num">39.37 tok/s</td><td>Public runtime path.</td></tr>
+          <tr><td>Patched upstream-style comparison</td><td>Internal standard-typed comparison path, shorter context, layer-style comparison.</td><td class="num">22.51 tok/s</td><td>Not released as the public target.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="mtp" data-od-id="mtp">
+      <h2>MTP And Speed Work</h2>
+      <p>The MTP file is real and structurally valid, but it did not replace the default. We kept it because it is useful for runtime research, not because it beat the normal non-MTP file.</p>
+      <table>
+        <thead>
+          <tr><th>Check</th><th class="num">Result</th><th>Read</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>MTP metadata</td><td class="num"><code>qwen35.nextn_predict_layers = 1</code></td><td>MTP tail exists.</td></tr>
+          <tr><td>MTP tensor coverage</td><td class="num">8 quantizable <code>blk.69</code> tensors</td><td>Patched imatrix collection covered the MTP tail.</td></tr>
+          <tr><td>MTP-aware imatrix</td><td class="num">80 chunks, PPL 4.3762 +/- 0.07886</td><td>Calibration path completed.</td></tr>
+          <tr><td>512-token quality</td><td class="num">0.166138 score with MTP</td><td>Effectively identical to the old MTP GGUF in that suite.</td></tr>
+          <tr><td>2048-token no-MTP quality on MTP file</td><td class="num">worst repeat 59</td><td>Worse repeat penalty than the practical non-MTP default.</td></tr>
+        </tbody>
+      </table>
+      <table>
+        <thead>
+          <tr><th>Speed Check</th><th class="num">Decode</th><th class="num">Prompt</th><th>Read</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>No-MTP graph split reference</td><td class="num">48.6795 tok/s</td><td class="num">214.9709 tok/s</td><td>Final clean matrix reference; still fastest.</td></tr>
+          <tr><td>Naive MTP draft-1</td><td class="num">38.1550 tok/s</td><td class="num">noted in matrix</td><td>Acceptance 225/345 = 65.217%.</td></tr>
+          <tr><td>Adaptive MTP short check</td><td class="num">45.3589 tok/s</td><td class="num">208.79 tok/s</td><td>Acceptance 158/218 = 72.477%; closer, still not enough to replace default.</td></tr>
+          <tr><td>No-MTP long 768-token check</td><td class="num">48.7140 tok/s</td><td class="num">long check</td><td>Longer generation still favored no-MTP.</td></tr>
+          <tr><td>Adaptive MTP long 768-token check</td><td class="num">46.9539 tok/s</td><td class="num">long check</td><td>Acceptance 38/54 = 70.37%; close but still behind.</td></tr>
+        </tbody>
+      </table>
+      <figure>
+        <img src="../qwen36-aeon-rys-15-20/assets/mtp_decode_speed.svg" alt="Horizontal bar chart comparing no-MTP, naive MTP, and adaptive MTP decode-speed notes.">
+        <figcaption>These are internal same-machine speed notes used for the release decision, not a normalized public speed benchmark. In the tested paths, no-MTP stayed slightly ahead.</figcaption>
+      </figure>
+      <div class="decision warn">
+        <h3>Decision</h3>
+        <p>Publish the MTP GGUF as experimental. Keep the non-MTP IQ4_NL file as the default because practical quality and speed still favored it.</p>
+      </div>
+    </section>
+
+    <section id="rejected" data-od-id="rejected">
+      <h2>Rejected Or Non-Default Variants</h2>
+      <p>Several useful experiments did not become the public default. They are included here because the negative results explain the release shape.</p>
+      <table>
+        <thead>
+          <tr><th>Variant</th><th>Test</th><th>Result</th><th>Decision</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>11,14</code> IQ4_NL</td>
+            <td>Long-reasoning fair comparison, <code>math_16 + gsm8k_5</code>, 21 questions, 2048 max tokens.</td>
+            <td>Same final/any exact rates as 15/20, but much cleaner repetition: worst 4gram repeat 7 vs 47 for 15/20.</td>
+            <td>This resolves the long-reasoning Q4_NL setting in favor of cleaner 11/14 repetition, but does not replace the selected release without matching evidence across the mixed quant suite, runtime packaging, and practical agent tests.</td>
+          </tr>
+          <tr>
+            <td>RYS-window mixed-Q8</td>
+            <td>Force 46 attention/SSM tensors in layers 15..24 to Q8_0.</td>
+            <td>File size +3.35%; mean best-rel 0.87299 vs 0.89998 baseline in a 9-item quick paired eval.</td>
+            <td>Do not replace IQ4_NL. Consider narrower Q8 variants later.</td>
+          </tr>
+          <tr>
+            <td>Standard llama.cpp-style public file</td>
+            <td>Internal patched upstream-style comparison path.</td>
+            <td>Still required special runtime assumptions and was not the main tested target.</td>
+            <td>Do not present as stock llama.cpp support.</td>
+          </tr>
+          <tr>
+            <td>MTP default</td>
+            <td>MTP graph split, graph reuse, adaptive gate, MTP-tail imatrix.</td>
+            <td>Technically valid but slower or less clean than no-MTP in tested paths.</td>
+            <td>Publish as experimental only.</td>
+          </tr>
+        </tbody>
+      </table>
+      <figure>
+        <img src="../qwen36-aeon-rys-15-20/assets/long_reasoning_11_14_vs_15_20.svg" alt="Two-panel chart showing 11/14 versus 15/20 composite score and worst 4-gram repeat in the long-reasoning caveat test.">
+        <figcaption>The 11/14 branch deserves the caveat: it tied final/any exact rates in this slice and had much cleaner repetition. It still was not rerun through the full release decision ladder.</figcaption>
+      </figure>
+    </section>
+
+    <section id="practical" data-od-id="practical">
+      <h2>Practical Agent Tests</h2>
+      <p>The release was also used in practical coding-agent style tests. These are not broad benchmarks, but they are useful because they expose format discipline, timeout behavior, and whether the compressed model can still complete a real file-editing task.</p>
+      <table>
+        <thead>
+          <tr><th>Test</th><th>Setting</th><th>Result</th><th>Read</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Five-task production matrix</td>
+            <td>Base AEON RYS Q4_NL, temp 0.7, graph split, flash attention, 65k context.</td>
+            <td>Scores: 0.75, 1.0, 0.25, 0.25, 0.5. Mean 0.55. Strict pass count was weak.</td>
+            <td>The base model could build and reason, but was not yet reliable enough as a coding-agent behavior default.</td>
+          </tr>
+          <tr>
+            <td>Krita-like canvas app attempt 1</td>
+            <td>Temp 0.7, 131k context, conservative FP32 KV, graph split, flash attention.</td>
+            <td><code>rc=1</code>, 337s, verifier 0.0417 false, no usable root files.</td>
+            <td>Real first-attempt failure due to invalid tool/diff response while writing app files.</td>
+          </tr>
+          <tr>
+            <td>Krita-like canvas app retry</td>
+            <td>Same practical canvas task and runtime family.</td>
+            <td><code>rc=0</code>, 803s, verifier 1.0 true, complete app files.</td>
+            <td>The compressed RYS base can complete the task, but the retry/failure pattern motivated later behavior tuning.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="decision">
+        <h3>Decision</h3>
+        <p>Keep this release as the strong base Q4_NL artifact. Treat later SignalLatch work as a behavior-finetuned reliability layer on top, not as a replacement for the base release record.</p>
+      </div>
+    </section>
+
+    <section id="tradeoffs" data-od-id="tradeoffs">
+      <h2>Known Tradeoffs</h2>
+      <p>The most important implementation tradeoff is that this public artifact is materialized RYS: the copied layers are stored as normal tensors rather than runtime aliases.</p>
+      <table>
+        <thead>
+          <tr><th>Item</th><th class="num">Value</th><th>Meaning</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>GGUF file size</td><td class="num">16,554,834,080 bytes</td><td>Released default file size.</td></tr>
+          <tr><td>Duplicate layers 20..24 tensor span</td><td class="num">1,067,475,584 bytes / 0.994 GiB</td><td>Materialized weight cost of the copied RYS window.</td></tr>
+          <tr><td>Duplicate span vs file</td><td class="num">6.448%</td><td>Approximate file-level footprint.</td></tr>
+          <tr><td>Duplicate span vs block tensors</td><td class="num">7.220%</td><td>Share among transformer block tensor bytes.</td></tr>
+          <tr><td>Logical layers</td><td class="num">69</td><td>64 source layers + 5 inserted RYS layers.</td></tr>
+          <tr><td>KV effect at 131k</td><td class="num">about +1.0 GiB FP16 / +2.0 GiB FP32</td><td>The inserted window contains two full-attention layers, which add KV/cache; all five inserted layers still add compute even if future weight aliasing is implemented.</td></tr>
+        </tbody>
+      </table>
+      <div class="grid-2">
+        <div class="decision warn">
+          <h3>Why It Stayed Materialized</h3>
+          <p>Materialized tensors kept the HF checkpoint, GGUF conversion, quantization, and downstream fine-tune/LoRA workflows explicit and stable for the tested release.</p>
+        </div>
+        <div class="decision warn">
+          <h3>Future Optimization</h3>
+          <p>A procedural or aliased RYS runtime could reuse source-layer weight buffers and save duplicated weight memory. That would be a new runtime representation and should be rebuilt and reverified before replacing this release.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="ledger" data-od-id="ledger">
+      <h2>Evidence Ledger</h2>
+      <p>This ledger records the exact source filenames used to reconstruct the page. Some archives are internal experiment files, but the public documentation records their names so the result is traceable.</p>
+      <div class="ledger">
+        <div>
+          <strong>Workspace status</strong>
+          <span><code>qwen36_rys_work/README.md</code> records current defaults, directory map, RYS semantics, strict top-6 table, quantization snapshot, GGUF/imatrix paths, and serving notes.</span>
+        </div>
+        <div>
+          <strong>Strict AEON scan</strong>
+          <span><code>qwen36_aeon_validation/results/aeon_strict_math120.pkl</code> and <code>qwen36_aeon_validation/results/aeon_strict_eq140.pkl</code>.</span>
+        </div>
+        <div>
+          <strong>15/20 BF16 vs IQ4_NL</strong>
+          <span><code>qwen36_aeon_validation/results/quant_compare_15_20_q4_vs_bf16_math16_eq16_reasoning_math4_gsm8k5_20260426.json</code>.</span>
+        </div>
+        <div>
+          <strong>11/14 quant caveat</strong>
+          <span><code>qwen36_aeon_validation/results/quant_compare_11_14_q4_vs_bf16_reasoning_math4_gsm8k5_20260426.json</code>.</span>
+        </div>
+        <div>
+          <strong>11/14 vs 15/20 long-reasoning comparison</strong>
+          <span><code>qwen36_rys_work/rys_fair_compare_11_14_vs_15_20/results/q4nl_reason2048_ctx32768_bwrap0349_20260430_123403/</code>.</span>
+        </div>
+        <div>
+          <strong>Mixed-Q8 probe</strong>
+          <span><code>qwen36_rys_work/aeon_rys_15_20_gguf/mixed_q8_ryswin/README_results.md</code> and <code>latest_quick_eval_results.json</code>.</span>
+        </div>
+        <div>
+          <strong>MTP-aware imatrix and quality</strong>
+          <span><code>qwen36_rys_work/aeon_rys_15_20_mtp_gguf/imatrix_mtp_iq4nl/README_results.md</code>.</span>
+        </div>
+        <div>
+          <strong>MTP speed search</strong>
+          <span><code>qwen36_rys_work/mtp_speed_probe/autoresearch_3090/RESULTS_3090_MTP_SPEED_20260501.md</code> and <code>qwen36_rys_work/mtp_rebuild_20260501_151130/final_results.md</code>.</span>
+        </div>
+        <div>
+          <strong>Practical canvas comparison</strong>
+          <span><code>qwen36_rys_work/aeon_rys_15_20_signallatch_gguf/evidence/canvas_unsloth_comparison_20260505_summary.md</code>.</span>
+        </div>
+        <div>
+          <strong>Published model card</strong>
+          <span><a href="https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF">Qwen3.6-27B-AEON-RYS-15-20-GGUF</a>.</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p>Last updated: 2026-05-06. This page covers the non-finetuned Qwen3.6 AEON RYS 15/20 release only. For the behavior-finetuned SignalLatch release, see <a href="../qwen36-aeon-rys-signallatch/index.html">the SignalLatch page</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>
