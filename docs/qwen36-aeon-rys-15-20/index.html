@@ -376,6 +376,7 @@
           <li><a href="#artifacts">Released Artifacts</a></li>
           <li><a href="#timeline">Experiment Timeline</a></li>
           <li><a href="#test-counts">Test Coverage Snapshot</a></li>
+          <li><a href="#candidate-list">Complete Candidate Lists</a></li>
           <li><a href="#source">Source Model And RYS Build</a></li>
           <li><a href="#selection">Layer-Window Selection</a></li>
           <li><a href="#quant">Quantization Survival</a></li>
@@ -497,6 +498,52 @@
           <tr><td>Practical agent checks</td><td>5-task production matrix plus 5-run canvas comparison set.</td><td>Could the compressed model act as a coding-agent base?</td><td>Yes with caveats; behavior reliability motivated later SignalLatch.</td></tr>
         </tbody>
       </table>
+    </section>
+
+    <section id="candidate-list" data-od-id="candidate-list">
+      <h2>Complete Candidate Lists</h2>
+      <p>The first version of this page summarized the scan coverage and listed the decision rows, but did not spell out every tested mapping. This section is the explicit candidate appendix from the AEON scan files.</p>
+      <div class="decision warn">
+        <h3>Single-Layer Note</h3>
+        <p>The early short scan contains one true single-layer duplication candidate: <code>blocks:20,21</code>, which duplicates source layer 20 only. The file named <code>aeon_single_blocks_15_20_math120.pkl</code> is misleadingly named for this question: it contains one entry for the <code>15,20</code> block candidate, not a full single-layer sweep.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Early short-scan candidate</th><th class="num">math_16</th><th class="num">eq_16</th><th class="num">Mean</th><th>Read</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>blocks:24,32</code></td><td class="num">0.821109</td><td class="num">0.714006</td><td class="num">0.767558</td><td>Best short-scan mean; not final strict winner.</td></tr>
+          <tr><td><code>blocks:15,20</code></td><td class="num">0.818587</td><td class="num">0.712340</td><td class="num">0.765463</td><td>Strong short-scan candidate; later strict-balanced winner.</td></tr>
+          <tr><td><code>blocks:11,14</code></td><td class="num">0.802940</td><td class="num">0.715609</td><td class="num">0.759275</td><td>Strong math/reasoning branch, later caveated.</td></tr>
+          <tr><td><code>blocks:31,34</code></td><td class="num">0.790785</td><td class="num">0.713317</td><td class="num">0.752051</td><td>Close strict-scan runner-up later.</td></tr>
+          <tr><td><code>blocks:30,35</code></td><td class="num">0.800002</td><td class="num">0.701506</td><td class="num">0.750754</td><td>Official-base winner did not transfer as AEON winner.</td></tr>
+          <tr><td><code>blocks:0,0</code></td><td class="num">0.794387</td><td class="num">0.706506</td><td class="num">0.750447</td><td>AEON baseline.</td></tr>
+          <tr><td><code>blocks:11,14;30,35</code></td><td class="num">0.771005</td><td class="num">0.709006</td><td class="num">0.740006</td><td>Two-window mesh; did not beat simpler candidates.</td></tr>
+          <tr><td><code>blocks:15,27</code></td><td class="num">0.756966</td><td class="num">0.714423</td><td class="num">0.735695</td><td>Wider mid-window candidate.</td></tr>
+          <tr><td><code>blocks:28,36</code></td><td class="num">0.766733</td><td class="num">0.700577</td><td class="num">0.733655</td><td>Late-window candidate.</td></tr>
+          <tr><td><code>blocks:9,17</code></td><td class="num">0.730846</td><td class="num">0.723526</td><td class="num">0.727186</td><td>Good EQ, weaker math.</td></tr>
+          <tr><td><code>blocks:30,34</code></td><td class="num">0.713382</td><td class="num">0.716506</td><td class="num">0.714944</td><td>Late-window candidate.</td></tr>
+          <tr><td><code>blocks:8,17</code></td><td class="num">0.664031</td><td class="num">0.724776</td><td class="num">0.694403</td><td>High EQ but poor math balance.</td></tr>
+          <tr><td><code>blocks:20,21</code></td><td class="num">0.680363</td><td class="num">0.703526</td><td class="num">0.691944</td><td>Only true single-layer duplication candidate in this short scan.</td></tr>
+        </tbody>
+      </table>
+      <table>
+        <thead>
+          <tr><th>Strict-scan candidate</th><th class="num">math_120</th><th class="num">eq_140</th><th class="num">Mean</th><th>Decision role</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>blocks:15,20</code></td><td class="num">0.971441</td><td class="num">0.647347</td><td class="num">0.809394</td><td>Winner.</td></tr>
+          <tr><td><code>blocks:31,34</code></td><td class="num">0.977269</td><td class="num">0.640750</td><td class="num">0.809010</td><td>Very close runner-up.</td></tr>
+          <tr><td><code>blocks:11,14</code></td><td class="num">0.981498</td><td class="num">0.634929</td><td class="num">0.808214</td><td>Best strict math, not combined winner.</td></tr>
+          <tr><td><code>blocks:24,32</code></td><td class="num">0.971823</td><td class="num">0.628559</td><td class="num">0.800191</td><td>Near baseline.</td></tr>
+          <tr><td><code>blocks:0,0</code></td><td class="num">0.970181</td><td class="num">0.629710</td><td class="num">0.799945</td><td>AEON baseline.</td></tr>
+          <tr><td><code>blocks:30,35</code></td><td class="num">0.964841</td><td class="num">0.627521</td><td class="num">0.796181</td><td>Official-base winner, not AEON winner.</td></tr>
+        </tbody>
+      </table>
+      <div class="decision">
+        <h3>Decision From The Full List</h3>
+        <p>The page should not imply that every possible single-layer duplication across all 64 layers was run. The documented evidence supports: 13 early AEON short-scan mappings, 6 strict AEON mappings, one true single-layer candidate in the short scan, and a separate single-entry strict file for <code>15,20</code>.</p>
+      </div>
     </section>
 
     <section id="source" data-od-id="source">
