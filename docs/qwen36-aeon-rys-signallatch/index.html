@@ -499,7 +499,7 @@
 
 # Conservative validation shape used for the canvas comparison
 -c 131072 -ctk f32 -ctv f32</code></pre>
-          <p>Current local single-GPU observation: the SignalLatch Q4_NL server is running as an OpenAI-compatible endpoint at <code>http://127.0.0.1:8027/v1</code>. With roughly <code>160k</code> context and default/FP16 KV, the full setup fits at about <strong>20.3 GiB</strong> observed VRAM and runs comfortably on a single 24 GB-class GPU. Treat this as a practical local footprint note, not a normalized memory benchmark.</p>
+          <p>Practical single-GPU deployment: the SignalLatch Q4_NL release is small enough for practical use on a single RTX 3090 / 24 GB-class card. In an observed reference profile, roughly <code>160k</code> context with default/FP16 KV fit at about <strong>20.3 GiB</strong> total VRAM. Treat this as a deployment reference point, not a guaranteed memory benchmark.</p>
         </div>
         <div class="card flat">
           <h3>Why <code>--ctx-checkpoints 0</code>?</h3>

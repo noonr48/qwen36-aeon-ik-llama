@@ -733,8 +733,8 @@
         </div>
       </div>
       <div class="decision">
-        <h3>Current Single-GPU Observation</h3>
-        <p>Our current local Q4_NL server setup exposes an OpenAI-compatible endpoint at <code>http://127.0.0.1:8027/v1</code>. In that setup, the model line runs with roughly <code>160k</code> context using default/FP16 KV and fits at about <strong>20.3 GiB</strong> total observed VRAM, running comfortably on a single 24 GB-class GPU. This is a practical local footprint note, not a normalized cross-hardware memory benchmark.</p>
+        <h3>Practical Single-GPU Deployment</h3>
+        <p>The Q4_NL release is small enough for practical single-GPU deployment. In an observed 24 GB-class GPU reference profile, roughly <code>160k</code> context with default/FP16 KV fit at about <strong>20.3 GiB</strong> total VRAM on an RTX 3090-class card. Treat this as a practical deployment reference point, not a guaranteed cross-hardware memory benchmark.</p>
       </div>
       <figure>
         <img src="assets/runtime_tradeoff_cards.svg" alt="Runtime and implementation cards for the required fork, GGUF representation, long-context KV caveat, and experimental MTP branch.">

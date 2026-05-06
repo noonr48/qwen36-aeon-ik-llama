@@ -817,7 +817,7 @@
   -ctk f32 \
   -ctv f32</code></pre>
       <div class="callout">
-        <p><strong>Current single-GPU observation:</strong> our current local SignalLatch Q4_NL server exposes an OpenAI-compatible endpoint at <code>http://127.0.0.1:8027/v1</code>. With roughly <code>160k</code> context and default/FP16 KV, the full setup fits at about <strong>20.3 GiB</strong> observed VRAM and runs comfortably on a single 24 GB-class GPU. This is a practical local footprint note, not a normalized memory benchmark.</p>
+        <p><strong>Practical single-GPU deployment:</strong> the SignalLatch Q4_NL release is small enough for practical single-GPU use. In an observed 24 GB-class GPU reference profile, roughly <code>160k</code> context with default/FP16 KV fit at about <strong>20.3 GiB</strong> total VRAM on an RTX 3090-class card. Treat this as a deployment reference point, not a guaranteed memory benchmark.</p>
       </div>
       <div class="cards">
         <div class="card good">
