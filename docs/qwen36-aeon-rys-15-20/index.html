@@ -540,7 +540,7 @@
 
     <section id="test-counts" data-od-id="test-counts">
       <h2>Test Coverage Snapshot</h2>
-      <p>This is the compact count of the evidence behind the release. The exact datasets and files are listed again in the evidence ledger.</p>
+      <p>This is the compact count of the evidence behind the release. The public values used for the argument are reproduced on this page; the evidence ledger gives provenance filenames.</p>
       <table>
         <thead>
           <tr><th>Stage</th><th>Coverage</th><th>What It Answered</th><th>Decision Impact</th></tr>
@@ -553,7 +553,7 @@
           <tr><td>Long fair comparison</td><td>2 IQ4_NL branches, 21 numeric questions, 2048-token reasoning budget.</td><td>Did 15/20 have repetition weaknesses against 11/14?</td><td>Yes; documented as a real caveat.</td></tr>
           <tr><td>Mixed-Q8 probe</td><td>2 quant variants, 9-item quick paired eval.</td><td>Would protecting the RYS window in Q8 improve the default?</td><td>No replacement.</td></tr>
           <tr><td>MTP work</td><td>MTP-tail imatrix, 512/2048 quality checks, short and long speed matrices.</td><td>Should the MTP file become the default?</td><td>No; keep experimental.</td></tr>
-          <tr><td>Practical agent checks</td><td>5-task production matrix plus 5-run canvas comparison set.</td><td>Could the compressed model act as a coding-agent base?</td><td>Yes with caveats; behavior reliability motivated later SignalLatch.</td></tr>
+          <tr><td>Practical agent checks</td><td>Base row from the 5-task production matrix, plus the AEON RYS attempt/retry rows from a later 5-run canvas comparison.</td><td>Could the compressed model act as a coding-agent base?</td><td>Yes with caveats. SignalLatch and Unsloth comparison rows are downstream context, not part of this base-release claim.</td></tr>
         </tbody>
       </table>
       <div class="decision">
@@ -826,35 +826,51 @@
 
     <section id="practical" data-od-id="practical">
       <h2>Practical Agent Tests</h2>
-      <p>The release was also used in practical coding-agent style tests. These are not broad benchmarks, but they are useful because they expose format discipline, timeout behavior, and whether the compressed model can still complete a real file-editing task.</p>
+      <p>These checks use the released non-finetuned AEON RYS 15/20 IQ4_NL artifact unless a row explicitly says otherwise. They are practical coding-agent checks, not broad benchmarks. The numbers needed to interpret them are reproduced here; the file paths in the ledger are provenance only.</p>
+      <div class="decision warn">
+        <h3>Scope Boundary</h3>
+        <p>Some practical rows were collected during later SignalLatch and Unsloth comparison work. This page uses only the AEON RYS IQ4_NL base rows. SignalLatch strength-sweep and clean-pass claims belong to the separate fine-tune page.</p>
+      </div>
+      <div class="grid-3">
+        <div class="decision">
+          <h3>Five-task Matrix</h3>
+          <p>Base run: AEON RYS IQ4_NL. Setting: temp <code>0.7</code>, graph split, flash attention, Jinja/DeepSeek, <code>65536</code> context. Result: strict pass <code>1/5</code>, mean <code>0.550</code>, task scores <code>0.75, 1.00, 0.25, 0.25, 0.50</code>, timeout-like tasks <code>4</code>.</p>
+        </div>
+        <div class="decision warn">
+          <h3>Canvas Attempt 1</h3>
+          <p>Base run: AEON RYS IQ4_NL attempt 1. Setting: temp <code>0.7</code>, <code>131072</code> context, FP32 KV, graph split, flash attention. Result: <code>rc=1</code>, 337s, verifier <code>0.0417 / false</code>, root files: none.</p>
+        </div>
+        <div class="decision">
+          <h3>Canvas Retry</h3>
+          <p>Base run: AEON RYS IQ4_NL retry 1. Same task and runtime family. Result: <code>rc=0</code>, 803s, verifier <code>1.0 / true</code>, complete app files. Read: the base can complete the task, but first-attempt reliability remains a caveat.</p>
+        </div>
+      </div>
       <table>
         <thead>
-          <tr><th>Test</th><th>Setting</th><th>Result</th><th>Read</th></tr>
+          <tr><th>Production Matrix Task</th><th class="num">Score</th><th>Pass</th><th>RC / Time</th><th>Verifier Read</th></tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Five-task production matrix</td>
-            <td>Base AEON RYS Q4_NL, temp 0.7, graph split, flash attention, 65k context.</td>
-            <td>Scores: 0.75, 1.0, 0.25, 0.25, 0.5. Mean 0.55. Strict pass count was weak.</td>
-            <td>The base model could build and reason, but was not yet reliable enough as a coding-agent behavior default.</td>
-          </tr>
-          <tr>
-            <td>Krita-like canvas app attempt 1</td>
-            <td>Temp 0.7, 131k context, conservative FP32 KV, graph split, flash attention.</td>
-            <td><code>rc=1</code>, 337s, verifier 0.0417 false, no usable root files.</td>
-            <td>Real first-attempt failure due to invalid tool/diff response while writing app files.</td>
-          </tr>
-          <tr>
-            <td>Krita-like canvas app retry</td>
-            <td>Same practical canvas task and runtime family.</td>
-            <td><code>rc=0</code>, 803s, verifier 1.0 true, complete app files.</td>
-            <td>The compressed RYS base can complete the task, but the retry/failure pattern motivated later behavior tuning.</td>
-          </tr>
+          <tr><td><code>github_mcp_commits_fix_repeat</code></td><td class="num">0.75</td><td>No</td><td><code>rc=1</code>, 260s</td><td>Build, branch schema, branch output, and README checks passed; request path/branch parameter checks failed.</td></tr>
+          <tr><td><code>github_mcp_pr_details_fix</code></td><td class="num">1.00</td><td>Yes</td><td><code>rc=124</code>, 600s</td><td>Correctly used the PR detail endpoint and detail additions/deletions/changed-files fields, but still hit the full timeout.</td></tr>
+          <tr><td><code>local_search_kill_excess_fix</code></td><td class="num">0.25</td><td>No</td><td><code>rc=124</code>, 600s</td><td>Build passed; targeted process-kill behavior was not implemented.</td></tr>
+          <tr><td><code>local_search_search_timeout_fix</code></td><td class="num">0.25</td><td>No</td><td><code>rc=124</code>, 600s</td><td>Build passed; timeout schema and handler propagation were not implemented.</td></tr>
+          <tr><td><code>local_search_web_search_race_fix</code></td><td class="num">0.50</td><td>No</td><td><code>rc=124</code>, 600s</td><td>Multiple engines remained, but the first-success race behavior was not implemented.</td></tr>
+        </tbody>
+      </table>
+      <table>
+        <thead>
+          <tr><th>Canvas Harness Detail</th><th>Value Included Here</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Prompt</td><td>Build an isolated Krita-like raster canvas app with layers, brush/eraser, transforms, opacity, and a local AI image-generation stub.</td></tr>
+          <tr><td>Shared settings</td><td>Temp <code>0.7</code>, context <code>131072</code>, FP32 K/V cache, flash attention, graph split, Jinja, DeepSeek reasoning format, <code>CLAW_MAX_TOKENS=1800</code>, <code>TIMEOUT_SECONDS=900</code>.</td></tr>
+          <tr><td>Retry root files</td><td><code>index.html</code> 3,450 bytes; <code>styles.css</code> 7,062 bytes; <code>app.js</code> 17,551 bytes; <code>README.md</code> 1,033 bytes.</td></tr>
+          <tr><td>Excluded comparison rows</td><td>The full later comparison also included SignalLatch IQ4_NL, Unsloth IQ4_NL, and Unsloth Q8_0 rows. Those are not used as evidence for this non-finetuned base release.</td></tr>
         </tbody>
       </table>
       <div class="decision">
         <h3>Decision</h3>
-        <p>Keep this release as the strong base Q4_NL artifact. Treat later SignalLatch work as a behavior-finetuned reliability layer on top, not as a replacement for the base release record.</p>
+        <p>Keep this release claim narrow: AEON RYS 15/20 IQ4_NL is a viable compressed coding-agent base with practical competence and documented reliability caveats. SignalLatch is a later behavior-finetuned attempt to improve that reliability, not part of the non-finetuned release score.</p>
       </div>
     </section>
 
@@ -888,7 +904,7 @@
 
     <section id="ledger" data-od-id="ledger">
       <h2>Evidence Ledger</h2>
-      <p>This ledger records the exact source filenames used to reconstruct the page. Some archives are internal experiment files, but the public documentation records their names so the result is traceable.</p>
+      <p>This ledger records the source filenames used to reconstruct the page. It is a provenance map, not required reading: the public numeric data needed to understand the release is reproduced above in the tables, charts, captions, and artifact rows.</p>
       <div class="ledger">
         <div>
           <strong>Workspace status</strong>
@@ -923,8 +939,12 @@
           <span><code>qwen36_rys_work/mtp_speed_probe/autoresearch_3090/RESULTS_3090_MTP_SPEED_20260501.md</code> and <code>qwen36_rys_work/mtp_rebuild_20260501_151130/final_results.md</code>.</span>
         </div>
         <div>
+          <strong>Practical production matrix base row</strong>
+          <span><code>docs/ckpt386-s010-testing-process/evidence/base_q4nl_summary.md</code>. The base task scores, pass flags, return codes, and timings are reproduced in the Practical Agent Tests section.</span>
+        </div>
+        <div>
           <strong>Practical canvas comparison</strong>
-          <span><code>qwen36_rys_work/aeon_rys_15_20_signallatch_gguf/evidence/canvas_unsloth_comparison_20260505_summary.md</code>.</span>
+          <span><code>qwen36_rys_work/aeon_rys_15_20_signallatch_gguf/evidence/canvas_unsloth_comparison_20260505_summary.md</code>. Only the AEON RYS IQ4_NL attempt/retry rows are used for this base-release page; SignalLatch and Unsloth rows are downstream or external comparison context.</span>
         </div>
         <div>
           <strong>Published model card</strong>
