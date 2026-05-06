@@ -616,7 +616,7 @@
         <div class="step">
           <div>
             <h3>Quantized deployment target</h3>
-            <p>The project target is the compact <code>IQ4_NL</code> GGUF, not the largest possible BF16 artifact. BF16 exists for inspection, conversion, and downstream work.</p>
+            <p>The project target is the compact <code>IQ4_NL</code> GGUF, not the largest possible BF16 artifact. The fine-tuned BF16 GGUF exists as a source-quality artifact for inspection, conversion, and downstream work.</p>
           </div>
         </div>
         <div class="step">
@@ -642,12 +642,9 @@
           <p>Use this when you want the base RYS Q4_NL deployment without SignalLatch behavior tuning.</p>
         </article>
         <article class="card">
-          <h3>BF16 artifacts</h3>
-          <p>Use BF16 for exploration, inspection, conversion, training, and downstream work. It is not the normal inference target.</p>
-        </article>
-        <article class="card">
-          <h3>MTP artifact</h3>
-          <p>Use the MTP GGUF only for MTP/runtime testing. In our checks, the non-MTP file stayed faster and cleaner.</p>
+          <h3>BF16 source-quality artifact</h3>
+          <p><code>Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-BF16.gguf</code></p>
+          <p>Use this source-quality fine-tuned GGUF for exploration, inspection, conversion, training, and downstream work. It is not the normal inference target.</p>
         </article>
       </div>
     </section>
@@ -657,15 +654,11 @@
       <div class="cards">
         <article class="card">
           <h3>Can I run this in stock llama.cpp?</h3>
-          <p>Treat this as an ik-llama-targeted release. The public runtime path is the custom AEON fork.</p>
+          <p>No. This release line requires the custom AEON ik-llama fork built for this RYS model. Stock <code>llama.cpp</code> and default upstream <code>ik-llama</code> are not the supported runtime path. The custom fork includes the model-specific RYS/Qwen3.6 handling, graph-split work, Jinja/DeepSeek formatting support, and speed refinements used for the tested release.</p>
         </article>
         <article class="card">
           <h3>Does SignalLatch make the model solved?</h3>
           <p>No. It improved practical coding-agent reliability in the tested sweep, but variance remains. The claim is practical and bounded.</p>
-        </article>
-        <article class="card">
-          <h3>Does RYS always help?</h3>
-          <p>No. This page describes the tested Qwen3.6 AEON RYS 15/20 branch and deployment path. RYS windows belong to the exact source model and evaluation target.</p>
         </article>
         <article class="card">
           <h3>Where did the RYS idea come from?</h3>
