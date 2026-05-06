@@ -18,11 +18,11 @@
   <text x="90" y="261" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">The fork carries the tested hybrid/runtime path.</text>
   <rect x="606" y="134" width="518" height="170" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
   <rect x="606" y="134" width="12" height="170" rx="8" fill="#9a5a1c" stroke="#9a5a1c" stroke-width="1"/>
-  <text x="640" y="174" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="23" font-weight="850" fill="#9a5a1c" text-anchor="start">Materialized RYS</text>
-  <text x="640" y="202" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="850" fill="#17211f" text-anchor="start">Explicit tensors</text>
-  <text x="640" y="238" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">Copied layers are stored as normal output layer weights.</text>
-  <text x="640" y="261" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">That kept conversion, quantization, and later</text>
-  <text x="640" y="284" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">fine-tune work straightforward.</text>
+  <text x="640" y="174" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="23" font-weight="850" fill="#9a5a1c" text-anchor="start">GGUF representation</text>
+  <text x="640" y="202" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="850" fill="#17211f" text-anchor="start">Implementation note</text>
+  <text x="640" y="238" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">The copied RYS window is materialized in this file.</text>
+  <text x="640" y="261" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">The detailed duplicate-weight numbers are</text>
+  <text x="640" y="284" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">kept as a footnote.</text>
   <rect x="56" y="354" width="518" height="170" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
   <rect x="56" y="354" width="12" height="170" rx="8" fill="#275c86" stroke="#275c86" stroke-width="1"/>
   <text x="90" y="394" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="23" font-weight="850" fill="#275c86" text-anchor="start">Long context</text>

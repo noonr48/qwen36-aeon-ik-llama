@@ -397,13 +397,13 @@
     <div class="wrap">
       <div class="eyebrow">Non-finetuned release record</div>
       <h1>Qwen3.6 AEON RYS 15/20: what we tested, what won, and what did not.</h1>
-      <p class="dek">This is the long-form audit trail for the base, non-finetuned AEON RYS 15/20 GGUF release. It records the source model choice, layer-window selection, quantization evidence, runtime work, rejected variants, known tradeoffs, and the practical tests that shaped the final default file.</p>
+      <p class="dek">This is the long-form audit trail for the base, non-finetuned AEON RYS 15/20 GGUF release. It records the source model choice, layer-window selection, quantization evidence, runtime work, rejected variants, implementation notes, and the practical tests that shaped the final default file.</p>
       <div class="hero-grid">
         <div class="summary" aria-label="Release metrics">
           <div class="metric"><strong>15,20</strong><span>RYS window. Source layers 15..19 are duplicated into output layers 20..24.</span></div>
           <div class="metric"><strong>IQ4_NL</strong><span>Main deployment artifact. BF16 exists for exploration, not normal inference.</span></div>
           <div class="metric"><strong>-0.75%</strong><span>Mixed four-probe mean change from RYS BF16 to released IQ4_NL.</span></div>
-          <div class="metric"><strong>0.994 GiB</strong><span>Materialized duplicate-layer tensor span in the released GGUF.</span></div>
+          <div class="metric"><strong>custom fork</strong><span>Required runtime path for the released mixed GGUF and Qwen3.6 hybrid handling.</span></div>
         </div>
         <div class="note">
           <h2>Short Read</h2>
@@ -430,7 +430,7 @@
           <li><a href="#mtp">MTP And Speed Work</a></li>
           <li><a href="#rejected">Rejected Or Non-Default Variants</a></li>
           <li><a href="#practical">Practical Agent Tests</a></li>
-          <li><a href="#tradeoffs">Known Tradeoffs</a></li>
+          <li><a href="#tradeoffs">Implementation Footnotes</a></li>
           <li><a href="#ledger">Evidence Ledger</a></li>
         </ol>
       </div>
@@ -458,7 +458,7 @@
         <figcaption>The release story is a path, not a single score. The practical claim depends on the RYS build, strict selection, quantization survival, and tested runtime path together.</figcaption>
       </figure>
       <figure>
-        <img src="assets/caveat_map.svg" alt="Four caveat cards distinguishing strong evidence, the 11/14 repetition caveat, experimental MTP, and duplicate-weight tradeoff.">
+        <img src="assets/caveat_map.svg" alt="Four caveat cards distinguishing strong evidence, the 11/14 repetition caveat, experimental MTP, and implementation footnotes.">
         <figcaption>The page separates strong claims, real caveats, experimental branches, and known tradeoffs so readers do not need to reconstruct that hierarchy from the tables.</figcaption>
       </figure>
     </section>
@@ -733,7 +733,7 @@
         </div>
       </div>
       <figure>
-        <img src="assets/runtime_tradeoff_cards.svg" alt="Runtime and tradeoff cards for the required fork, materialized RYS, long-context KV caveat, and experimental MTP branch.">
+        <img src="assets/runtime_tradeoff_cards.svg" alt="Runtime and implementation cards for the required fork, GGUF representation, long-context KV caveat, and experimental MTP branch.">
         <figcaption>The runtime cards collect the practical constraints that matter before someone treats the file as a stock GGUF.</figcaption>
       </figure>
       <table>
@@ -875,29 +875,23 @@
     </section>
 
     <section id="tradeoffs" data-od-id="tradeoffs">
-      <h2>Known Tradeoffs</h2>
-      <p>The most important implementation tradeoff is that this public artifact is materialized RYS: the copied layers are stored as normal tensors rather than runtime aliases.</p>
-      <table>
-        <thead>
-          <tr><th>Item</th><th class="num">Value</th><th>Meaning</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>GGUF file size</td><td class="num">16,554,834,080 bytes</td><td>Released default file size.</td></tr>
-          <tr><td>Duplicate layers 20..24 tensor span</td><td class="num">1,067,475,584 bytes / 0.994 GiB</td><td>Materialized weight cost of the copied RYS window.</td></tr>
-          <tr><td>Duplicate span vs file</td><td class="num">6.448%</td><td>Approximate file-level footprint.</td></tr>
-          <tr><td>Duplicate span vs block tensors</td><td class="num">7.220%</td><td>Share among transformer block tensor bytes.</td></tr>
-          <tr><td>Logical layers</td><td class="num">69</td><td>64 source layers + 5 inserted RYS layers.</td></tr>
-          <tr><td>KV effect at 131k</td><td class="num">about +1.0 GiB FP16 / +2.0 GiB FP32</td><td>The inserted window contains two full-attention layers, which add KV/cache; all five inserted layers still add compute even if future weight aliasing is implemented.</td></tr>
-        </tbody>
-      </table>
+      <h2>Implementation Footnotes</h2>
+      <p>The duplicate-window representation is recorded here for transparency, but it is not the headline claim of the release. The main claim remains quantization survival and practical runtime behavior for the tested IQ4_NL file.</p>
+      <div class="ledger">
+        <div><strong>GGUF file size</strong><span>16,554,834,080 bytes. This is the released default IQ4_NL file size.</span></div>
+        <div><strong>Materialized duplicate span</strong><span>Output layers 20..24 occupy 1,067,475,584 bytes / 0.994 GiB as copied RYS-window tensors.</span></div>
+        <div><strong>File-level footprint</strong><span>The duplicate span is about 6.448% of the released file, or 7.220% of transformer block tensor bytes.</span></div>
+        <div><strong>Logical layer count</strong><span>69 logical layers: 64 source layers plus 5 inserted RYS layers.</span></div>
+        <div><strong>Long-context KV scaling</strong><span>At 131,072 tokens, the extra KV/cache estimate is about +1.0 GiB FP16 / +2.0 GiB FP32. Around 160k tokens, it scales to about +1.2 GiB FP16 / +2.4 GiB FP32; at 163,840 tokens, about +1.25 GiB FP16 / +2.5 GiB FP32. The inserted window contains two full-attention layers, so KV cost scales with context length; all five inserted layers still add compute.</span></div>
+      </div>
       <div class="grid-2">
         <div class="decision warn">
-          <h3>Why It Stayed Materialized</h3>
+          <h3>Why This Version Stayed Materialized</h3>
           <p>Materialized tensors kept the HF checkpoint, GGUF conversion, quantization, and downstream fine-tune/LoRA workflows explicit and stable for the tested release.</p>
         </div>
         <div class="decision warn">
           <h3>Future Optimization</h3>
-          <p>A procedural or aliased RYS runtime could reuse source-layer weight buffers and save duplicated weight memory. That would be a new runtime representation and should be rebuilt and reverified before replacing this release.</p>
+          <p>A procedural or aliased RYS runtime could reuse source-layer weight buffers and save duplicate-weight memory. That is possible future runtime work, not a change to this already tested release artifact.</p>
         </div>
       </div>
     </section>

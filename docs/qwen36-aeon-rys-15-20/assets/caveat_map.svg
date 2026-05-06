@@ -33,10 +33,10 @@
   <text x="642" y="318" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">default in tested paths.</text>
   <rect x="912" y="150" width="266" height="220" rx="8" fill="#ffffff" stroke="#d7ded8" stroke-width="1" filter="url(#softShadow)"/>
   <rect x="934" y="172" width="196" height="30" rx="15" fill="#8c342d" opacity="0.12"/>
-  <text x="1032.0" y="192" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="800" fill="#8c342d" text-anchor="middle">Known tradeoff</text>
-  <text x="934" y="232" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="21" font-weight="850" fill="#8c342d" text-anchor="start">Duplicate weights</text>
-  <text x="934" y="272" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">Materialized copied tensors</text>
-  <text x="934" y="295" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">cost space but keep downstream</text>
-  <text x="934" y="318" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">workflows explicit.</text>
+  <text x="1032.0" y="192" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="13" font-weight="800" fill="#8c342d" text-anchor="middle">Footnote</text>
+  <text x="934" y="232" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="21" font-weight="850" fill="#8c342d" text-anchor="start">RYS representation</text>
+  <text x="934" y="272" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">Materialized copy details</text>
+  <text x="934" y="295" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">are recorded below, not</text>
+  <text x="934" y="318" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500" fill="#596863" text-anchor="start">the headline claim.</text>
   <text x="590" y="448" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="17" font-weight="850" fill="#126b5d" text-anchor="middle">This is why the release page reads like a record, not a leaderboard card.</text>
 </svg>
