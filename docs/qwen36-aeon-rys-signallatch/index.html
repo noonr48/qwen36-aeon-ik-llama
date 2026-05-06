@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Qwen3.6 AEON RYS 15/20 + SignalLatch</title>
+  <meta name="description" content="A comprehensive public release page for Qwen3.6 AEON RYS 15/20 IQ4_NL and the SignalLatch behavior fine-tune.">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17211f;
+      --muted: #596662;
+      --faint: #7b8580;
+      --paper: #fbfcf9;
+      --panel: #ffffff;
+      --soft: #eef4f0;
+      --line: #d9dfdb;
+      --accent: #126b5d;
+      --accent-2: #9b5a19;
+      --danger: #8f2f20;
+      --code: #10201d;
+      --shadow: 0 16px 40px rgba(23, 33, 31, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font: 16px/1.62 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, #f6f8f4 0, var(--paper) 540px);
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration-thickness: 0.08em;
+      text-underline-offset: 0.18em;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    .wrap {
+      width: min(1160px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      background: rgba(251, 252, 249, 0.92);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    nav {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      font-weight: 800;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .navlinks {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      font-size: 0.92rem;
+    }
+
+    .navlinks a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .navlinks a:hover { color: var(--accent); }
+
+    .hero {
+      padding: 72px 0 44px;
+    }
+
+    .eyebrow {
+      color: var(--accent-2);
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 0.82rem;
+      letter-spacing: 0.07em;
+      margin: 0 0 18px;
+    }
+
+    h1 {
+      max-width: 950px;
+      margin: 0;
+      font-size: clamp(2.4rem, 6vw, 5.7rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .dek {
+      max-width: 820px;
+      margin: 24px 0 0;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 2.2vw, 1.32rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 16px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--panel);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 0 6px 16px rgba(23, 33, 31, 0.05);
+    }
+
+    .button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .quick-read {
+      margin-top: 38px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 120px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.8rem;
+      line-height: 1.1;
+      margin-bottom: 6px;
+      letter-spacing: 0;
+    }
+
+    .metric span { color: var(--muted); font-size: 0.93rem; }
+
+    main {
+      padding: 24px 0 72px;
+    }
+
+    section {
+      padding: 38px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: clamp(1.7rem, 3vw, 2.6rem);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 1.16rem;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 16px;
+      max-width: 840px;
+    }
+
+    .muted { color: var(--muted); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(300px, 1.05fr);
+      gap: 32px;
+      align-items: start;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .card.flat {
+      box-shadow: none;
+      background: var(--soft);
+    }
+
+    .card p:last-child { margin-bottom: 0; }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      padding: 18px 20px;
+      border-radius: 0 8px 8px 0;
+      margin: 18px 0;
+    }
+
+    .warning {
+      border-left-color: var(--danger);
+    }
+
+    .figure {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: white;
+    }
+
+    .caption {
+      margin: 10px 2px 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      margin: 18px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 640px;
+      font-size: 0.94rem;
+    }
+
+    th, td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--soft);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    pre {
+      overflow-x: auto;
+      background: var(--code);
+      color: #e7f4ee;
+      border-radius: 8px;
+      padding: 16px;
+      line-height: 1.48;
+      font-size: 0.92rem;
+      margin: 16px 0;
+    }
+
+    .toc {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 20px 0 0;
+    }
+
+    .toc a {
+      display: block;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .toc a:hover { border-color: var(--accent); color: var(--accent); }
+
+    .timeline {
+      display: grid;
+      gap: 10px;
+      counter-reset: step;
+    }
+
+    .step {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 12px;
+      align-items: start;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .step::before {
+      content: counter(step);
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .step p { margin-bottom: 0; }
+
+    .footer {
+      color: var(--muted);
+      padding: 36px 0 60px;
+      border-top: 1px solid var(--line);
+    }
+
+    @media (max-width: 860px) {
+      header { position: static; }
+      nav { align-items: flex-start; flex-direction: column; padding: 12px 0; }
+      .navlinks { justify-content: flex-start; }
+      .quick-read, .layout, .cards, .toc { grid-template-columns: 1fr; }
+      .hero { padding-top: 42px; }
+      .metric { min-height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="wrap" aria-label="Main navigation">
+      <div class="brand">Qwen3.6 AEON RYS</div>
+      <div class="navlinks">
+        <a href="#claims">Claims</a>
+        <a href="#runtime">Runtime</a>
+        <a href="#evidence">Evidence</a>
+        <a href="#tradeoffs">Tradeoffs</a>
+        <a href="#faq">FAQ</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="wrap hero">
+    <p class="eyebrow">Technical release page</p>
+    <h1>Qwen3.6 AEON RYS 15/20 and SignalLatch</h1>
+    <p class="dek">A public, evidence-first explanation of the AEON RYS 15/20 IQ4_NL release, the SignalLatch behavior fine-tune, the custom ik-llama runtime path, and the tradeoffs behind the current materialized RYS artifact.</p>
+    <div class="hero-actions" aria-label="Release links">
+      <a class="button primary" href="https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-SignalLatch-GGUF">SignalLatch on Hugging Face</a>
+      <a class="button" href="https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF">Base RYS on Hugging Face</a>
+      <a class="button" href="https://github.com/noonr48/qwen36-aeon-ik-llama">Runtime fork</a>
+    </div>
+
+    <div class="quick-read" data-od-id="quick-read">
+      <div class="metric">
+        <strong>15/20</strong>
+        <span>RYS window used for the released AEON branch.</span>
+      </div>
+      <div class="metric">
+        <strong>IQ4_NL</strong>
+        <span>Main practical deployment artifact, around 16 GB.</span>
+      </div>
+      <div class="metric">
+        <strong>-0.75%</strong>
+        <span>Mixed four-probe relative change from RYS BF16 to released RYS IQ4_NL.</span>
+      </div>
+      <div class="metric">
+        <strong>s0.10</strong>
+        <span>Selected SignalLatch merge strength after practical sweeps.</span>
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <section id="contents" data-od-id="contents">
+      <h2>Contents</h2>
+      <div class="toc">
+        <a href="#what-this-is">What this is</a>
+        <a href="#claims">Claim boundaries</a>
+        <a href="#runtime">Runtime profile</a>
+        <a href="#evidence">Evidence</a>
+        <a href="#tradeoffs">Known tradeoffs</a>
+        <a href="#files">Files</a>
+      </div>
+    </section>
+
+    <section id="what-this-is" data-od-id="what-this-is">
+      <div class="layout">
+        <div>
+          <h2>What this is</h2>
+          <p>This is a Qwen3.6-27B AEON-derived model line built around a specific RYS branch: duplicate the source layer window <code>15..19</code> and insert that copy after source layer 19. The resulting logical stack has 69 layers instead of the original 64.</p>
+          <p>The non-finetuned release is the practical base: an AEON RYS 15/20 model exported to a custom ik-llama-compatible <code>IQ4_NL</code> GGUF. SignalLatch is the behavior-finetuned release: checkpoint-386 LoRA merged into that RYS base at strength <code>0.10</code>, then exported as the same practical GGUF deployment target.</p>
+          <div class="callout">
+            <p><strong>The main project claim is narrow:</strong> in our tested custom runtime path, this RYS branch made the Q4_NL deployment much more resistant to reasoning/coding degradation than earlier non-RYS quant attempts, and SignalLatch improved practical coding-agent behavior on top of that base.</p>
+          </div>
+        </div>
+        <figure class="figure">
+          <img src="../ckpt386-s010-testing-process/assets/technical_deploy_path.svg" alt="Technical deployment path from AEON base to RYS, SignalLatch merge, GGUF export, and ik-llama serving.">
+          <figcaption class="caption">The release path is a chain: source model, RYS checkpoint transformation, quantized GGUF, custom runtime, then behavior fine-tune for SignalLatch.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="claims" data-od-id="claims">
+      <h2>What is claimed, and what is not</h2>
+      <div class="cards">
+        <article class="card">
+          <h3>Claimed</h3>
+          <p>The released RYS <code>IQ4_NL</code> artifact stayed close to the RYS BF16 source on the mixed probe snapshot: <code>0.7299</code> to <code>0.7244</code>, or about <code>-0.75%</code> relative.</p>
+        </article>
+        <article class="card">
+          <h3>Claimed</h3>
+          <p>SignalLatch is trained around a <strong>Review -> Align -> Latch -> Repair -> Confirm</strong> loop for coding agents: scoped context review, goal alignment, waiting for concrete tool signals, targeted repair, and focused validation.</p>
+        </article>
+        <article class="card">
+          <h3>Not claimed</h3>
+          <p>This is not a stock <code>llama.cpp</code> drop, not a general leaderboard claim, and not proof that every RYS window helps every model.</p>
+        </article>
+        <article class="card">
+          <h3>Not claimed</h3>
+          <p>This is not memory-optimal RYS. The current public GGUF is materialized RYS, not a runtime-aliased representation.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="runtime" data-od-id="runtime">
+      <div class="layout">
+        <div>
+          <h2>Required runtime</h2>
+          <p>Use the custom AEON ik-llama fork. The GGUFs in this release line are intended for that runtime path, especially for graph split, Qwen3.6/Qwen3.5 hybrid handling, Jinja chat formatting, and DeepSeek-style reasoning extraction.</p>
+          <p><a href="https://github.com/noonr48/qwen36-aeon-ik-llama">github.com/noonr48/qwen36-aeon-ik-llama</a></p>
+          <pre><code>./build/bin/llama-server \
+  -m /path/to/Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf \
+  -c 65536 \
+  -ngl 999 \
+  -np 1 \
+  -fa on \
+  -sm graph \
+  --temp 0.7 \
+  --jinja \
+  --reasoning-format deepseek \
+  --reasoning-budget 0 \
+  -cram 0 \
+  --ctx-checkpoints 0</code></pre>
+          <p>For long-context use, increase context as your system allows. The default KV type is <code>f16</code>; FP16/default KV has been tested to about <code>160k</code> context without showing the earlier failure pattern.</p>
+          <pre><code># Long-context shape
+-c 131072
+
+# Conservative validation shape used for the canvas comparison
+-c 131072 -ctk f32 -ctv f32</code></pre>
+        </div>
+        <div class="card flat">
+          <h3>Why <code>--ctx-checkpoints 0</code>?</h3>
+          <p>This flag keeps recurrent context checkpointing disabled explicitly. The current fork also guards against unstable recurrent checkpoints under graph split, but the public command keeps the tested no-checkpoint runtime profile visible.</p>
+          <h3>Why FP32 KV in the canvas run?</h3>
+          <p>It was a conservative validation setting to isolate model/task behavior from KV precision. It should not be read as “FP16 KV is bad.” For normal practical use, start with default/FP16 KV and adjust based on your memory and quality needs.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="evidence" data-od-id="evidence">
+      <h2>Evidence summary</h2>
+      <p>The model cards carry the compact tables. This page collects the readout in one place so the release does not depend on ad hoc author replies.</p>
+
+      <h3>BF16 vs released RYS IQ4_NL</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Probe</th><th class="num">RYS BF16</th><th class="num">Released RYS IQ4_NL</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>mixed 4-probe mean</td><td class="num">0.7299</td><td class="num">0.7244</td></tr>
+            <tr><td>math_16</td><td class="num">0.8421</td><td class="num">0.7897</td></tr>
+            <tr><td>eq_16</td><td class="num">0.7123</td><td class="num">0.7111</td></tr>
+            <tr><td>math_4</td><td class="num">0.4851</td><td class="num">0.5170</td></tr>
+            <tr><td>gsm8k_5</td><td class="num">0.8800</td><td class="num">0.8800</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">Snapshot change: <code>-0.0055</code> absolute, about <code>-0.75%</code> relative. This is not a broad benchmark suite; it is a release sanity snapshot for the tested deployment path.</p>
+
+      <h3>Practical canvas-agent comparison</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Run</th><th>Result</th><th>Read</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>SignalLatch IQ4_NL</td><td><code>rc=0</code>, verifier <code>1.0</code></td><td>Clean completion on the isolated canvas app task.</td></tr>
+            <tr><td>AEON RYS IQ4_NL attempt 1</td><td><code>rc=1</code>, verifier <code>0.0417</code></td><td>Invalid tool/diff failure before usable files.</td></tr>
+            <tr><td>AEON RYS IQ4_NL retry 1</td><td><code>rc=0</code>, verifier <code>1.0</code></td><td>Clean retry, showing the base can complete the task but was less reliable in the first attempt.</td></tr>
+            <tr><td>Unsloth IQ4_NL</td><td><code>rc=0</code>, verifier <code>1.0</code></td><td>Clean comparison pass.</td></tr>
+            <tr><td>Unsloth Q8_0</td><td><code>rc=124</code>, verifier <code>1.0</code></td><td>Files passed verification but the agent timed out during final wrap-up.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="layout">
+        <figure class="figure">
+          <img src="../ckpt386-s010-testing-process/assets/strength_selection_scoreboard.svg" alt="Scoreboard comparing base Q4_NL and SignalLatch merge strengths.">
+          <figcaption class="caption">SignalLatch strength selection favored s0.10 because it was less flashy than stronger first runs but more deployable across repeats.</figcaption>
+        </figure>
+        <figure class="figure">
+          <img src="../ckpt386-s010-testing-process/assets/testing_ladder_full_process.svg" alt="Testing ladder showing direct adapter tests, merged GGUF tests, strength sweeps, and practical validation.">
+          <figcaption class="caption">The testing process moved from adapter probes to merged GGUF runs, then practical coding-agent tasks.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="tradeoffs" data-od-id="tradeoffs">
+      <h2>Known tradeoffs</h2>
+      <div class="layout">
+        <div>
+          <h3>Materialized RYS weights</h3>
+          <p>The current release uses materialized RYS. The copied <code>15,20</code> window is exported as ordinary GGUF tensors, so output layers <code>20..24</code> have their own copied tensors from source layers <code>15..19</code>.</p>
+          <p>This keeps the HF checkpoint, GGUF conversion, quantization, and downstream fine-tune workflow explicit and stable. It also means the copied weights are loaded like normal weights.</p>
+          <div class="callout warning">
+            <p><strong>Known optimization:</strong> a procedural or runtime-aliased RYS implementation could reuse source-layer weight buffers and reduce duplicate model-weight memory. That is future runtime work, not the current tested release.</p>
+          </div>
+        </div>
+        <div class="card flat">
+          <h3>Practical impact in the released Q4_NL</h3>
+          <p>The copied window is about <strong>0.994 GiB</strong>, around <strong>6.45%</strong> of the GGUF tensor bytes.</p>
+          <p>Runtime aliasing would not remove the extra compute or KV-cache cost from the five additional logical layers. At <code>131072</code> context, those five layers add about <strong>2.5 GiB</strong> FP16 KV or <strong>5.0 GiB</strong> FP32 KV.</p>
+          <p>The current artifact remains materialized because that is the version tested and released.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="method" data-od-id="method">
+      <h2>How the release was selected</h2>
+      <div class="timeline">
+        <div class="step">
+          <div>
+            <h3>RYS branch selection</h3>
+            <p>Several candidate windows were tested. The public release centered on <code>15,20</code> because it held up as the practical IQ4_NL release target.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h3>Custom runtime path</h3>
+            <p>The fork added the Qwen3.6/Qwen3.5 hybrid handling, graph-split serving fixes, Jinja and DeepSeek reasoning-format support, and runtime guardrails needed for this line.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h3>Quantized deployment target</h3>
+            <p>The project target is the compact <code>IQ4_NL</code> GGUF, not the largest possible BF16 artifact. BF16 exists for inspection, conversion, and downstream work.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div>
+            <h3>SignalLatch behavior merge</h3>
+            <p>The selected fine-tune is checkpoint 386 at merge strength <code>0.10</code>, chosen because repeated practical checks favored its stability over stronger but less reproducible strengths.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="files" data-od-id="files">
+      <h2>Which file should you use?</h2>
+      <div class="cards">
+        <article class="card">
+          <h3>SignalLatch practical default</h3>
+          <p><code>Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf</code></p>
+          <p>Use this when you want the behavior-finetuned coding-agent profile.</p>
+        </article>
+        <article class="card">
+          <h3>Non-finetuned RYS default</h3>
+          <p><code>Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-ik-llama-custom-mixed.gguf</code></p>
+          <p>Use this when you want the base RYS Q4_NL deployment without SignalLatch behavior tuning.</p>
+        </article>
+        <article class="card">
+          <h3>BF16 artifacts</h3>
+          <p>Use BF16 for exploration, inspection, conversion, training, and downstream work. It is not the normal inference target.</p>
+        </article>
+        <article class="card">
+          <h3>MTP artifact</h3>
+          <p>Use the MTP GGUF only for MTP/runtime testing. In our checks, the non-MTP file stayed faster and cleaner.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="faq" data-od-id="faq">
+      <h2>FAQ</h2>
+      <div class="cards">
+        <article class="card">
+          <h3>Can I run this in stock llama.cpp?</h3>
+          <p>Treat this as an ik-llama-targeted release. The public runtime path is the custom AEON fork.</p>
+        </article>
+        <article class="card">
+          <h3>Does SignalLatch make the model solved?</h3>
+          <p>No. It improved practical coding-agent reliability in the tested sweep, but variance remains. The claim is practical and bounded.</p>
+        </article>
+        <article class="card">
+          <h3>Does RYS always help?</h3>
+          <p>No. This page describes the tested Qwen3.6 AEON RYS 15/20 branch and deployment path. RYS windows belong to the exact source model and evaluation target.</p>
+        </article>
+        <article class="card">
+          <h3>Where did the RYS idea come from?</h3>
+          <p>For broader RYS research context, see David Noel Ng's article <a href="https://dnhkng.github.io/posts/rys-ii/">LLM Neuroanatomy II</a>. This page documents this release line specifically.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p>Last updated: 2026-05-06. This page is a documentation artifact for the Qwen3.6 AEON RYS 15/20 and SignalLatch GGUF releases.</p>
+    </div>
+  </footer>
+</body>
+</html>

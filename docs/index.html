@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Qwen3.6 AEON RYS Documentation</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17211f;
+      --muted: #596662;
+      --line: #d9dfdb;
+      --paper: #fbfcf9;
+      --panel: #ffffff;
+      --accent: #126b5d;
+      --accent-2: #9b5a19;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 56px 0;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2.1rem, 4vw, 4rem);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+    p { max-width: 760px; }
+    .lead { color: var(--muted); font-size: 1.12rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 32px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+      letter-spacing: 0;
+    }
+    a { color: var(--accent); text-decoration-thickness: 0.08em; text-underline-offset: 0.18em; }
+    .tag {
+      display: inline-block;
+      margin-bottom: 14px;
+      color: var(--accent-2);
+      font-weight: 700;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="tag">Qwen3.6 AEON RYS</span>
+    <h1>Documentation</h1>
+    <p class="lead">Release notes, runtime guidance, and evidence pages for the AEON RYS 15/20 GGUF line and the SignalLatch behavior fine-tune.</p>
+    <section class="grid" aria-label="Documentation links">
+      <article class="card">
+        <h2><a href="./qwen36-aeon-rys-signallatch/">AEON RYS 15/20 + SignalLatch Release Page</a></h2>
+        <p>A comprehensive public webpage covering the model line, runtime profile, evidence, known tradeoffs, and FAQ.</p>
+      </article>
+      <article class="card">
+        <h2><a href="./rys-layer-duplication-guide/">RYS Layer Duplication Guide</a></h2>
+        <p>The detailed build guide for the RYS checkpoint transformation, tensor mapping, layer metadata, and validation process.</p>
+      </article>
+      <article class="card">
+        <h2><a href="./ckpt386-s010-testing-process/">SignalLatch Testing Process</a></h2>
+        <p>The detailed checkpoint-386 strength sweep and practical testing notes behind the selected SignalLatch s0.10 release.</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
