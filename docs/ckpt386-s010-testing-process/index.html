@@ -817,7 +817,7 @@
   -ctk f32 \
   -ctv f32</code></pre>
       <div class="callout">
-        <p><strong>Practical single-GPU deployment:</strong> the SignalLatch Q4_NL release is small enough for practical single-GPU use. In an observed 24 GB-class GPU reference profile, roughly <code>160k</code> context with default/FP16 KV fit at about <strong>20.3 GiB</strong> total VRAM on an RTX 3090-class card. Treat this as a deployment reference point, not a guaranteed memory benchmark.</p>
+        <p><strong>Practical single-GPU deployment:</strong> the SignalLatch Q4_NL release is small enough for practical single-GPU use at the logged 24 GB-class baseline profile: <code>-c 65536</code> with FP16 KV used about <strong>20.8 GiB</strong> on an RTX 3090-class card. A separate 32 GB RTX 5090 reference fit <code>-c 160000 -np 2</code>, creating two <code>80k</code> slots at about <strong>27.5 GB</strong> VRAM. A true two-slot <code>160k</code>-per-slot launch did not fit on the 32 GB RTX 5090.</p>
       </div>
       <div class="cards">
         <div class="card good">

@@ -493,13 +493,13 @@
   --reasoning-budget 0 \
   -cram 0 \
   --ctx-checkpoints 0</code></pre>
-          <p>For long-context use, increase context as your system allows. The default KV type is <code>f16</code>; FP16/default KV has been tested to about <code>160k</code> context without showing the earlier failure pattern.</p>
+          <p>For long-context use, increase context as your system allows. The default KV type is <code>f16</code>. The logged 24 GB-class SignalLatch profile is <code>-c 65536</code> on one RTX 3090 at about <code>20.8 GiB</code> VRAM. A current 32 GB RTX 5090 reference fits <code>-c 160000 -np 2</code>, which creates two <code>80k</code> slots and uses about <code>27.5 GB</code> VRAM.</p>
           <pre><code># Long-context shape
--c 131072
+-c 160000 -np 2 -ctk f16 -ctv f16
 
 # Conservative validation shape used for the canvas comparison
 -c 131072 -ctk f32 -ctv f32</code></pre>
-          <p>Practical single-GPU deployment: the SignalLatch Q4_NL release is small enough for practical use on a single RTX 3090 / 24 GB-class card. In an observed reference profile, roughly <code>160k</code> context with default/FP16 KV fit at about <strong>20.3 GiB</strong> total VRAM. Treat this as a deployment reference point, not a guaranteed memory benchmark.</p>
+          <p>Practical single-GPU deployment: the SignalLatch Q4_NL release is small enough for practical use on a single RTX 3090 / 24 GB-class card at the baseline <code>65536</code> context profile. Do not read the <code>160k</code> reference as a 24 GB-class memory claim; a true two-slot <code>160k</code>-per-slot run did not fit on the 32 GB RTX 5090 in our test.</p>
         </div>
         <div class="card flat">
           <h3>Why <code>--ctx-checkpoints 0</code>?</h3>

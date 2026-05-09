@@ -734,12 +734,12 @@
         </div>
         <div class="decision">
           <h3>Long Context</h3>
-          <p>The public profile starts with <code>-c 65536</code>. The same family was also used for <code>131072</code> context comparisons, and default/FP16 KV was separately tested to about 160k context without the earlier failure pattern. FP32 KV was a conservative validation setting, not a requirement.</p>
+          <p>The public profile starts with <code>-c 65536</code>. The same family was also used for <code>131072</code> context comparisons. FP32 KV was a conservative validation setting, not a requirement, but the retained 24 GB-class memory reference should be read as the <code>65536</code> context profile, not as a 160k memory benchmark.</p>
         </div>
       </div>
       <div class="decision">
         <h3>Practical Single-GPU Deployment</h3>
-        <p>The Q4_NL release is small enough for practical single-GPU deployment. In an observed 24 GB-class GPU reference profile, roughly <code>160k</code> context with default/FP16 KV fit at about <strong>20.3 GiB</strong> total VRAM on an RTX 3090-class card. Treat this as a practical deployment reference point, not a guaranteed cross-hardware memory benchmark.</p>
+        <p>The Q4_NL release is small enough for practical single-GPU deployment. The retained 24 GB-class reference profile is <code>-c 65536</code> with FP16 KV, which used about <strong>20.8 GiB</strong> on an RTX 3090-class card in the logged SignalLatch run. Larger context profiles need more VRAM; a later 32 GB RTX 5090 SignalLatch reference fit <code>-c 160000 -np 2</code> as two <code>80k</code> slots at about <strong>27.5 GB</strong>. Treat these as deployment reference points, not guaranteed cross-hardware memory benchmarks.</p>
       </div>
       <figure>
         <img src="assets/runtime_tradeoff_cards.svg" alt="Runtime and implementation cards for the required fork, GGUF representation, long-context KV caveat, and experimental MTP branch.">

@@ -736,7 +736,7 @@
         </div>
         <div class="decision">
           <h3>Long Context</h3>
-          <p>The public profile starts with <code>-c 65536</code>. The same family was also used for <code>131072</code> context comparisons, and default/FP16 KV was separately tested to about 160k context without the earlier failure pattern. FP32 KV was a conservative validation setting, not a requirement.</p>
+          <p>The public profile starts with <code>-c 65536</code>. The same family was also used for <code>131072</code> context comparisons. FP32 KV was a conservative validation setting, not a requirement, but the retained 24 GB-class memory reference should be read as the <code>65536</code> context profile, not as a 160k memory benchmark.</p>
         </div>
       </div>
       <figure>
