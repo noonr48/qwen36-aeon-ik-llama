@@ -141,8 +141,27 @@ Two-slot parallel RAM-cache reference:
   --jinja \
   --reasoning-format deepseek \
   --reasoning-budget 0 \
+  --alias qwen36-aeon-rys-signallatch-q4nl-p2 \
   -cram 65536
 ```
+
+The important pieces are:
+
+- `-np 2` creates two parallel slots.
+- `-c 360000` is the total context budget; with two slots, each lane gets roughly half of that.
+- `-cram 65536` enables the RAM prompt cache. The value is MiB and is server-wide, so tune it to your host memory budget.
+- leave context checkpoints enabled. Do not pass `--ctx-checkpoints 0` if you want RAM prompt-cache restores to avoid full prompt reprocessing.
+- use `-sm layer` for the two-GPU parallel RAM-cache path. On this recurrent/hybrid path, `-sm graph` disables the checkpoints needed for actual restore.
+- set a stable `--alias`, then point clients at `<alias>-slot0` and `<alias>-slot1` as separate model names.
+
+For example, with the alias above, an OpenAI-compatible client can send requests to:
+
+```text
+qwen36-aeon-rys-signallatch-q4nl-p2-slot0
+qwen36-aeon-rys-signallatch-q4nl-p2-slot1
+```
+
+Those suffixes pin work to the matching slot while this fork still runs RAM prompt-cache save/load for that pinned lane.
 
 This is a tentative long-term default, not a claim that the fine-tune is solved. It is materially better than base Q4NL in this practical sweep, but still high variance at temp `0.7`.
 
