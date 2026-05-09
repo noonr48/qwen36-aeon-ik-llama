@@ -490,9 +490,7 @@
   --temp 0.7 \
   --jinja \
   --reasoning-format deepseek \
-  --reasoning-budget 0 \
-  -cram 0 \
-  --ctx-checkpoints 0</code></pre>
+  --reasoning-budget 0</code></pre>
           <p>For long-context use, increase context as your system allows. The default KV type is <code>f16</code>. The logged 24 GB-class SignalLatch profile is <code>-c 65536</code> on one RTX 3090 at about <code>20.8 GiB</code> VRAM. A current 32 GB RTX 5090 reference fits <code>-c 160000 -np 2</code>, which creates two <code>80k</code> slots and uses about <code>27.5 GB</code> VRAM.</p>
           <pre><code># Long-context shape
 -c 160000 -np 2 -ctk f16 -ctv f16
@@ -500,12 +498,37 @@
 # Conservative validation shape used for the canvas comparison
 -c 131072 -ctk f32 -ctv f32</code></pre>
           <p>Practical single-GPU deployment: the SignalLatch Q4_NL release is small enough for practical use on a single RTX 3090 / 24 GB-class card at the baseline <code>65536</code> context profile. Do not read the <code>160k</code> reference as a 24 GB-class memory claim; a true two-slot <code>160k</code>-per-slot run did not fit on the 32 GB RTX 5090 in our test.</p>
+          <h3>Parallel RAM-cache serving</h3>
+          <p>For agent harness use, the current custom fork can expose stable slot aliases and still run RAM prompt-cache save/load on those pinned lanes. This is the setup pattern used when an OpenAI-compatible harness needs two independent workers without losing repeated repo context between turns.</p>
+          <pre><code>./build/bin/llama-server \
+  -m /path/to/Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf \
+  -c 360000 \
+  -np 2 \
+  -ngl 999 \
+  -b 256 \
+  -ub 64 \
+  -fa on \
+  -sm layer \
+  -ctk f16 \
+  -ctv f16 \
+  --temp 0.7 \
+  --jinja \
+  --reasoning-format deepseek \
+  --reasoning-budget 0 \
+  --alias qwen36-aeon-rys-signallatch-q4nl-p2 \
+  -cram 65536</code></pre>
+          <p>Configure the agent client as two OpenAI-compatible model names:</p>
+          <pre><code>qwen36-aeon-rys-signallatch-q4nl-p2-slot0
+qwen36-aeon-rys-signallatch-q4nl-p2-slot1</code></pre>
+          <p>Those suffixes pin work to the matching slot. The total context budget is split by <code>-np</code>, <code>-cram</code> is a server-wide MiB budget, and context checkpoints must remain enabled for RAM-cache restore to avoid full prompt reprocessing. For the tested two-GPU parallel path, use <code>-sm layer</code>; <code>-sm graph</code> disables the recurrent checkpoints needed by this restore path.</p>
         </div>
         <div class="card flat">
-          <h3>Why <code>--ctx-checkpoints 0</code>?</h3>
-          <p>This flag keeps recurrent context checkpointing disabled explicitly. The current fork also guards against unstable recurrent checkpoints under graph split, but the public command keeps the tested no-checkpoint runtime profile visible.</p>
+          <h3>Why keep checkpoints enabled?</h3>
+          <p>RAM prompt-cache reuse for this recurrent/hybrid path depends on context checkpoints. Passing <code>--ctx-checkpoints 0</code> can still find prompt overlap, but without checkpoint state the server falls back to reprocessing instead of restoring.</p>
           <h3>Why FP32 KV in the canvas run?</h3>
           <p>It was a conservative validation setting to isolate model/task behavior from KV precision. It should not be read as “FP16 KV is bad.” For normal practical use, start with default/FP16 KV and adjust based on your memory and quality needs.</p>
+          <h3>How was RAM-cache checked?</h3>
+          <p>We used an A/B/A prompt sequence on the single-slot server and on both parallel lanes. The expected server logs were <code>created context checkpoint</code>, <code>found better prompt</code>, <code>prompt cache load took ...</code>, and <code>restored context checkpoint</code>.</p>
         </div>
       </div>
     </section>
@@ -679,7 +702,7 @@
 
   <footer class="footer">
     <div class="wrap">
-      <p>Last updated: 2026-05-06. This page is a documentation artifact for the Qwen3.6 AEON RYS 15/20 and SignalLatch GGUF releases.</p>
+      <p>Last updated: 2026-05-10. This page is a documentation artifact for the Qwen3.6 AEON RYS 15/20 and SignalLatch GGUF releases.</p>
     </div>
   </footer>
 </body>

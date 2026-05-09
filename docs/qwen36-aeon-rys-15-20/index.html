@@ -724,9 +724,7 @@
   --temp 0.7 \
   --jinja \
   --reasoning-format deepseek \
-  --reasoning-budget 0 \
-  -cram 0 \
-  --ctx-checkpoints 0</code></pre>
+  --reasoning-budget 0</code></pre>
       <div class="grid-2">
         <div class="decision">
           <h3>Why the Fork Exists</h3>
@@ -740,6 +738,37 @@
       <div class="decision">
         <h3>Practical Single-GPU Deployment</h3>
         <p>The Q4_NL release is small enough for practical single-GPU deployment. The retained 24 GB-class reference profile is <code>-c 65536</code> with FP16 KV, which used about <strong>20.8 GiB</strong> on an RTX 3090-class card in the logged SignalLatch run. Larger context profiles need more VRAM; a later 32 GB RTX 5090 SignalLatch reference fit <code>-c 160000 -np 2</code> as two <code>80k</code> slots at about <strong>27.5 GB</strong>. Treat these as deployment reference points, not guaranteed cross-hardware memory benchmarks.</p>
+      </div>
+      <div class="decision">
+        <h3>Parallel RAM-Cache And Agent Harness</h3>
+        <p>For OpenAI-compatible agent harnesses, the current fork supports stable slot aliases while still running RAM prompt-cache save/load for those pinned lanes. This is useful when a harness such as OpenCode needs repeated repo context to stay on one lane instead of moving between parallel slots.</p>
+        <pre><code>./build/bin/llama-server \
+  -m /path/to/Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-ik-llama-custom-mixed.gguf \
+  -c 360000 \
+  -np 2 \
+  -ngl 999 \
+  -b 256 \
+  -ub 64 \
+  -fa on \
+  -sm layer \
+  -ctk f16 \
+  -ctv f16 \
+  --temp 0.7 \
+  --jinja \
+  --reasoning-format deepseek \
+  --reasoning-budget 0 \
+  --alias qwen36-aeon-rys-15-20-q4nl-p2 \
+  -cram 65536</code></pre>
+        <p>With that alias, configure the client as two separate model names:</p>
+        <pre><code>qwen36-aeon-rys-15-20-q4nl-p2-slot0
+qwen36-aeon-rys-15-20-q4nl-p2-slot1</code></pre>
+        <ul>
+          <li><code>-np 2</code> creates two parallel slots. The total <code>-c</code> context budget is split across those slots.</li>
+          <li><code>-cram</code> is the RAM prompt-cache budget in MiB and is server-wide, so tune it to the host memory budget.</li>
+          <li>Keep context checkpoints enabled. Do not pass <code>--ctx-checkpoints 0</code> when RAM-cache restore is desired.</li>
+          <li>Use <code>-sm layer</code> for the tested two-GPU parallel RAM-cache restore path. On this recurrent/hybrid path, <code>-sm graph</code> disables the checkpoints needed for actual restore.</li>
+        </ul>
+        <p>The patched fork was verified with an A/B/A prompt sequence on a single slot and on both parallel lanes. The expected server log sequence is <code>created context checkpoint</code>, <code>found better prompt</code>, <code>prompt cache load took ...</code>, and <code>restored context checkpoint</code>. Before the patch, explicit <code>-slot0</code> / <code>-slot1</code> requests could pin work to a lane but skipped the prompt-cache save/load path.</p>
       </div>
       <figure>
         <img src="assets/runtime_tradeoff_cards.svg" alt="Runtime and implementation cards for the required fork, GGUF representation, long-context KV caveat, and experimental MTP branch.">
@@ -959,7 +988,7 @@
 
   <footer>
     <div class="wrap">
-      <p>Last updated: 2026-05-06. This page covers the non-finetuned Qwen3.6 AEON RYS 15/20 release only. For the behavior-finetuned SignalLatch release, see <a href="../qwen36-aeon-rys-signallatch/index.html">the SignalLatch page</a>.</p>
+      <p>Last updated: 2026-05-10. This page covers the non-finetuned Qwen3.6 AEON RYS 15/20 release only. For the behavior-finetuned SignalLatch release, see <a href="../qwen36-aeon-rys-signallatch/index.html">the SignalLatch page</a>.</p>
     </div>
   </footer>
 </body>

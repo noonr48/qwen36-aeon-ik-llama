@@ -809,15 +809,39 @@
   --temp 0.7 \
   --jinja \
   --reasoning-format deepseek \
-  --reasoning-budget 0 \
-  -cram 0 \
-  --ctx-checkpoints 0</code></pre>
+  --reasoning-budget 0</code></pre>
       <p>For the 131k canvas comparison, the same shape was used with a larger context and FP32 KV as an isolation setting:</p>
       <pre><code>-c 131072 \
   -ctk f32 \
   -ctv f32</code></pre>
       <div class="callout">
         <p><strong>Practical single-GPU deployment:</strong> the SignalLatch Q4_NL release is small enough for practical single-GPU use at the logged 24 GB-class baseline profile: <code>-c 65536</code> with FP16 KV used about <strong>20.8 GiB</strong> on an RTX 3090-class card. A separate 32 GB RTX 5090 reference fit <code>-c 160000 -np 2</code>, creating two <code>80k</code> slots at about <strong>27.5 GB</strong> VRAM. A true two-slot <code>160k</code>-per-slot launch did not fit on the 32 GB RTX 5090.</p>
+      </div>
+      <h3>Current parallel RAM-cache setup</h3>
+      <p>The current fork also supports a parallel agent-serving pattern where explicit slot aliases still use RAM prompt-cache save/load. This is useful for OpenAI-compatible coding harnesses because each worker can stay on a stable slot and keep repeated repository context warm.</p>
+      <pre><code>./build/bin/llama-server \
+  -m /path/to/Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf \
+  -c 360000 \
+  -np 2 \
+  -ngl 999 \
+  -b 256 \
+  -ub 64 \
+  -fa on \
+  -sm layer \
+  -ctk f16 \
+  -ctv f16 \
+  --temp 0.7 \
+  --jinja \
+  --reasoning-format deepseek \
+  --reasoning-budget 0 \
+  --alias qwen36-aeon-rys-signallatch-q4nl-p2 \
+  -cram 65536</code></pre>
+      <p>An agent harness can then address two model lanes through the OpenAI-compatible API:</p>
+      <pre><code>qwen36-aeon-rys-signallatch-q4nl-p2-slot0
+qwen36-aeon-rys-signallatch-q4nl-p2-slot1</code></pre>
+      <p>Important details: <code>-c</code> is the total context budget and is split by <code>-np</code>; <code>-cram</code> is the server-wide RAM prompt-cache budget in MiB; context checkpoints should stay enabled; and the tested two-GPU RAM-cache restore path uses <code>-sm layer</code>. Passing <code>--ctx-checkpoints 0</code> disables the checkpoint state needed for actual restore and causes repeated prompts to be reprocessed.</p>
+      <div class="callout">
+        <p><strong>Verification used:</strong> A/B/A prompt-cache tests on the single-slot server and on both parallel lanes produced the expected log sequence: <code>created context checkpoint</code>, <code>found better prompt</code>, <code>prompt cache load took ...</code>, and <code>restored context checkpoint</code>. Before the pinned-slot adjustment, direct <code>-slot0</code> / <code>-slot1</code> requests pinned work to a lane but skipped the RAM prompt-cache save/load path.</p>
       </div>
       <div class="cards">
         <div class="card good">
@@ -830,7 +854,7 @@
         </div>
       </div>
       <div class="callout warn">
-        <p><strong>Tested runtime boundary:</strong> use the public <a href="https://github.com/noonr48/qwen36-aeon-ik-llama">qwen36-aeon-ik-llama</a> fork, with SignalLatch support documented in the fork history at commit <code>f0910a49</code> and later docs commits on top. Do not read this as support for arbitrary upstream llama.cpp or for live LoRA loading with the public serving profile.</p>
+        <p><strong>Tested runtime boundary:</strong> use the public <a href="https://github.com/noonr48/qwen36-aeon-ik-llama">qwen36-aeon-ik-llama</a> fork, with SignalLatch support documented in the fork history at commit <code>f0910a49</code> and pinned-slot RAM-cache support documented at commit <code>fdc70dc</code>. Do not read this as support for arbitrary upstream llama.cpp or for live LoRA loading with the public serving profile.</p>
       </div>
     </section>
 
@@ -889,7 +913,7 @@
 
   <footer>
     <div class="wrap">
-      Last updated: 2026-05-06. This page documents the SignalLatch ckpt386 s0.10 fine-tune and testing process for the Qwen3.6 AEON RYS 15/20 GGUF line.
+      Last updated: 2026-05-10. This page documents the SignalLatch ckpt386 s0.10 fine-tune and testing process for the Qwen3.6 AEON RYS 15/20 GGUF line.
     </div>
   </footer>
 </body>
