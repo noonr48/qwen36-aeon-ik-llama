@@ -716,9 +716,66 @@ void server_context::copy_data_to_cached_prompt(const server_tokens & tokens, se
     slot.server_cached_prompt.think_tokens = slot.params.think_tokens;
 }
 
+void server_context::apply_prompt_cache_for_slot(server_slot & slot, const server_task & task) {
+    bool update_cache = false;
+    auto & tokens = slot.cache_tokens;
+    float f_keep = 0;
+    size_t cache_token_size = tokens.size();
+
+    if (!tokens.empty()) {
+        if (slot.params.think_tokens.exclude) {
+            server_tokens cache_exclude_think = tokens.get_tokens_exclude_think(slot.ctx, slot.params.think_tokens);
+            server_tokens prompt_exclude_think = task.tokens.get_tokens_exclude_think(slot.ctx, slot.params.think_tokens);
+
+            cache_token_size = cache_exclude_think.size();
+            f_keep = calculate_slot_f_keep(slot, slot.ctx, cache_exclude_think, prompt_exclude_think);
+        }
+        else {
+            f_keep = calculate_slot_f_keep(slot, slot.ctx, tokens, task.tokens);
+        }
+
+        // if we are about to lose a large portion of the existing context - save it in the prompt cache
+        if (f_keep < cache_ram_similarity) {
+            update_cache = true;
+        }
+    }
+
+    update_cache = update_cache && prompt_cache;
+    // cache prompts only for completion tasks
+    update_cache = update_cache && task.type == SERVER_TASK_TYPE_COMPLETION;
+
+    // don't update the cache if the slot's context is above cache_ram_n_min
+    update_cache = update_cache && cache_token_size >= cache_ram_n_min;
+
+    LLAMA_LOG_INFO("======== Prompt cache: cache size: %d, n_keep: %d, n_discarded_prompt: %d, cache_ram_n_min: %d, f_keep: %.2f, cache_ram_similarity: %.2f\n",
+        (int)tokens.size(), slot.n_kept_prompt, slot.n_discarded_prompt, cache_ram_n_min, f_keep, cache_ram_similarity);
+    if (update_cache) {
+        const int64_t t_start = ggml_time_us();
+        LLAMA_LOG_INFO("updating prompt cache\n");
+        // copy cache tokens
+        copy_data_to_cached_prompt(tokens, slot);
+
+        slot.prompt_save(*prompt_cache);
+        LLAMA_LOG_INFO("prompt cache save took %.2f ms\n", (ggml_time_us() - t_start) / 1000.0);
+    }
+    // has prompts saved earlier to load
+    if (prompt_cache && !prompt_cache->states.empty()) {
+        const int64_t t_start = ggml_time_us();
+        copy_data_to_cached_prompt(tokens, slot);
+
+        slot.prompt_load(*prompt_cache, task.tokens);
+        prompt_cache->update();
+
+        slot.cache_tokens = slot.server_cached_prompt.tokens.clone(); // recover cache tokens
+        slot.n_discarded_prompt = slot.server_cached_prompt.n_discarded_prompt;
+        slot.n_kept_prompt = slot.server_cached_prompt.n_kept_prompt;
+
+        LLAMA_LOG_INFO("prompt cache load took %.2f ms\n", (ggml_time_us() - t_start) / 1000.0);
+    }
+}
+
 server_slot* server_context::get_available_slot(const server_task& task) {
     server_slot* ret = nullptr;
-    bool update_cache = false;
 
     // find the slot that has at least n% prompt similarity
     if (ret == nullptr && slot_prompt_similarity != 0.0f) {
@@ -786,58 +843,7 @@ server_slot* server_context::get_available_slot(const server_task& task) {
         }
     }
     if (ret) {
-        auto& tokens = ret->cache_tokens;
-        float f_keep = 0;
-        size_t cache_token_size = tokens.size();
-        if (!tokens.empty()) {
-            if (ret->params.think_tokens.exclude) {
-                server_tokens cache_exclude_think = tokens.get_tokens_exclude_think(ret->ctx, ret->params.think_tokens);
-                server_tokens prompt_exclude_think = task.tokens.get_tokens_exclude_think(ret->ctx, ret->params.think_tokens);
-
-                cache_token_size = cache_exclude_think.size();
-                f_keep = calculate_slot_f_keep(*ret, ret->ctx, cache_exclude_think, prompt_exclude_think);
-            }
-            else {
-                f_keep = calculate_slot_f_keep(*ret, ret->ctx, tokens, task.tokens);
-            }
-            // if we are about to lose a large portion of the existing context - save it in the prompt cache
-            if (f_keep < cache_ram_similarity) {
-                update_cache = true;
-            }
-        }
-
-        update_cache = update_cache && prompt_cache;
-        // cache prompts only for completion tasks
-        update_cache = update_cache && task.type == SERVER_TASK_TYPE_COMPLETION;
-
-        // don't update the cache if the slot's context is above cache_ram_n_min
-        update_cache = update_cache && cache_token_size >= cache_ram_n_min;
-
-        LLAMA_LOG_INFO("======== Prompt cache: cache size: %d, n_keep: %d, n_discarded_prompt: %d, cache_ram_n_min: %d, f_keep: %.2f, cache_ram_similarity: %.2f\n",
-            (int)tokens.size(), ret->n_kept_prompt, ret->n_discarded_prompt, cache_ram_n_min, f_keep, cache_ram_similarity);
-        if (update_cache) {
-            const int64_t t_start = ggml_time_us();
-            LLAMA_LOG_INFO("updating prompt cache\n");
-            // copy cache tokens
-            copy_data_to_cached_prompt(tokens, *ret);
-
-            ret->prompt_save(*prompt_cache);
-            LLAMA_LOG_INFO("prompt cache save took %.2f ms\n", (ggml_time_us() - t_start) / 1000.0);
-        }
-        // has prompts saved earlier to load
-        if (prompt_cache && !prompt_cache->states.empty()) {
-            const int64_t t_start = ggml_time_us();
-            copy_data_to_cached_prompt(tokens, *ret);
-
-            ret->prompt_load(*prompt_cache, task.tokens);
-            prompt_cache->update();
-
-            ret->cache_tokens = ret->server_cached_prompt.tokens.clone(); // recover cache tokens
-            ret->n_discarded_prompt = ret->server_cached_prompt.n_discarded_prompt;
-            ret->n_kept_prompt = ret->server_cached_prompt.n_kept_prompt;
-
-            LLAMA_LOG_INFO("prompt cache load took %.2f ms\n", (ggml_time_us() - t_start) / 1000.0);
-        }
+        apply_prompt_cache_for_slot(*ret, task);
     }
     return ret;
 }
@@ -2029,6 +2035,10 @@ void server_context::process_single_task(server_task&& task) {
             LOG_VERBOSE("requested slot is unavailable", { {"id_task", task.id} });
             queue_tasks.defer(std::move(task));
             break;
+        }
+
+        if (id_slot != -1) {
+            apply_prompt_cache_for_slot(*slot, task);
         }
 
         if (task.data.contains("system_prompt")) {

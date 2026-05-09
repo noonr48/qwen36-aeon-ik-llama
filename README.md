@@ -19,8 +19,9 @@ Latest fine-tuned deployment update:
 - selected artifact name: `Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf`
 - Hugging Face release: `https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-SignalLatch-GGUF`
 - tested server profile: temp `0.7`, graph split, flash attention, Jinja, DeepSeek reasoning format, context `65536` for the strength sweep and `131072` for the later canvas comparison
+- current long-context RAM-cache profile: checkpointing enabled; single-slot uses `-sm none`, two-slot parallel uses `-sm layer` so recurrent checkpoints can restore
 
-Use the fine-tune as a merged GGUF. Do not treat live runtime LoRA loading as the production path for this setup: the deployment profile uses flash attention and graph split, and live LoRA still conflicts with flash attention in this runtime path.
+Use the fine-tune as a merged GGUF. Do not treat live runtime LoRA loading as the production path for this setup: the tested runtime path uses flash attention, and live LoRA still conflicts with flash attention in this runtime path.
 
 Model releases:
 - non-finetuned AEON RYS 15/20: `https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF`
@@ -65,6 +66,7 @@ Source model it was derived from:
 - not a stock `llama.cpp` target
 - project focus:
   preserve as much capability as possible inside a Q4-class RYS model for programming, reasoning, and academic work
+- pinned-slot RAM prompt-cache save/load for explicit `-slot0` / `-slot1` parallel lanes
 
 ## Fine-tuned ckpt386 deployment
 
@@ -82,7 +84,7 @@ The Q4NL deployment sweep compared base Q4NL and multiple LoRA merge strengths a
 | `s0.20` | 8/15, mean 0.850 | too unstable across repeats |
 | `s0.25` | 6/10, mean 0.875 | first perfect run did not reproduce |
 
-Recommended server shape:
+Recommended strength-sweep shape:
 
 ```bash
 ./build/bin/llama-server \
@@ -95,12 +97,69 @@ Recommended server shape:
   --temp 0.7 \
   --jinja \
   --reasoning-format deepseek \
+  --reasoning-budget 0
+```
+
+For long-context deployment with RAM prompt-cache enabled, keep recurrent context checkpoints enabled. Do not add `--ctx-checkpoints 0` unless you intentionally want to disable checkpoint restore.
+
+Single-slot RAM-cache reference:
+
+```bash
+./build/bin/llama-server \
+  -m /path/to/Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf \
+  -c 180000 \
+  -np 1 \
+  -ngl 999 \
+  -b 512 \
+  -ub 128 \
+  -fa on \
+  -sm none \
+  -ctk f16 \
+  -ctv f16 \
+  --temp 0.7 \
+  --jinja \
+  --reasoning-format deepseek \
   --reasoning-budget 0 \
-  -cram 0 \
-  --ctx-checkpoints 0
+  -cram 32768
+```
+
+Two-slot parallel RAM-cache reference:
+
+```bash
+./build/bin/llama-server \
+  -m /path/to/Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf \
+  -c 360000 \
+  -np 2 \
+  -ngl 999 \
+  -b 256 \
+  -ub 64 \
+  -fa on \
+  -sm layer \
+  -ctk f16 \
+  -ctv f16 \
+  --temp 0.7 \
+  --jinja \
+  --reasoning-format deepseek \
+  --reasoning-budget 0 \
+  -cram 65536
 ```
 
 This is a tentative long-term default, not a claim that the fine-tune is solved. It is materially better than base Q4NL in this practical sweep, but still high variance at temp `0.7`.
+
+## Pinned-slot RAM cache adjustment
+
+This fork has an additional server adjustment for parallel serving with explicit slot lanes.
+
+OpenAI-compatible clients can request model names ending in `-slot0` or `-slot1` to keep work on a stable slot. In the unpatched pinned-slot path we tested, those requests went through direct slot lookup and skipped the RAM prompt-cache save/load logic that normally runs during automatic slot selection. That meant the server could expose stable slot aliases, but RAM prompt-cache reuse did not run for those pinned requests.
+
+This fork now factors the prompt-cache save/load logic into a shared helper and applies it to both automatic slot selection and direct `id_slot` requests. In direct A/B/A tests, the patched runtime produced the expected log sequence on the single-slot server and on both parallel lanes:
+
+- `created context checkpoint`
+- `found better prompt`
+- `prompt cache load took ...`
+- `restored context checkpoint`
+
+For recurrent or hybrid models, RAM prompt-cache reuse depends on context checkpoints. Keep the default checkpointing enabled for this path. `--ctx-checkpoints 0` disables that state and causes prompt matches to fall back to full prompt reprocessing. For the current two-GPU parallel profile, use `-sm layer` when RAM checkpoint restore is required; `-sm graph` disables recurrent checkpoints on this path.
 
 ## BF16 vs released custom IQ4_NL
 

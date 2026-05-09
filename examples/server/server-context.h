@@ -282,6 +282,8 @@ struct server_context {
 
     void copy_data_to_cached_prompt(const server_tokens& tokens, server_slot& slot);
 
+    void apply_prompt_cache_for_slot(server_slot& slot, const server_task& task);
+
     server_slot* get_available_slot(const server_task& task);
 
     bool launch_slot_with_task(server_slot& slot, server_task& task);
