@@ -251,6 +251,8 @@ Tested MTP flags:
 -sm graph -mtp --draft-max 1 --draft-p-min 0.0 --draft-min 0 -b 128 -ub 32 -ctk f16 -ctv f16 -fa on -gr
 ```
 
+That MTP snippet is a graph-split multi-GPU test shape. If only one GPU is visible to the process, use a non-graph split mode such as `-sm none`.
+
 The important practical read:
 - use the MTP file if you are testing MTP behavior, draft acceptance, or `ik_llama.cpp` MTP runtime changes
 - use the original non-MTP file if you want the best current user-facing result
