@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SignalLatch Fine-Tune Record</title>
-  <meta name="description" content="Self-contained public record for the Qwen3.6 AEON RYS SignalLatch ckpt386 s0.10 fine-tune, testing process, runtime setup, and release decision.">
+  <title>SignalLatch Original Fine-Tune Record</title>
+  <meta name="description" content="Historical public record for the original Qwen3.6 AEON RYS SignalLatch ckpt386 s0.10 fine-tune, testing process, runtime setup, and first-release decision.">
   <style>
     :root {
       color-scheme: light;
@@ -407,6 +407,7 @@
       <nav aria-label="Page navigation">
         <a class="brand" href="../index.html">Qwen3.6 AEON RYS Docs</a>
         <div class="links">
+          <a href="#current-context">Current context</a>
           <a href="#why">Why</a>
           <a href="#training">Training</a>
           <a href="#testing">Testing</a>
@@ -422,10 +423,11 @@
   <div class="hero">
     <div class="wrap">
       <div class="eyebrow">SignalLatch fine-tune record</div>
-      <h1>How the ckpt386 s0.10 release was made, tested, and selected.</h1>
-      <p class="dek">This page is the self-contained public record for the SignalLatch behavior fine-tune on top of Qwen3.6 AEON RYS 15/20. It focuses on the fine-tuning work only: the training aim, merge path, test harnesses, strength sweeps, repeat checks, practical canvas task, caveats, and final release decision.</p>
+      <h1>How the first ckpt386 s0.10 SignalLatch release was made, tested, and selected.</h1>
+      <p class="dek">This page is the self-contained public record for the original SignalLatch behavior fine-tune on top of Qwen3.6 AEON RYS 15/20. It documents the first public ckpt386 s0.10 IQ4_NL release, not the later v1.1 Lite/Plus mixed-quant selection.</p>
       <div class="actions">
         <a class="button primary" href="https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-SignalLatch-GGUF">SignalLatch on Hugging Face</a>
+        <a class="button" href="../signallatch-v1-1-production-process/index.html">Current v1.1 record</a>
         <a class="button" href="../qwen36-aeon-rys-15-20/index.html">Base AEON RYS record</a>
         <a class="button" href="../qwen36-aeon-rys-signallatch/index.html">Release overview</a>
         <a class="button" href="https://github.com/noonr48/qwen36-aeon-ik-llama">Runtime fork</a>
@@ -445,27 +447,50 @@
         </div>
         <div class="metric">
           <strong>9/15</strong>
-          <span>Strict three-run stability count for s0.10; 9/14 crash-adjusted.</span>
+          <span>Strict repeat-screen count used for strength selection, not a capability ceiling; 9/14 crash-adjusted.</span>
         </div>
       </div>
     </div>
   </div>
 
   <main class="wrap">
+    <section id="current-context">
+      <h2>How to read this page now</h2>
+      <p>This is a historical fine-tune validation record for the first public SignalLatch file. The current recommended public downloads are the newer <code>v1.1 Lite</code> and <code>v1.1 Plus</code> mixed-quant files, which were selected later with a much larger quant sweep and more realistic codebase harnesses.</p>
+      <div class="cards">
+        <div class="card good">
+          <h3>What this page proves</h3>
+          <p>The ckpt386 behavior LoRA became useful when merged into the model and served as a GGUF. In the first deploy-format Q4_NL matrix, s0.10 improved the base from <code>1/5</code> to <code>4/5</code> and reduced full-timeout behavior.</p>
+        </div>
+        <div class="card blue">
+          <h3>What later changed</h3>
+          <p>The original s0.10 IQ4_NL file is now best understood as the first stable SignalLatch baseline. The later v1.1 selection tested many mixed-quant recipes and picked Lite/Plus as the better current deployment files.</p>
+        </div>
+        <div class="card warn">
+          <h3>How to read the negative rows</h3>
+          <p>Early failed rows were mostly scouting and runtime-path evidence: direct adapter serving, too-strong merge strengths, or unstable first-pass harnesses. They should not be read as "the model cannot code."</p>
+        </div>
+        <div class="card flat">
+          <h3>Best companion pages</h3>
+          <p>For current model-choice evidence, read the <a href="../signallatch-v1-1-production-process/index.html">v1.1 production record</a> and the <a href="../signallatch-v1-1-all-results/index.html">all-results supplement</a>.</p>
+        </div>
+      </div>
+    </section>
+
     <section id="claim">
       <h2>The Short Claim</h2>
-      <p>SignalLatch is a small behavior fine-tune merged into the already released Qwen3.6 AEON RYS 15/20 model line. The selected public artifact is a merged <code>IQ4_NL</code> GGUF file, not a live LoRA adapter.</p>
+      <p>SignalLatch is a small behavior fine-tune merged into the already released Qwen3.6 AEON RYS 15/20 model line. This page explains the first public merged <code>IQ4_NL</code> GGUF artifact, not the later v1.1 mixed-quant release candidates.</p>
       <div class="callout">
-        <p><strong>Most accurate one-sentence read:</strong> on our practical Q4_NL coding-agent matrix, the selected ckpt386 <code>s0.10</code> merged GGUF improved the previous AEON RYS Q4_NL baseline from <code>1/5</code>, mean <code>0.550</code>, to <code>4/5</code>, mean <code>0.950</code> on the first deploy-format run, and was the most defensible upload default after the repeat runs we performed.</p>
+        <p><strong>Most accurate one-sentence read:</strong> on our practical Q4_NL coding-agent matrix, the original ckpt386 <code>s0.10</code> merged GGUF improved the previous AEON RYS Q4_NL baseline from <code>1/5</code>, mean <code>0.550</code>, to <code>4/5</code>, mean <code>0.950</code> on the first deploy-format run, and was the most defensible first public SignalLatch default after the repeat runs we performed.</p>
       </div>
       <div class="cards">
         <div class="card good">
           <h3>What this supports</h3>
-          <p>A narrow claim: ckpt386 at strength 0.10 improved practical coding-agent behavior in the tested merged IQ4_NL deployment path.</p>
+          <p>A narrow but real claim: ckpt386 at strength 0.10 improved practical coding-agent behavior in the tested merged IQ4_NL deployment path.</p>
         </div>
         <div class="card risk">
           <h3>What this does not prove</h3>
-          <p>It does not prove a universal benchmark win, a solved coding agent, a stock llama.cpp target, or that live LoRA serving is the recommended path.</p>
+          <p>It does not prove a universal benchmark win, a solved coding agent, a stock llama.cpp target, or that live LoRA serving is the recommended path. It also does not mean the model was weak; it means the public claim was intentionally kept narrow.</p>
         </div>
       </div>
     </section>
@@ -595,20 +620,23 @@
     <section id="testing">
       <h2>Testing Journey</h2>
       <p>The testing was not a single clean benchmark. It was an engineering selection process. We started with small behavior checks and practical app-building probes, then moved toward the exact merged Q4_NL format we intended to release.</p>
+      <div class="callout">
+        <p><strong>Reader note:</strong> the sequence below is intentionally chronological. The early rows look worse because they were testing raw checkpoints, direct adapter paths, and merge strengths that we later rejected. The later merged-GGUF rows are the better evidence for the released artifact.</p>
+      </div>
 
       <h3>Early behavior probes</h3>
-      <p>In the first response-style checkpoint eval, the raw checkpoints did not beat the base. This looked discouraging, but it was a scouting lane, not the final merged-GGUF serving path.</p>
+      <p>In the first response-style checkpoint eval, the raw checkpoints did not beat the base. This was useful scouting information, but it was not the final merged-GGUF serving path and should not be treated as the capability read for the released model.</p>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Candidate</th><th class="num">Mean</th><th>Read</th></tr></thead>
           <tbody>
             <tr><td>base</td><td class="num"><code>0.6333</code></td><td>Strongest in that early probe format.</td></tr>
-            <tr><td>ckpt245</td><td class="num"><code>0.1167</code></td><td>Weak.</td></tr>
-            <tr><td>ckpt280</td><td class="num"><code>0.1667</code></td><td>Weak.</td></tr>
-            <tr><td>ckpt300</td><td class="num"><code>0.1250</code></td><td>Weak.</td></tr>
-            <tr><td>ckpt350</td><td class="num"><code>0.1667</code></td><td>Weak.</td></tr>
-            <tr><td>ckpt385</td><td class="num"><code>0.2083</code></td><td>Weak.</td></tr>
-            <tr><td>ckpt386</td><td class="num"><code>0.2417</code></td><td>Weak, but best checkpoint in that group.</td></tr>
+            <tr><td>ckpt245</td><td class="num"><code>0.1167</code></td><td>Low in this raw-checkpoint probe.</td></tr>
+            <tr><td>ckpt280</td><td class="num"><code>0.1667</code></td><td>Low in this raw-checkpoint probe.</td></tr>
+            <tr><td>ckpt300</td><td class="num"><code>0.1250</code></td><td>Low in this raw-checkpoint probe.</td></tr>
+            <tr><td>ckpt350</td><td class="num"><code>0.1667</code></td><td>Low in this raw-checkpoint probe.</td></tr>
+            <tr><td>ckpt385</td><td class="num"><code>0.2083</code></td><td>Low in this raw-checkpoint probe.</td></tr>
+            <tr><td>ckpt386</td><td class="num"><code>0.2417</code></td><td>Low in this probe, but best checkpoint in that group.</td></tr>
           </tbody>
         </table>
       </div>
@@ -621,8 +649,8 @@
           <tbody>
             <tr><td>ckpt350 <code>s0.25</code></td><td class="num"><code>0.7000</code></td><td class="num"><code>0.5000</code></td><td class="num"><code>406.8</code></td><td>Best early behavior sweep point.</td></tr>
             <tr><td>ckpt386 <code>s0.25</code></td><td class="num"><code>0.6375</code></td><td class="num"><code>0.2500</code></td><td class="num"><code>406.8</code></td><td>Close second.</td></tr>
-            <tr><td>ckpt350 <code>s0.50</code></td><td class="num"><code>0.4750</code></td><td class="num"><code>0.2500</code></td><td class="num"><code>132.5</code></td><td>Weaker.</td></tr>
-            <tr><td>ckpt386 <code>s0.50</code></td><td class="num"><code>0.4750</code></td><td class="num"><code>0.2500</code></td><td class="num"><code>134.8</code></td><td>Weaker.</td></tr>
+            <tr><td>ckpt350 <code>s0.50</code></td><td class="num"><code>0.4750</code></td><td class="num"><code>0.2500</code></td><td class="num"><code>132.5</code></td><td>Less useful than lower-strength merges.</td></tr>
+            <tr><td>ckpt386 <code>s0.50</code></td><td class="num"><code>0.4750</code></td><td class="num"><code>0.2500</code></td><td class="num"><code>134.8</code></td><td>Less useful than lower-strength merges.</td></tr>
             <tr><td>ckpt350 <code>s0.75</code></td><td class="num"><code>0.1750</code></td><td class="num"><code>0.0000</code></td><td class="num"><code>87.8</code></td><td>Too strong.</td></tr>
             <tr><td>ckpt386 <code>s0.75</code></td><td class="num"><code>0.1750</code></td><td class="num"><code>0.0000</code></td><td class="num"><code>72.5</code></td><td>Too strong.</td></tr>
             <tr><td>ckpt350 <code>s1.00</code></td><td class="num"><code>0.1250</code></td><td class="num"><code>0.0000</code></td><td class="num"><code>74.2</code></td><td>Too strong.</td></tr>
@@ -638,7 +666,7 @@
           <thead><tr><th>Result group</th><th class="num">Count</th><th>Read</th></tr></thead>
           <tbody>
             <tr><td>Score <code>0.625</code>, timeout after <code>480s</code></td><td class="num"><code>15</code></td><td>Partial first-file scaffolding; <code>index.html</code> existed, but no full app.</td></tr>
-            <tr><td>Score <code>0.0417</code></td><td class="num"><code>21</code></td><td>Eight early false-success empty workspaces plus thirteen timeouts with no useful deliverables.</td></tr>
+            <tr><td>Score <code>0.0417</code></td><td class="num"><code>21</code></td><td>Eight early false-success empty workspaces plus thirteen timeouts in the direct path.</td></tr>
             <tr><td>Runs with <code>styles.css</code> or <code>app.js</code></td><td class="num"><code>0</code></td><td>The direct path was not producing complete apps.</td></tr>
           </tbody>
         </table>
@@ -666,13 +694,13 @@
         <table>
           <thead><tr><th>Merge strength</th><th>Public interpretation</th></tr></thead>
           <tbody>
-            <tr><td><code>s0.05</code></td><td>Very light behavior merge, still weak in first deploy sweep.</td></tr>
+            <tr><td><code>s0.05</code></td><td>Very light behavior merge, under target in the first deploy sweep.</td></tr>
             <tr><td><code>s0.075</code></td><td>Strong first run but missed web-race and kill-excess patterns.</td></tr>
             <tr><td><code>s0.10</code></td><td>Selected default after repeat checks.</td></tr>
-            <tr><td><code>s0.125</code></td><td>Weaker first sweep than nearby candidates.</td></tr>
+            <tr><td><code>s0.125</code></td><td>Lower first-sweep result than nearby candidates.</td></tr>
             <tr><td><code>s0.15</code></td><td>Decent, but not the most defensible default.</td></tr>
             <tr><td><code>s0.20</code></td><td>Perfect first run, degraded across repeats.</td></tr>
-            <tr><td><code>s0.25</code></td><td>Perfect first run, collapsed on repeat.</td></tr>
+            <tr><td><code>s0.25</code></td><td>Perfect first run, did not reproduce on repeat.</td></tr>
           </tbody>
         </table>
       </div>
@@ -710,11 +738,11 @@
         <table>
           <thead><tr><th>Candidate</th><th class="num">Pass</th><th class="num">Mean</th><th class="num">Elapsed</th><th class="num">Timeout-ish</th><th>Read</th></tr></thead>
           <tbody>
-            <tr><td>base Q4_NL</td><td class="num"><code>1/5</code></td><td class="num"><code>0.550</code></td><td class="num"><code>2660s</code></td><td class="num"><code>4</code></td><td>Weak baseline for this matrix.</td></tr>
-            <tr><td>ckpt386 <code>s0.05</code></td><td class="num"><code>2/5</code></td><td class="num"><code>0.600</code></td><td class="num"><code>2418s</code></td><td class="num"><code>3</code></td><td>Still weak.</td></tr>
+            <tr><td>base Q4_NL</td><td class="num"><code>1/5</code></td><td class="num"><code>0.550</code></td><td class="num"><code>2660s</code></td><td class="num"><code>4</code></td><td>Underperformed on this practical matrix.</td></tr>
+            <tr><td>ckpt386 <code>s0.05</code></td><td class="num"><code>2/5</code></td><td class="num"><code>0.600</code></td><td class="num"><code>2418s</code></td><td class="num"><code>3</code></td><td>Improved, but still under target.</td></tr>
             <tr><td>ckpt386 <code>s0.075</code></td><td class="num"><code>3/5</code></td><td class="num"><code>0.900</code></td><td class="num"><code>1638s</code></td><td class="num"><code>0</code></td><td>Strong but missed web-race and kill-excess patterns.</td></tr>
             <tr><td>ckpt386 <code>s0.10</code></td><td class="num"><code>4/5</code></td><td class="num"><code>0.950</code></td><td class="num"><code>1106s</code></td><td class="num"><code>0</code></td><td>Best stable-looking first run.</td></tr>
-            <tr><td>ckpt386 <code>s0.125</code></td><td class="num"><code>2/5</code></td><td class="num"><code>0.775</code></td><td class="num"><code>1190s</code></td><td class="num"><code>0</code></td><td>Weaker.</td></tr>
+            <tr><td>ckpt386 <code>s0.125</code></td><td class="num"><code>2/5</code></td><td class="num"><code>0.775</code></td><td class="num"><code>1190s</code></td><td class="num"><code>0</code></td><td>Lower than the selected balance point.</td></tr>
             <tr><td>ckpt386 <code>s0.15</code></td><td class="num"><code>3/5</code></td><td class="num"><code>0.875</code></td><td class="num"><code>1186s</code></td><td class="num"><code>0</code></td><td>Decent, not best.</td></tr>
             <tr><td>ckpt386 <code>s0.20</code></td><td class="num"><code>5/5</code></td><td class="num"><code>1.000</code></td><td class="num"><code>1568s</code></td><td class="num"><code>1</code></td><td>Perfect score, but PR-details hit full timeout.</td></tr>
             <tr><td>ckpt386 <code>s0.25</code> first</td><td class="num"><code>5/5</code></td><td class="num"><code>1.000</code></td><td class="num"><code>1328s</code></td><td class="num"><code>0</code></td><td>Perfect first score.</td></tr>
@@ -754,7 +782,7 @@
             <tr><td>ckpt386 <code>s0.10</code></td><td class="num"><code>3</code></td><td class="num"><code>9/15</code></td><td class="num"><code>0.842</code></td><td>Best default candidate after repeats.</td></tr>
             <tr><td>ckpt386 <code>s0.10</code> crash-adjusted</td><td class="num"><code>3</code></td><td class="num"><code>9/14</code></td><td class="num"><code>0.884</code></td><td>Excludes one invalid runtime/server-crash task.</td></tr>
             <tr><td>ckpt386 <code>s0.20</code></td><td class="num"><code>3</code></td><td class="num"><code>8/15</code></td><td class="num"><code>0.850</code></td><td>Degraded after its perfect first run.</td></tr>
-            <tr><td>ckpt386 <code>s0.25</code></td><td class="num"><code>2</code></td><td class="num"><code>6/10</code></td><td class="num"><code>0.875</code></td><td>First 5/5 collapsed to 1/5 on repeat.</td></tr>
+            <tr><td>ckpt386 <code>s0.25</code></td><td class="num"><code>2</code></td><td class="num"><code>6/10</code></td><td class="num"><code>0.875</code></td><td>First 5/5 did not reproduce on repeat.</td></tr>
           </tbody>
         </table>
       </div>
@@ -785,7 +813,7 @@
         <table>
           <thead><tr><th>Run</th><th class="num">RC</th><th class="num">Time</th><th class="num">Verifier</th><th>Notes</th></tr></thead>
           <tbody>
-            <tr><td>AEON RYS IQ4_NL attempt 1</td><td class="num"><code>1</code></td><td class="num"><code>337s</code></td><td class="num"><code>0.0417</code> / false</td><td>Failed before usable files due to invalid tool/diff behavior while writing CSS/app JS.</td></tr>
+            <tr><td>AEON RYS IQ4_NL attempt 1</td><td class="num"><code>1</code></td><td class="num"><code>337s</code></td><td class="num"><code>0.0417</code> / false</td><td>Formatting/tool-diff failure before usable files; the retry below shows why this was treated as harness reliability evidence, not a capability ceiling.</td></tr>
             <tr><td>AEON RYS IQ4_NL retry 1</td><td class="num"><code>0</code></td><td class="num"><code>803s</code></td><td class="num"><code>1.0</code> / true</td><td>Clean retry after the first formatting failure.</td></tr>
             <tr><td>SignalLatch IQ4_NL</td><td class="num"><code>0</code></td><td class="num"><code>802s</code></td><td class="num"><code>1.0</code> / true</td><td>Clean completion from the selected release candidate.</td></tr>
             <tr><td>Unsloth IQ4_NL</td><td class="num"><code>0</code></td><td class="num"><code>826s</code></td><td class="num"><code>1.0</code> / true</td><td>Clean pass for the external Q4-family comparison.</td></tr>
@@ -845,7 +873,7 @@ qwen36-aeon-rys-signallatch-q4nl-p2-slot1</code></pre>
       </div>
       <div class="cards">
         <div class="card good">
-          <h3>Recommended file</h3>
+          <h3>Recommended file for this original release</h3>
           <p><code>Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf</code></p>
         </div>
         <div class="card blue">
@@ -855,6 +883,9 @@ qwen36-aeon-rys-signallatch-q4nl-p2-slot1</code></pre>
       </div>
       <div class="callout warn">
         <p><strong>Tested runtime boundary:</strong> use the public <a href="https://github.com/noonr48/qwen36-aeon-ik-llama">qwen36-aeon-ik-llama</a> fork, with SignalLatch support documented in the fork history at commit <code>f0910a49</code> and pinned-slot RAM-cache support documented at commit <code>fdc70dc</code>. Do not read this as support for arbitrary upstream llama.cpp or for live LoRA loading with the public serving profile.</p>
+      </div>
+      <div class="callout">
+        <p><strong>Current model-choice note:</strong> the current public recommendation is the v1.1 Lite or v1.1 Plus mixed-quant file. The ckpt386 s0.10 IQ4_NL file remains useful as the first SignalLatch baseline and reproducibility artifact.</p>
       </div>
     </section>
 
@@ -913,7 +944,7 @@ qwen36-aeon-rys-signallatch-q4nl-p2-slot1</code></pre>
 
   <footer>
     <div class="wrap">
-      Last updated: 2026-05-10. This page documents the SignalLatch ckpt386 s0.10 fine-tune and testing process for the Qwen3.6 AEON RYS 15/20 GGUF line.
+      Last updated: 2026-05-20. This page documents the original SignalLatch ckpt386 s0.10 fine-tune and testing process for the Qwen3.6 AEON RYS 15/20 GGUF line.
     </div>
   </footer>
 </body>
