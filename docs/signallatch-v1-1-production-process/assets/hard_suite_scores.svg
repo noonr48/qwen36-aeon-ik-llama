@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="610" viewBox="0 0 1180 610" role="img" aria-labelledby="title desc">
+  <title id="title">Hard-suite screening scores</title>
+  <desc id="desc">Horizontal bar chart of hard-suite weighted score, habit score, and hard reasoning score for top candidates and the original SignalLatch baseline.</desc>
+  <rect width="1180" height="610" fill="#ffffff"/>
+  <text x="44" y="50" font-family="system-ui,Segoe UI,sans-serif" font-size="28" font-weight="800" fill="#17211f">Hard-suite screening</text>
+  <text x="44" y="80" font-family="system-ui,Segoe UI,sans-serif" font-size="15" fill="#58635f">The hard suite discovered promising quant families; the final release still depended on real-world project runs.</text>
+
+  <g font-family="system-ui,Segoe UI,sans-serif" font-size="13" fill="#58635f">
+    <line x1="320" y1="118" x2="320" y2="520" stroke="#d8dfdb"/>
+    <line x1="496" y1="118" x2="496" y2="520" stroke="#d8dfdb"/>
+    <line x1="672" y1="118" x2="672" y2="520" stroke="#d8dfdb"/>
+    <line x1="848" y1="118" x2="848" y2="520" stroke="#d8dfdb"/>
+    <line x1="1024" y1="118" x2="1024" y2="520" stroke="#d8dfdb"/>
+    <text x="310" y="545">0.70</text>
+    <text x="486" y="545">0.80</text>
+    <text x="662" y="545">0.90</text>
+    <text x="1010" y="545">1.00</text>
+  </g>
+
+  <g font-family="system-ui,Segoe UI,sans-serif" font-size="14" fill="#17211f">
+    <text x="44" y="146">c373</text>
+    <text x="44" y="220">c281</text>
+    <text x="44" y="294">c718 / Lite</text>
+    <text x="44" y="368">c204</text>
+    <text x="44" y="442">c154 / Plus</text>
+    <text x="44" y="516">original SignalLatch</text>
+  </g>
+
+  <g>
+    <!-- x = 320 + (score - .70) / .30 * 704 -->
+    <rect x="320" y="126" width="454" height="16" fill="#126b5d"/><rect x="320" y="146" width="419" height="16" fill="#315f93"/><rect x="320" y="166" width="500" height="16" fill="#8c4f17"/>
+    <rect x="320" y="200" width="450" height="16" fill="#126b5d"/><rect x="320" y="220" width="419" height="16" fill="#315f93"/><rect x="320" y="240" width="489" height="16" fill="#8c4f17"/>
+    <rect x="320" y="274" width="428" height="16" fill="#126b5d"/><rect x="320" y="294" width="537" height="16" fill="#315f93"/><rect x="320" y="314" width="286" height="16" fill="#8c4f17"/>
+    <rect x="320" y="348" width="413" height="16" fill="#126b5d"/><rect x="320" y="368" width="503" height="16" fill="#315f93"/><rect x="320" y="388" width="297" height="16" fill="#8c4f17"/>
+    <rect x="320" y="422" width="409" height="16" fill="#126b5d"/><rect x="320" y="442" width="503" height="16" fill="#315f93"/><rect x="320" y="462" width="286" height="16" fill="#8c4f17"/>
+    <rect x="320" y="496" width="224" height="16" fill="#126b5d"/><rect x="320" y="516" width="333" height="16" fill="#315f93"/><rect x="320" y="536" width="77" height="16" fill="#8c4f17"/>
+  </g>
+
+  <g font-family="system-ui,Segoe UI,sans-serif" font-size="12" fill="#17211f">
+    <text x="782" y="139">0.8935</text><text x="747" y="159">0.8786 habit</text><text x="828" y="179">0.9130 hard</text>
+    <text x="756" y="287">0.8822</text><text x="866" y="307">0.9286 habit</text><text x="614" y="327">0.8219 hard</text>
+    <text x="737" y="435">0.8741</text><text x="831" y="455">0.9143 habit</text><text x="614" y="475">0.8219 hard</text>
+    <text x="552" y="509">0.7954</text><text x="662" y="529">0.8417 habit</text><text x="406" y="549">0.7328 hard</text>
+  </g>
+
+  <g font-family="system-ui,Segoe UI,sans-serif" font-size="13">
+    <rect x="902" y="36" width="14" height="14" fill="#126b5d"/><text x="924" y="48" fill="#17211f">weighted</text>
+    <rect x="902" y="60" width="14" height="14" fill="#315f93"/><text x="924" y="72" fill="#17211f">habit</text>
+    <rect x="1000" y="60" width="14" height="14" fill="#8c4f17"/><text x="1022" y="72" fill="#17211f">hard</text>
+  </g>
+</svg>

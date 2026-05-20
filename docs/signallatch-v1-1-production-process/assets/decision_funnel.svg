@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="560" viewBox="0 0 1180 560" role="img" aria-labelledby="title desc">
+  <title id="title">SignalLatch v1.1 release decision funnel</title>
+  <desc id="desc">A funnel chart showing the path from the first SignalLatch baseline through manual mixed-quant search, hard-suite screening, real-world ClawCode tests, and the two final public release files.</desc>
+  <rect width="1180" height="560" fill="#fbfcf9"/>
+  <text x="44" y="52" font-family="system-ui,Segoe UI,sans-serif" font-size="28" font-weight="800" fill="#17211f">Release decision funnel</text>
+  <text x="44" y="84" font-family="system-ui,Segoe UI,sans-serif" font-size="15" fill="#58635f">The public choice was made from evidence stages, not from one isolated score.</text>
+
+  <g font-family="system-ui,Segoe UI,sans-serif">
+    <rect x="54" y="132" width="210" height="108" rx="8" fill="#eef4f0" stroke="#d8dfdb"/>
+    <text x="74" y="164" font-size="17" font-weight="800" fill="#126b5d">Baseline anchor</text>
+    <text x="74" y="194" font-size="14" fill="#17211f">ckpt386-s010 IQ4_NL</text>
+    <text x="74" y="218" font-size="13" fill="#58635f">Known practical reasoning/coding path</text>
+
+    <path d="M276 186 H326" stroke="#8c4f17" stroke-width="4" stroke-linecap="round"/>
+    <path d="M326 186 l-12 -8 v16 z" fill="#8c4f17"/>
+
+    <rect x="340" y="112" width="220" height="148" rx="8" fill="#ffffff" stroke="#d8dfdb"/>
+    <text x="360" y="144" font-size="17" font-weight="800" fill="#126b5d">Manual mixed search</text>
+    <text x="360" y="176" font-size="14" fill="#17211f">Recursive ik-llama quant sweep</text>
+    <text x="360" y="202" font-size="13" fill="#58635f">Layer/tensor group recipes:</text>
+    <text x="360" y="224" font-size="13" fill="#58635f">full attention, RYS signal, late FFN</text>
+
+    <path d="M572 186 H622" stroke="#8c4f17" stroke-width="4" stroke-linecap="round"/>
+    <path d="M622 186 l-12 -8 v16 z" fill="#8c4f17"/>
+
+    <rect x="636" y="112" width="220" height="148" rx="8" fill="#ffffff" stroke="#d8dfdb"/>
+    <text x="656" y="144" font-size="17" font-weight="800" fill="#126b5d">Hard-suite gate</text>
+    <text x="656" y="176" font-size="25" font-weight="800" fill="#17211f">163</text>
+    <text x="712" y="176" font-size="14" fill="#17211f">candidate runs</text>
+    <text x="656" y="206" font-size="25" font-weight="800" fill="#17211f">1,956</text>
+    <text x="738" y="206" font-size="14" fill="#17211f">prompt results</text>
+    <text x="656" y="232" font-size="13" fill="#58635f">Reasoning + habit retention screen</text>
+
+    <path d="M868 186 H918" stroke="#8c4f17" stroke-width="4" stroke-linecap="round"/>
+    <path d="M918 186 l-12 -8 v16 z" fill="#8c4f17"/>
+
+    <rect x="932" y="112" width="210" height="148" rx="8" fill="#ffffff" stroke="#d8dfdb"/>
+    <text x="952" y="144" font-size="17" font-weight="800" fill="#126b5d">Real-world harness</text>
+    <text x="952" y="176" font-size="25" font-weight="800" fill="#17211f">32</text>
+    <text x="1000" y="176" font-size="14" fill="#17211f">ClawCode runs</text>
+    <text x="952" y="206" font-size="25" font-weight="800" fill="#17211f">564</text>
+    <text x="1014" y="206" font-size="14" fill="#17211f">component checks</text>
+    <text x="952" y="232" font-size="13" fill="#58635f">KritaLite, SyncBoard, codebase migration</text>
+
+    <path d="M1037 274 V320" stroke="#8c4f17" stroke-width="4" stroke-linecap="round"/>
+    <path d="M1037 320 l-8 -12 h16 z" fill="#8c4f17"/>
+
+    <rect x="180" y="342" width="360" height="132" rx="8" fill="#eef4f0" stroke="#126b5d" stroke-width="2"/>
+    <text x="202" y="376" font-size="19" font-weight="800" fill="#126b5d">v1.1 Lite</text>
+    <text x="202" y="406" font-size="14" fill="#17211f">c718: fa=iq3_kt + rys_signal=q6_K</text>
+    <text x="202" y="432" font-size="14" fill="#58635f">~16 GB, 14/15 KritaLite, 19/19 legacy-codebase migration</text>
+    <text x="202" y="458" font-size="13" fill="#58635f">Chosen as the smaller practical SignalLatch replacement.</text>
+
+    <rect x="640" y="342" width="360" height="132" rx="8" fill="#eef4f0" stroke="#126b5d" stroke-width="2"/>
+    <text x="662" y="376" font-size="19" font-weight="800" fill="#126b5d">v1.1 Plus</text>
+    <text x="662" y="406" font-size="14" fill="#17211f">c154: fa_o=bf16 + fa_qk=q8_0 + late_ffn=q8_0</text>
+    <text x="662" y="432" font-size="14" fill="#58635f">~18 GB, 18/19 SyncBoard, 19/19 legacy-codebase migration</text>
+    <text x="662" y="458" font-size="13" fill="#58635f">Chosen as the strongest practical all-around SignalLatch variant.</text>
+  </g>
+</svg>

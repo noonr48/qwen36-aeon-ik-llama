@@ -237,6 +237,30 @@
 
     .warning { border-left-color: var(--warn); }
 
+    .figure {
+      margin: 24px 0 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 6px;
+      background: #ffffff;
+    }
+
+    .caption {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      max-width: 960px;
+    }
+
     .mini-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -478,6 +502,11 @@
         <span>real-world verifier component checks used for finalist comparison.</span>
       </div>
     </div>
+
+    <figure class="figure">
+      <img src="assets/decision_funnel.svg" alt="Funnel diagram from baseline SignalLatch through mixed-quant search, hard-suite screening, real-world harnesses, and the final Lite and Plus release files.">
+      <figcaption class="caption">The release route is shown as a funnel because the final choice depended on multiple filters: the original reasoning/coding baseline, manual mixed-quant recipes, hard-suite screening, real-world coding-agent tests, and then a two-file release split.</figcaption>
+    </figure>
   </div>
 
   <main class="wrap">
@@ -530,6 +559,42 @@
               <td><code>c154_fao_bf16_faqk_q8_lateffn_q8</code></td>
               <td class="num">~18 GB</td>
               <td><code>e589a0b7dba56eb04c3ea621da7ddb9e27152a78ee9ddd088c0115e26b1bb9b1</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Exact candidate recipes behind the public files</h3>
+      <p>The public filenames hide the internal recipe details, so they are reproduced here. These are the exact candidate recipes that became the two uploaded v1.1 files.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Public release</th>
+              <th>Internal candidate</th>
+              <th>Generator / phase</th>
+              <th>Recipe summary</th>
+              <th>Exact tensor-group rules</th>
+              <th class="num">Bytes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>v1.1 Lite</td>
+              <td><code>c718_fa_iq3kt_ryssig_q6k</code></td>
+              <td><code>expanded_mixed_habit_v2_ik</code>, phase <code>7</code></td>
+              <td>Full-attention Q/K/V/O tensors at <code>iq3_kt</code>; RYS 15..24 signal-path tensors at <code>q6_K</code>.</td>
+              <td><code>full-attention attn_(q|k|v|output)=iq3_kt</code><br><code>RYS 15..24 attn_qkv/attn_gate/ssm_(out|alpha|beta)=q6_K</code></td>
+              <td class="num"><code>16,399,216,704</code></td>
+            </tr>
+            <tr>
+              <td>v1.1 Plus</td>
+              <td><code>c154_fao_bf16_faqk_q8_lateffn_q8</code></td>
+              <td><code>expanded_mixed_habit_v1</code>, phase <code>8</code></td>
+              <td>Full-attention output tensors at <code>bf16</code>; full-attention Q/K tensors at <code>q8_0</code>; late FFN gate/down tensors at <code>q8_0</code>.</td>
+              <td><code>full-attention attn_output=bf16</code><br><code>full-attention attn_(q|k)=q8_0</code><br><code>late blk 56/60/64/68 ffn_(down|gate)=q8_0</code></td>
+              <td class="num"><code>18,338,723,392</code></td>
             </tr>
           </tbody>
         </table>
@@ -901,6 +966,65 @@ Leave a concise final summary covering what changed, what files matter, what tes
       <p>A score such as <code>14/15</code> means the verifier found 14 passing components out of 15. The components include visible tests, hidden tests, and structural checks such as preserving scope, not deleting tests, and avoiding dependency churn. A model could complete the visible task but still lose points on hidden edge cases or production discipline.</p>
       <p>The ClawCode return code was not used alone as the quality score. The verifier inspected the produced workspace and counted behavior-specific components. This mattered because some useful agent runs ended with a non-zero command return while still producing a correct, testable patch.</p>
 
+      <figure class="figure">
+        <img src="assets/realworld_scores.svg" alt="Grouped bar chart comparing v1.1 Plus, v1.1 Lite, original SignalLatch, Unsloth IQ4_NL, and Unsloth Q8_0 across KritaLite, SyncBoard, and legacy-codebase migration.">
+        <figcaption class="caption">The real-world chart shows why the release split is not a one-number leaderboard. Lite is strong on KritaLite and the legacy-codebase task, Plus is more balanced, Unsloth remains competitive, and the original SignalLatch baseline is preserved for comparison.</figcaption>
+      </figure>
+
+      <h3>Public decision trace</h3>
+      <p>This is the public version of the project "homework": prompts, verifier categories, numeric results, observed failures, and decision rules. It is not a private chain-of-thought dump. The auditable trail is evidence-first: what was observed, what rule it triggered, and what action followed.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Stage</th>
+              <th>Evidence observed</th>
+              <th>Decision rule</th>
+              <th>Action taken</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Initial public baseline</td>
+              <td>The first SignalLatch <code>ckpt386-s010-IQ4_NL</code> file was stable and practical, but not dominant in later real-world tasks.</td>
+              <td>Keep it as a reproducibility baseline, not the final v1.1 recommendation.</td>
+              <td>Left the original file online and compared all finalists against it.</td>
+            </tr>
+            <tr>
+              <td>Habit/process imatrix check</td>
+              <td>The habit/process imatrix idea did not clearly beat the known reasoning/coding imatrix path in early coding-agent checks.</td>
+              <td>Do not replace a known-good calibration path unless the evidence is clear.</td>
+              <td>Kept the reasoning/coding imatrix anchor and searched mixed-quant tensor recipes instead.</td>
+            </tr>
+            <tr>
+              <td>Hard-suite screen</td>
+              <td><code>c373</code> and <code>c281</code> led weighted hard-suite score, while <code>c718</code>, <code>c204</code>, and <code>c154</code> showed strong habit retention.</td>
+              <td>Do not promote from hard-suite score alone; use it to choose real-world finalists.</td>
+              <td>Advanced promising candidates into project-level ClawCode harnesses.</td>
+            </tr>
+            <tr>
+              <td>KritaLite</td>
+              <td><code>c718</code>, <code>c76</code>, Unsloth IQ4_NL, and Unsloth Q8_0 reached <code>14/15</code>. Original SignalLatch reached <code>12/15</code>.</td>
+              <td>Reward project implementation strength, but check if it generalizes beyond a canvas app.</td>
+              <td>Kept <code>c718</code> in contention for the smaller release.</td>
+            </tr>
+            <tr>
+              <td>SyncBoard</td>
+              <td><code>c204</code> and Unsloth Q8_0 reached <code>19/19</code>; <code>c154</code> reached <code>18/19</code>; <code>c718</code> dropped to <code>16/19</code>.</td>
+              <td>A SyncBoard win is useful, but not enough if the model fails natural existing-codebase work.</td>
+              <td>Kept <code>c154</code> as a balanced candidate; treated <code>c718</code> as a smaller-file tradeoff.</td>
+            </tr>
+            <tr>
+              <td>Legacy-codebase migration</td>
+              <td><code>c718</code> and <code>c154</code> both reached <code>19/19</code>. <code>c204</code> fell to <code>8/19</code>. Original SignalLatch reached <code>16/19</code>.</td>
+              <td>The fine-tune target is existing-codebase agentic work, so this task has high release weight.</td>
+              <td>Selected <code>c718</code> as Lite and <code>c154</code> as Plus; rejected <code>c204</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
       <h3>Finalist matrix</h3>
       <div class="table-wrap">
         <table>
@@ -1043,6 +1167,10 @@ Leave a concise final summary covering what changed, what files matter, what tes
 
       <h3>Hard-suite narrowing</h3>
       <p>The hard suite was used to find promising quantization families before spending time on full project work. Its job was candidate discovery, not final release selection. The table shows the later comprehensive hard-suite view for candidates that affected the release discussion.</p>
+      <figure class="figure">
+        <img src="assets/hard_suite_scores.svg" alt="Horizontal bar chart of weighted, habit, and hard reasoning scores for c373, c281, c718 Lite, c204, c154 Plus, and the original SignalLatch baseline.">
+        <figcaption class="caption">The hard-suite graph shows why the process did not simply pick the top weighted score. <code>c718</code> and <code>c154</code> were not the first two hard-suite rankers, but they carried stronger release evidence once the real-world codebase harnesses were added.</figcaption>
+      </figure>
       <div class="table-wrap">
         <table>
           <thead>
@@ -1131,6 +1259,11 @@ Leave a concise final summary covering what changed, what files matter, what tes
           <p class="muted">It is no longer the recommended best SignalLatch download after the v1.1 sweep.</p>
         </article>
       </div>
+
+      <figure class="figure">
+        <img src="assets/selection_matrix.svg" alt="Selection matrix explaining why c718 became Lite, c154 became Plus, c204 was rejected, and the original Q4NL file remains as a baseline.">
+        <figcaption class="caption">The selection matrix is the final decision record: <code>c718</code> solved the smaller-file release need, <code>c154</code> solved the best-practical-quality need, <code>c204</code> was rejected despite one full-pass harness, and the original Q4NL file remains as the historical baseline.</figcaption>
+      </figure>
 
       <p>That is why the public naming avoids absolute claims. <code>Lite</code> means smaller practical SignalLatch. <code>Plus</code> means the best practical quality SignalLatch variant from this sweep.</p>
     </section>
