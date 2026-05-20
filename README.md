@@ -9,15 +9,19 @@ Optional experimental MTP file:
 - `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-SpeedBoosted-IQ4_NL-MTP-Experimental.gguf`
 
 Primary fine-tuned target model:
+- `Qwen3.6-27B-AEON-RYS-SignalLatch-v1.1-Lite-Mixed-Q4NL.gguf`
+- `Qwen3.6-27B-AEON-RYS-SignalLatch-v1.1-Plus-Mixed-Q4NL.gguf`
 - `Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf`
 
 Latest fine-tuned deployment update:
 - supported fine-tune: checkpoint 386 behavioral LoRA, strength-merged into the AEON RYS base model
 - selected long-term strength: `s0.10`
-- selected deploy artifact shape: `IQ4_NL` GGUF with imatrix
+- selected deploy artifact shape: v1.1 `Lite` / `Plus` mixed-Q4NL GGUF, plus the original `IQ4_NL` baseline
 - public model name: `SignalLatch`
-- selected artifact name: `Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf`
+- selected artifact names: `Qwen3.6-27B-AEON-RYS-SignalLatch-v1.1-Lite-Mixed-Q4NL.gguf`, `Qwen3.6-27B-AEON-RYS-SignalLatch-v1.1-Plus-Mixed-Q4NL.gguf`
 - Hugging Face release: `https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-SignalLatch-GGUF`
+- v1.1 mixed-quant combinations started as manual tensor-group recipes over known model regions, then scripts expanded, built, scheduled, and scored those recipe families
+- v1.1 release selection used `163` hard-suite candidate runs, `32` real-world ClawCode harness runs, and `564` verifier component checks
 - tested server profile: temp `0.7`, graph split, flash attention, Jinja, DeepSeek reasoning format, context `65536` for the strength sweep and `131072` for the later canvas comparison
 - current long-context RAM-cache profile: checkpointing enabled; single-slot uses `-sm none`, two-slot parallel uses `-sm layer` so recurrent checkpoints can restore
 
@@ -30,6 +34,8 @@ Model releases:
 Comprehensive public documentation:
 - non-finetuned AEON RYS 15/20 record: `https://noonr48.github.io/qwen36-aeon-ik-llama/qwen36-aeon-rys-15-20/index.html`
 - SignalLatch fine-tune page: `https://noonr48.github.io/qwen36-aeon-ik-llama/qwen36-aeon-rys-signallatch/index.html`
+- SignalLatch v1.1 production process: `https://noonr48.github.io/qwen36-aeon-ik-llama/signallatch-v1-1-production-process/index.html`
+- SignalLatch v1.1 all-results supplement: `https://noonr48.github.io/qwen36-aeon-ik-llama/signallatch-v1-1-all-results/index.html`
 - docs index: `https://noonr48.github.io/qwen36-aeon-ik-llama/`
 - source: [`docs/qwen36-aeon-rys-15-20`](docs/qwen36-aeon-rys-15-20), [`docs/qwen36-aeon-rys-signallatch`](docs/qwen36-aeon-rys-signallatch)
 
@@ -53,8 +59,8 @@ Source model it was derived from:
   `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-IQ4_NL-ik-llama-custom-mixed.gguf`
 - optional MTP test file:
   `Qwen3.6-27B-AEON-RYS-MaxThinkCoder-SpeedBoosted-IQ4_NL-MTP-Experimental.gguf`
-- latest fine-tuned default candidate:
-  `Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf`
+- latest fine-tuned deployment candidates:
+  `Qwen3.6-27B-AEON-RYS-SignalLatch-v1.1-Lite-Mixed-Q4NL.gguf` and `Qwen3.6-27B-AEON-RYS-SignalLatch-v1.1-Plus-Mixed-Q4NL.gguf`
 - main runtime target:
   custom `ik-llama`
 - compression target:
