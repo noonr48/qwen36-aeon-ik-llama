@@ -99,12 +99,14 @@ Recommended strength-sweep shape:
   -ngl 999 \
   -np 1 \
   -fa on \
-  -sm graph \
+  -sm none \
   --temp 0.7 \
   --jinja \
   --reasoning-format deepseek \
   --reasoning-budget 0
 ```
+
+For a single visible GPU, use `-sm none`. `-sm graph` requires at least two visible GPU devices and will fail during model load if the process is pinned to one GPU.
 
 For long-context deployment with RAM prompt-cache enabled, keep recurrent context checkpoints enabled. Do not add `--ctx-checkpoints 0` unless you intentionally want to disable checkpoint restore.
 
