@@ -567,6 +567,7 @@
 
       <h3>Exact candidate recipes behind the public files</h3>
       <p>The public filenames hide the internal recipe details, so they are reproduced here. These are the exact candidate recipes that became the two uploaded v1.1 files.</p>
+      <p>The mixed-quant combinations began as manual tensor-group recipes, not as a black-box automatic quantizer search. We chose meaningful groups from the model structure, such as full-attention Q/K/V/O, full-attention output, token/output tensors, RYS 15..24 signal-path tensors, RYS FFN tensors, duplicate-boundary tensors, and late FFN control tensors, then assigned ik-llama quant types to those groups and expanded the resulting families for testing.</p>
 
       <div class="table-wrap">
         <table>
@@ -606,7 +607,7 @@
       <h2>What this release is, in plain terms</h2>
       <p>This page is written as a self-contained production record. A reader does not need the private build folders, server logs, or internal notes to understand what was tested and why these two files were uploaded.</p>
 
-      <div class="cards three">
+      <div class="cards">
         <article class="card">
           <h3>Base model</h3>
           <p>The model family is Qwen3.6 27B. The public files here are GGUF runtime artifacts intended for the custom AEON / ik-llama path used by the main SignalLatch model card.</p>
@@ -618,6 +619,10 @@
         <article class="card">
           <h3>Mixed quantization</h3>
           <p>The v1.1 files are not ordinary single-type Q4 or Q8 conversions. They are mixed-quant candidates where different tensor groups were assigned different ik-llama quantization types, then tested for behavior retention.</p>
+        </article>
+        <article class="card">
+          <h3>Manual recipe origin</h3>
+          <p>The search started from hand-designed combinations over known tensor families and ik-llama quant types. Automation was used to build, schedule, score, and expand the sweep; the starting ideas were manual engineering hypotheses about which parts of the model should keep more precision.</p>
         </article>
       </div>
 
