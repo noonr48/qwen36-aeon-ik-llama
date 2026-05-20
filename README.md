@@ -74,13 +74,17 @@ Source model it was derived from:
   preserve as much capability as possible inside a Q4-class RYS model for programming, reasoning, and academic work
 - pinned-slot RAM prompt-cache save/load for explicit `-slot0` / `-slot1` parallel lanes
 
-## Fine-tuned ckpt386 deployment
+## SignalLatch fine-tuned deployment
 
-The current practical fine-tuned deployment candidate is SignalLatch: the checkpoint-386 behavioral LoRA merged into the AEON RYS base model at strength `s0.10`, then exported as IQ4_NL GGUF. The public release file is `Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf`.
+The current practical fine-tuned SignalLatch deployment files are the v1.1 mixed-quant releases:
+- `Qwen3.6-27B-AEON-RYS-SignalLatch-v1.1-Lite-Mixed-Q4NL.gguf`
+- `Qwen3.6-27B-AEON-RYS-SignalLatch-v1.1-Plus-Mixed-Q4NL.gguf`
+
+The original checkpoint-386 behavioral LoRA merge at strength `s0.10`, exported as `Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf`, remains available as the first published SignalLatch Q4NL baseline and as the reference artifact for the original strength sweep below.
 
 This fork is the intended runtime path for that merged finetune. Load it as a full GGUF model, not as a separate live LoRA adapter.
 
-The Q4NL deployment sweep compared base Q4NL and multiple LoRA merge strengths at temp `0.7`, graph split, flash attention, Jinja, DeepSeek reasoning format, and context `65536`. The later practical canvas-agent comparison also used temp `0.7`, graph split, flash attention, Jinja, DeepSeek reasoning format, FP32 KV, and context `131072`.
+The original Q4NL deployment sweep compared base Q4NL and multiple LoRA merge strengths at temp `0.7`, flash attention, Jinja, DeepSeek reasoning format, and context `65536`. The later practical canvas-agent comparison also used temp `0.7`, flash attention, Jinja, DeepSeek reasoning format, FP32 KV, and context `131072`.
 
 | Candidate | Stability result | Read |
 |---|---:|---|
@@ -90,7 +94,7 @@ The Q4NL deployment sweep compared base Q4NL and multiple LoRA merge strengths a
 | `s0.20` | 8/15, mean 0.850 | too unstable across repeats |
 | `s0.25` | 6/10, mean 0.875 | first perfect run did not reproduce |
 
-Recommended strength-sweep shape:
+Recommended original strength-sweep shape:
 
 ```bash
 ./build/bin/llama-server \
