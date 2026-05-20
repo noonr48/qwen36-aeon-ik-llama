@@ -24,7 +24,7 @@
   </style>
 </head>
 <body>
-  <header><div class="wrap"><nav><div class="brand">SignalLatch v1.1 Results Supplement</div><div class="navlinks"><a href="#overview">Overview</a><a href="#graphs">Graphs</a><a href="#realworld">Real-world</a><a href="#comprehensive">Comprehensive</a><a href="#stable">Stable screen</a><a href="#data">Tables</a></div></nav></div></header>
+  <header><div class="wrap"><nav><div class="brand">SignalLatch v1.1 Results Supplement</div><div class="navlinks"><a href="#overview">Overview</a><a href="#score-key">Score key</a><a href="#graphs">Graphs</a><a href="#realworld">Real-world</a><a href="#comprehensive">Comprehensive</a><a href="#stable">Stable screen</a><a href="#data">Tables</a></div></nav></div></header>
   <div class="wrap hero">
     <p class="eyebrow">Supplemental result ledger</p>
     <h1>Every summarized SignalLatch v1.1 quant result.</h1>
@@ -38,6 +38,74 @@
       <p>This page is intentionally large. The main production record explains the release decision. This supplement exists for readers who want the broad sweep: the score distributions, all candidate rows, recipe notes, and real-world harness rows.</p>
       <div class="callout"><p><strong>Important boundary:</strong> this is every row in the summarized release datasets used here, not every unused generated recipe in the 882-entry candidate catalog. Untested generated recipes are not treated as results.</p></div>
       <div class="cards"><article class="card"><h3>Published Lite</h3><p><code>c718_fa_iq3kt_ryssig_q6k</code></p><p class="muted">Highlighted green throughout the tables.</p></article><article class="card"><h3>Published Plus</h3><p><code>c154_fao_bf16_faqk_q8_lateffn_q8</code></p><p class="muted">Highlighted blue throughout the tables.</p></article><article class="card"><h3>Original baseline</h3><p><code>release_s010_iq4nl</code></p><p class="muted">Highlighted brown where present.</p></article><article class="card"><h3>External baselines</h3><p><code>unsloth_iq4nl</code>, <code>unsloth_q8_0</code></p><p class="muted">Highlighted gold where present.</p></article></div>
+    </section>
+    <section id="score-key">
+      <h2>What the scores mean</h2>
+      <p>The score columns on this page come from two different evaluation layers. The hard-suite and comprehensive-suite rows are automated prompt-screen scores on a <code>0.0</code> to <code>1.0</code> scale. The real-world rows are verifier component counts such as <code>14/15</code> or <code>19/19</code>.</p>
+      <div class="callout"><p><strong>Release interpretation:</strong> the prompt-suite scores were used for broad candidate discovery and narrowing. The real-world ClawCode scores carried more release weight because they tested whether a model could explore, edit, run tests, and repair inside an actual project workspace.</p></div>
+
+      <h3>Prompt-suite score columns</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Column</th><th>Meaning</th><th>How to read it</th></tr></thead>
+          <tbody>
+            <tr><td><code>weighted</code> or <code>score</code></td><td>Primary automated prompt-suite score: <code>0.50 * habit_score + 0.35 * hard_score + 0.15 * mean_score - 0.05 * errors</code>, clipped at zero.</td><td>Higher is better. It intentionally weights SignalLatch process habits more than raw puzzle accuracy.</td></tr>
+            <tr><td><code>habit_score</code></td><td>Mean score for tasks in the <code>signallatch_habits</code> category.</td><td>Measures behavior retention: context gathering, command lifecycle control, repair loops, preserving user changes, calibrated uncertainty, and related agent habits.</td></tr>
+            <tr><td><code>hard_score</code></td><td>Mean score for <code>hard_reasoning</code>, <code>linked_reasoning</code>, and <code>hard_project</code> tasks.</td><td>Measures exact reasoning, dependency-order reasoning, long-context instruction following, and practical planning under constraints.</td></tr>
+            <tr><td><code>mean_score</code></td><td>Simple average across every task in that suite.</td><td>Useful as a sanity check when weighted score and category scores diverge.</td></tr>
+            <tr><td><code>errors</code></td><td>Count of prompt requests that failed, timed out, or produced no usable response.</td><td>Each error lowers the weighted score and is treated as reliability evidence, not just a missing answer.</td></tr>
+            <tr><td><code>size_gb</code></td><td>Candidate file size in decimal gigabytes.</td><td>Used to distinguish practical release files from larger variants that keep more tensors at high precision.</td></tr>
+            <tr><td><code>score_minus_size_penalty</code></td><td>A screening-only size-adjusted score included in some summary tables.</td><td>Useful for finding practical candidates, but the final release decision used raw real-world evidence plus size/role tradeoffs rather than this column alone.</td></tr>
+            <tr><td><code>score_per_gb</code></td><td>Weighted score divided by candidate size.</td><td>Efficiency hint. It is not a quality score by itself.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>How individual prompt tasks were scored</h3>
+      <p>Exact tasks used answer-pattern checks plus required-term checks. The exact-task score was <code>0.78</code> answer-pattern coverage plus <code>0.22</code> required-term coverage, with penalties for forbidden terms and excessive repeated 5-grams.</p>
+      <p>Rubric tasks used category keywords. Each rubric category passed if the answer contained at least one term from that category. The task score was the mean of category passes, with penalties for very short answers, forbidden terms, and excessive repeated 5-grams.</p>
+      <p>Because this is an automated screen, a high prompt-suite score means "passed the public scoring signals for this suite"; it does not mean a human would prefer that model in every coding session. That is why the project-level ClawCode harnesses were added after the broad screen.</p>
+
+      <h3>Stable gate vs comprehensive gate</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Suite</th><th>Rows shown here</th><th>Prompt tasks</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td>Stable promotion screen</td><td class="num">163</td><td class="num">12</td><td>Fast gate used as the stable public count: <code>163 * 12 = 1,956</code> prompt-level scored results.</td></tr>
+            <tr><td>Comprehensive summary</td><td class="num">440</td><td class="num">16</td><td>Broader later sweep with the same 12 core tasks plus four long-context retention tasks.</td></tr>
+            <tr><td>Real-world ClawCode harnesses</td><td class="num">32</td><td>Project verifiers</td><td>Finalist comparison using actual workspaces and component checks.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Prompt-suite task catalog</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Task ID</th><th>Category</th><th>Scoring type</th><th>What it tested</th></tr></thead>
+          <tbody>
+            <tr><td><code>crt_exact_1136</code></td><td><code>hard_reasoning</code></td><td>Exact</td><td>Chinese-remainder arithmetic, required modular checks, and a final exact answer of <code>1136</code>.</td></tr>
+            <tr><td><code>state_machine_exact_8_minus5</code></td><td><code>hard_reasoning</code></td><td>Exact</td><td>Six-step conditional state tracking, avoiding skipped updates, ending with <code>x=8</code> and <code>y=-5</code>.</td></tr>
+            <tr><td><code>binary_strings_exact_126</code></td><td><code>hard_reasoning</code></td><td>Exact</td><td>Combinatorics with no-adjacent-ones gap reasoning, ending with <code>126</code>.</td></tr>
+            <tr><td><code>dependency_chain_project_order</code></td><td><code>linked_reasoning</code></td><td>Rubric</td><td>Evidence-first pipeline debugging, dependency order, validation, and avoiding the wrong parser-rewrite scope.</td></tr>
+            <tr><td><code>deadlock_ordering_plan</code></td><td><code>hard_reasoning</code></td><td>Rubric</td><td>Cycle diagnosis, lock-ordering rule, regression tests, and validation for a deadlock-style failure.</td></tr>
+            <tr><td><code>agent_context_sufficiency</code></td><td><code>signallatch_habits</code></td><td>Rubric</td><td>Goal tracking, context gaps, evidence to inspect, and a stop condition before editing a vague repo issue.</td></tr>
+            <tr><td><code>command_lifecycle_control</code></td><td><code>signallatch_habits</code></td><td>Rubric</td><td>Starting, monitoring, polling, logging, stopping, and cleaning up a long GPU/model evaluation without killing unrelated services.</td></tr>
+            <tr><td><code>repair_from_failure_signal</code></td><td><code>signallatch_habits</code></td><td>Rubric</td><td>Using a concrete focused-test failure to plan minimal repair and choose when to rerun broad tests.</td></tr>
+            <tr><td><code>restrained_delegation</code></td><td><code>signallatch_habits</code></td><td>Rubric</td><td>Keeping blocking stack-trace work local while delegating only independent, non-overlapping side work.</td></tr>
+            <tr><td><code>preserve_user_changes</code></td><td><code>signallatch_habits</code></td><td>Rubric</td><td>Dirty-worktree discipline: do not revert unrelated user changes, ignore unrelated files, and work with same-file changes when needed.</td></tr>
+            <tr><td><code>complex_project_plan_hard</code></td><td><code>hard_project</code></td><td>Rubric</td><td>Planning an automated quant sweep under two-server, GPU-pool, cleanup, and tiered-test constraints.</td></tr>
+            <tr><td><code>uncertainty_and_evidence</code></td><td><code>signallatch_habits</code></td><td>Rubric</td><td>Calibrated model-selection answer when style evidence and exact-reasoning evidence disagree.</td></tr>
+            <tr><td><code>long_exact_redwood_12289</code></td><td><code>hard_reasoning</code></td><td>Exact</td><td>Long-context active-control-packet retention with noisy irrelevant context, ending with <code>12289</code>.</td></tr>
+            <tr><td><code>long_linked_topology_order</code></td><td><code>linked_reasoning</code></td><td>Exact</td><td>Long-context task-order retention, requiring <code>READ &gt; STOP &gt; PATCH &gt; BUILD &gt; EVAL &gt; PRUNE</code>.</td></tr>
+            <tr><td><code>long_habit_preserve_changes</code></td><td><code>signallatch_habits</code></td><td>Rubric</td><td>Long-context retention of inspect-before-editing, no destructive git operations, user-change preservation, conflict scope, and targeted validation.</td></tr>
+            <tr><td><code>long_project_gate_7046</code></td><td><code>hard_project</code></td><td>Exact</td><td>Long project-transcript retention of goal tracking, evidence-before-editing, command lifecycle control, scoped validation, and final exact answer <code>7046</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Real-world harness scores</h3>
+      <p>A real-world score such as <code>14/15</code> means the verifier found 14 passing components out of 15. Components included visible tests, hidden tests, and structural checks such as keeping scope focused, preserving tests, avoiding dependency churn, preserving old retrieval paths, or adding deterministic verification paths.</p>
+      <p>The ClawCode process return code was recorded but was not the quality score. The verifier inspected the final workspace and counted behavior-specific components, because a run can produce a useful patch while still ending with a non-zero tool return or a missed hidden edge case.</p>
     </section>
     <section id="graphs">
       <h2>Massive summary graphs</h2>

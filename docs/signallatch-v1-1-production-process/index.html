@@ -726,6 +726,7 @@
 
       <h3>Layer 1: hard reasoning and SignalLatch habit gate</h3>
       <p>The hard-suite gate used 12 prompt tasks. It was not meant to replace coding tests; it was used to eliminate candidates that lost the fine-tuned process habits or basic hard reasoning before spending hours on project runs.</p>
+      <p>The prompt-suite scores are normalized automated screening scores from <code>0.0</code> to <code>1.0</code>. The weighted score used for candidate narrowing was <code>0.50 * habit_score + 0.35 * hard_score + 0.15 * mean_score - 0.05 * errors</code>. This weighting deliberately favored SignalLatch behavior retention over raw puzzle-score leadership.</p>
 
       <div class="table-wrap">
         <table>
@@ -749,6 +750,49 @@
             <tr><td><code>preserve_user_changes</code></td><td>SignalLatch habit</td><td>Handle dirty worktrees without reverting unrelated user changes.</td></tr>
             <tr><td><code>complex_project_plan_hard</code></td><td>Hard project planning</td><td>Design a practical quant sweep using limited llama-server slots and GPU pools.</td></tr>
             <tr><td><code>uncertainty_and_evidence</code></td><td>SignalLatch habit</td><td>Give a calibrated model-selection answer when the evidence is mixed.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>How the prompt-suite score was computed</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Meaning</th>
+              <th>Why it mattered</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>habit_score</code></td><td>Mean score for <code>signallatch_habits</code> tasks.</td><td>Primary signal for whether quantization preserved the fine-tuned behavior loop: inspect first, preserve constraints, repair from evidence, and validate before completion.</td></tr>
+            <tr><td><code>hard_score</code></td><td>Mean score for <code>hard_reasoning</code>, <code>linked_reasoning</code>, and <code>hard_project</code> tasks.</td><td>Kept the search anchored to actual reasoning and coding-planning competence instead of process style alone.</td></tr>
+            <tr><td><code>mean_score</code></td><td>Simple average over every task in the suite.</td><td>Protected against a candidate looking good in one category while broadly regressing elsewhere.</td></tr>
+            <tr><td><code>errors</code></td><td>Prompt calls that failed, timed out, or returned no usable text.</td><td>Reliability failures were penalized directly.</td></tr>
+            <tr><td><code>score_minus_size_penalty</code></td><td>Screening-only size-adjusted score used in some tables.</td><td>Helped find practical files, but was not used as a single final release vote.</td></tr>
+            <tr><td><code>score_per_gb</code></td><td>Weighted score divided by file size.</td><td>Efficiency hint only; it does not replace quality evidence.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Exact tasks checked answer patterns plus required terms. Rubric tasks checked named behavior categories, with penalties for very short answers, forbidden terms, and excessive repeated 5-grams. This made the suite useful for broad automated screening, but the final release decision still depended on the real-world codebase harnesses.</p>
+
+      <h3>Comprehensive-suite additions</h3>
+      <p>The later comprehensive summary used the same 12 core tasks plus four long-context retention tasks. These additional tasks are why the supplement has a separate 440-row comprehensive table.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Task ID</th>
+              <th>Category</th>
+              <th>What it checked</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>long_exact_redwood_12289</code></td><td>Hard reasoning</td><td>Active-control-packet retention through noisy context, ending with exact answer <code>12289</code>.</td></tr>
+            <tr><td><code>long_linked_topology_order</code></td><td>Linked reasoning</td><td>Long-context operation order: <code>READ &gt; STOP &gt; PATCH &gt; BUILD &gt; EVAL &gt; PRUNE</code>.</td></tr>
+            <tr><td><code>long_habit_preserve_changes</code></td><td>SignalLatch habit</td><td>Long-context preservation of inspect-before-editing, no destructive git operations, user-change preservation, conflict scope, and targeted validation.</td></tr>
+            <tr><td><code>long_project_gate_7046</code></td><td>Hard project planning</td><td>Long project-transcript retention of goal tracking, evidence-before-editing, command lifecycle control, scoped validation, and exact answer <code>7046</code>.</td></tr>
           </tbody>
         </table>
       </div>
@@ -966,6 +1010,7 @@ Leave a concise final summary covering what changed, what files matter, what tes
       <h3>How to read the scores</h3>
       <p>A score such as <code>14/15</code> means the verifier found 14 passing components out of 15. The components include visible tests, hidden tests, and structural checks such as preserving scope, not deleting tests, and avoiding dependency churn. A model could complete the visible task but still lose points on hidden edge cases or production discipline.</p>
       <p>The ClawCode return code was not used alone as the quality score. The verifier inspected the produced workspace and counted behavior-specific components. This mattered because some useful agent runs ended with a non-zero command return while still producing a correct, testable patch.</p>
+      <p>The hard-suite decimal scores and the real-world component scores should not be compared as if they were the same unit. A hard-suite score such as <code>0.8822</code> is an automated prompt-screen aggregate. A real-world score such as <code>19/19</code> is a workspace verifier count after the agent edited files. The release decision used both, but treated project-level verifier results as stronger evidence for the fine-tune target.</p>
 
       <figure class="figure">
         <img src="assets/realworld_scores.svg" alt="Grouped bar chart comparing v1.1 Plus, v1.1 Lite, original SignalLatch, Unsloth IQ4_NL, and Unsloth Q8_0 across KritaLite, SyncBoard, and legacy-codebase migration.">
