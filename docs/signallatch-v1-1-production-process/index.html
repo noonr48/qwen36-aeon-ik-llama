@@ -210,6 +210,10 @@
       gap: 14px;
     }
 
+    .cards.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
     .card {
       background: var(--panel);
       border: 1px solid var(--line);
@@ -232,6 +236,75 @@
     }
 
     .warning { border-left-color: var(--warn); }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .mini {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .mini strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .pill-list {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 14px 0;
+      max-width: 960px;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 999px;
+      padding: 6px 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .check-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 18px;
+      padding-left: 0;
+      list-style: none;
+      max-width: 980px;
+    }
+
+    .check-list li {
+      border-left: 3px solid var(--accent);
+      padding-left: 12px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      margin: 12px 0;
+      padding: 14px 16px;
+      max-width: 1000px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    details pre {
+      margin: 14px 0 0;
+    }
 
     .timeline {
       display: grid;
@@ -352,7 +425,7 @@
     @media (max-width: 820px) {
       nav { align-items: flex-start; flex-direction: column; padding: 14px 0; }
       .navlinks { justify-content: flex-start; }
-      .quick-read, .layout, .cards, .score-grid { grid-template-columns: 1fr; }
+      .quick-read, .layout, .cards, .cards.three, .score-grid, .mini-grid, .check-list { grid-template-columns: 1fr; }
       .step { grid-template-columns: 1fr; }
       .step::before { width: 36px; height: 36px; }
     }
@@ -365,9 +438,12 @@
         <div class="brand">SignalLatch v1.1</div>
         <div class="navlinks">
           <a href="#release">Release picks</a>
+          <a href="#context">Context</a>
+          <a href="#behaviors">Behaviors</a>
           <a href="#timeline">Process</a>
           <a href="#tests">Tests</a>
-          <a href="#baselines">Baselines</a>
+          <a href="#scores">Results</a>
+          <a href="#decision">Decision</a>
           <a href="#caveats">Caveats</a>
         </div>
       </nav>
@@ -460,6 +536,80 @@
       </div>
     </section>
 
+    <section id="context">
+      <h2>What this release is, in plain terms</h2>
+      <p>This page is written as a self-contained production record. A reader does not need the private build folders, server logs, or internal notes to understand what was tested and why these two files were uploaded.</p>
+
+      <div class="cards three">
+        <article class="card">
+          <h3>Base model</h3>
+          <p>The model family is Qwen3.6 27B. The public files here are GGUF runtime artifacts intended for the custom AEON / ik-llama path used by the main SignalLatch model card.</p>
+        </article>
+        <article class="card">
+          <h3>SignalLatch fine-tune</h3>
+          <p>SignalLatch is the checkpoint-386 behavior fine-tune/LoRA merge. The release baseline used a <code>0.10</code> LoRA merge into the model before quantization.</p>
+        </article>
+        <article class="card">
+          <h3>Mixed quantization</h3>
+          <p>The v1.1 files are not ordinary single-type Q4 or Q8 conversions. They are mixed-quant candidates where different tensor groups were assigned different ik-llama quantization types, then tested for behavior retention.</p>
+        </article>
+      </div>
+
+      <div class="callout">
+        <p><strong>The goal was not to make the smallest possible file.</strong> The goal was to keep the finetuned coding-agent habits while staying much closer to a practical Q4-size deployment than a full Q8 or BF16 artifact.</p>
+      </div>
+
+      <h3>Terms used below</h3>
+      <div class="mini-grid">
+        <div class="mini">
+          <strong>imatrix</strong>
+          <span class="muted">Calibration data used during quantization so the quantizer can decide what numerical error matters most.</span>
+        </div>
+        <div class="mini">
+          <strong>Reasoning/coding imatrix</strong>
+          <span class="muted">The known-good calibration path used by the first public SignalLatch Q4NL-style upload.</span>
+        </div>
+        <div class="mini">
+          <strong>Habit/process imatrix</strong>
+          <span class="muted">A later calibration attempt aimed at the fine-tuned behavior loop. It did not become the default because early production checks were not clearly stronger.</span>
+        </div>
+        <div class="mini">
+          <strong>Candidate ID</strong>
+          <span class="muted">Internal build names such as <code>c718</code> or <code>c154</code>. The public files rename those candidates as Lite and Plus.</span>
+        </div>
+      </div>
+
+      <h3>Count accounting</h3>
+      <p>The numbers on this page separate screening runs from production-style real-world runs. The hard-suite count used for the public decision is the stable promotion summary: <strong>163</strong> candidate runs multiplied by <strong>12</strong> core prompt tasks, for <strong>1,956</strong> prompt-level scored results. Later workspace aggregates contain additional replay/recursive artifacts; those were useful for investigation, but they were not treated as independent public release votes.</p>
+      <p>The real-world phase used <strong>32</strong> ClawCode harness runs across three project tasks. Those runs produced <strong>564</strong> verifier component checks: 11 KritaLite runs times 15 components, 8 SyncBoard runs times 19 components, and 13 legacy-codebase migration runs times 19 components.</p>
+    </section>
+
+    <section id="behaviors">
+      <h2>The behavior target</h2>
+      <p>The fine-tune was aimed at a natural coding-agent workflow: a user gives an implementation direction, not a complete patch. The model should inspect the repository, infer the architecture, choose a narrow production slice, edit carefully, run verification, and revise from failures.</p>
+
+      <ul class="check-list">
+        <li><strong>Review before editing:</strong> inspect the codebase and existing architecture before making changes.</li>
+        <li><strong>Instruction latching:</strong> keep user constraints active across a long session instead of drifting into a generic answer.</li>
+        <li><strong>Tool-shaped reasoning:</strong> turn reasoning into concrete file reads, commands, tests, and focused edits.</li>
+        <li><strong>Evidence-first repair:</strong> use failing tests, logs, and verifier output to decide the next patch.</li>
+        <li><strong>Scope control:</strong> avoid broad rewrites, dependency churn, and unrelated file changes.</li>
+        <li><strong>User-change preservation:</strong> never revert unrelated work; work with dirty files when needed.</li>
+        <li><strong>Calibrated uncertainty:</strong> avoid claiming a candidate is proven better when the evidence is mixed.</li>
+        <li><strong>Completion discipline:</strong> summarize what changed, what was tested, and what risk remains.</li>
+      </ul>
+
+      <div class="pill-list" aria-label="Behavior keywords">
+        <span class="pill">explore first</span>
+        <span class="pill">plan narrow slice</span>
+        <span class="pill">edit in-place</span>
+        <span class="pill">run tests</span>
+        <span class="pill">repair from evidence</span>
+        <span class="pill">preserve RAGFlow path</span>
+        <span class="pill">avoid overclaiming</span>
+      </div>
+    </section>
+
     <section id="timeline">
       <h2>Sequential process</h2>
       <p class="muted">The process was deliberately conservative: keep the known-good reasoning/coding path as the anchor, then test whether new mixed quantization patterns preserved the SignalLatch behavior habits in realistic coding-agent work.</p>
@@ -505,40 +655,221 @@
     </section>
 
     <section id="tests">
-      <h2>The real-world harnesses</h2>
+      <h2>Test design</h2>
+      <p>The tests were split into two layers. The first layer was a fast reasoning/habit gate that could screen many quantization candidates. The second layer was a real-world ClawCode harness that forced candidates to act like coding agents inside project folders.</p>
+
+      <h3>Layer 1: hard reasoning and SignalLatch habit gate</h3>
+      <p>The hard-suite gate used 12 prompt tasks. It was not meant to replace coding tests; it was used to eliminate candidates that lost the fine-tuned process habits or basic hard reasoning before spending hours on project runs.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Task ID</th>
+              <th>Category</th>
+              <th>What it checked</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>crt_exact_1136</code></td><td>Exact hard reasoning</td><td>Chinese-remainder arithmetic with a required short check.</td></tr>
+            <tr><td><code>state_machine_exact_8_minus5</code></td><td>Exact hard reasoning</td><td>Step-by-step state tracking without skipping conditional updates.</td></tr>
+            <tr><td><code>binary_strings_exact_126</code></td><td>Exact hard reasoning</td><td>Combinatorics with no-adjacent-ones gap reasoning.</td></tr>
+            <tr><td><code>dependency_chain_project_order</code></td><td>Linked reasoning</td><td>Diagnose a pipeline issue without rewriting a passing parser.</td></tr>
+            <tr><td><code>deadlock_ordering_plan</code></td><td>Hard reasoning</td><td>Order-sensitive debugging plan for a deadlock/concurrency-style failure.</td></tr>
+            <tr><td><code>agent_context_sufficiency</code></td><td>SignalLatch habit</td><td>Notice when more repository context is needed before editing.</td></tr>
+            <tr><td><code>command_lifecycle_control</code></td><td>SignalLatch habit</td><td>Manage long-running commands, logs, ports, and process cleanup.</td></tr>
+            <tr><td><code>repair_from_failure_signal</code></td><td>SignalLatch habit</td><td>Use concrete failure output to plan the next patch.</td></tr>
+            <tr><td><code>restrained_delegation</code></td><td>SignalLatch habit</td><td>Delegate only bounded, parallelizable work; avoid dumping blocking work.</td></tr>
+            <tr><td><code>preserve_user_changes</code></td><td>SignalLatch habit</td><td>Handle dirty worktrees without reverting unrelated user changes.</td></tr>
+            <tr><td><code>complex_project_plan_hard</code></td><td>Hard project planning</td><td>Design a practical quant sweep using limited llama-server slots and GPU pools.</td></tr>
+            <tr><td><code>uncertainty_and_evidence</code></td><td>SignalLatch habit</td><td>Give a calibrated model-selection answer when the evidence is mixed.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Layer 2: real-world ClawCode harnesses</h3>
       <p>The real-world tests were designed to be closer to a human asking an agent to build or modify something in a project, rather than a benchmark prompt that names every target file and every implementation detail.</p>
 
       <div class="cards">
         <article class="card">
           <h3>KritaLite</h3>
-          <p>Build a local Krita-like canvas application with layers, brushes, transforms, opacity controls, and a local-only image-generation stub.</p>
+          <p>A small browser paint application. The model had to implement a raster document engine, wire enough UI to be credible, preserve the file structure, and pass visible plus hidden tests.</p>
+          <p class="small muted">15 verifier components: 6 visible, 4 hidden, 5 structural/scope checks.</p>
         </article>
         <article class="card">
           <h3>SyncBoard</h3>
-          <p>Implement and repair a small collaborative board/state-management app with hidden tests for undo/redo, filtering, import/export, replay, and merge-conflict behavior.</p>
+          <p>A local-first project-board app. The model had to implement a CommonJS state engine, browser UI, import/export, undo/redo, filtering, deterministic activity logs, merge behavior, and replay.</p>
+          <p class="small muted">19 verifier components: 6 visible, 8 hidden, 5 structural/scope checks.</p>
         </article>
         <article class="card">
           <h3>Legacy-codebase memory migration</h3>
-          <p>Work inside a private legacy agent-system codebase and implement a narrow production slice for moving from a retrieval-heavy memory design toward session memory, object/item indexing, local evidence packets, and deterministic hard-facts verification, while preserving the existing retrieval path.</p>
+          <p>A private legacy agent-system codebase. The model had to implement a narrow production slice toward session memory, object/item indexing, evidence packets, and hard-facts verification while preserving the old retrieval path.</p>
+          <p class="small muted">19 verifier components: code changes, tests, scope, feature gating, evidence packets, hard-facts lane, RAGFlow preservation, and deterministic no-LLM paths.</p>
         </article>
         <article class="card">
-          <h3>Why this shape</h3>
-          <p>The target use case is a real local coding worker. In that setting, the user often gives an implementation direction, not a full file map. The model must explore, plan, implement, test, and refine.</p>
+          <h3>Runtime shape</h3>
+          <p>Runs used large-context local llama-server instances with <code>160k</code> context and <code>f16</code> K/V cache in the final practical harness setup. Candidates were scheduled across high-end and small-GPU pools.</p>
+          <p class="small muted">The important point for readers: candidates were tested as deployed coding agents, not as one-shot text completions.</p>
         </article>
       </div>
 
-      <h3>Representative human-like prompt shape</h3>
-      <p class="muted">The legacy-codebase migration prompt intentionally gave the model an implementation goal rather than a file-by-file patch plan:</p>
-      <pre>I have an issue in this legacy codebase.
+      <h3>Verifier components</h3>
+      <p>These are the public scoring categories used to interpret the project runs. The private source files are not needed to understand the result tables below.</p>
 
-The memory architecture is still too retrieval-heavy, and the compiled/general-knowledge path does not keep deterministic source proof strongly enough. I want the next production slice of the migration toward session memory, object/item indexing, evidence packets, and hard-facts verification.
+      <details>
+        <summary>KritaLite component checks</summary>
+        <div class="pill-list">
+          <span class="pill">engine exports present</span>
+          <span class="pill">visible tests pass</span>
+          <span class="pill">hidden tests pass</span>
+          <span class="pill">no external dependencies</span>
+          <span class="pill">focused scope</span>
+          <span class="pill">tests not removed</span>
+          <span class="pill">UI contract present</span>
+          <span class="pill">brush interpolation</span>
+          <span class="pill">eraser alpha behavior</span>
+          <span class="pill">flood fill tolerance</span>
+          <span class="pill">layer compositing</span>
+          <span class="pill">selection copy/paste/transform</span>
+          <span class="pill">serialization round-trip</span>
+          <span class="pill">hidden brush/selection/history edge case</span>
+          <span class="pill">hidden blend/copy/fill edge cases</span>
+        </div>
+      </details>
+
+      <details>
+        <summary>SyncBoard component checks</summary>
+        <div class="pill-list">
+          <span class="pill">API exports present</span>
+          <span class="pill">visible tests pass</span>
+          <span class="pill">hidden tests pass</span>
+          <span class="pill">no external dependencies</span>
+          <span class="pill">focused scope</span>
+          <span class="pill">UI contract present</span>
+          <span class="pill">deterministic activity IDs</span>
+          <span class="pill">column/card identity</span>
+          <span class="pill">export/import deep copy</span>
+          <span class="pill">undo/redo</span>
+          <span class="pill">compound filtering</span>
+          <span class="pill">activity replay</span>
+          <span class="pill">invalid import rejection</span>
+          <span class="pill">merge conflict handling</span>
+          <span class="pill">delete-vs-edit conflict</span>
+          <span class="pill">move index clipping</span>
+        </div>
+      </details>
+
+      <details>
+        <summary>Legacy-codebase migration component checks</summary>
+        <div class="pill-list">
+          <span class="pill">code changed</span>
+          <span class="pill">backend/kernel touched</span>
+          <span class="pill">not docs-only</span>
+          <span class="pill">tests added or modified</span>
+          <span class="pill">tests ran</span>
+          <span class="pill">verifier tests pass</span>
+          <span class="pill">focused scope</span>
+          <span class="pill">no dependency churn</span>
+          <span class="pill">no destructive delete</span>
+          <span class="pill">feature-flag/opt-in</span>
+          <span class="pill">RAGFlow preserved</span>
+          <span class="pill">SimpleMem not source proof</span>
+          <span class="pill">object/item indexer present</span>
+          <span class="pill">evidence packets present</span>
+          <span class="pill">immutable/hash backing</span>
+          <span class="pill">hard-facts lane present</span>
+          <span class="pill">deterministic no-LLM dependency</span>
+          <span class="pill">final summary mentions tests</span>
+        </div>
+      </details>
+
+      <h3>Prompt transparency</h3>
+      <p>The prompts below are included so the page is readable without access to our local harness folders.</p>
+      <p class="muted">In the third prompt, "SLOANE OS" refers to a private legacy agent-system repository used as a realistic existing-codebase target. The public relevance is the task shape: a nontrivial migration inside an already-existing codebase with constraints, tests, and old behavior that must be preserved.</p>
+
+      <details>
+        <summary>KritaLite prompt used for the browser paint task</summary>
+        <pre>You are working in a small browser paint application called KritaLite.
+
+The project is intentionally incomplete. Fix it as a production-quality patch, not as a test-only patch. Keep the current file structure unless a focused helper makes the implementation clearer.
+
+Core goals:
+
+1. Implement the raster document engine in src/kritalite.js.
+   - Layers must preserve order, visibility, opacity, blend mode, lock state, names, and pixels.
+   - Compositing must support normal, multiply, and screen blend modes with layer opacity and source alpha.
+   - Brush strokes must interpolate between points, support size, color, opacity, and optional selection clipping.
+   - Eraser strokes must reduce alpha instead of painting white.
+   - Flood fill must respect tolerance and the active selection.
+   - Selection copy, paste, and transform must preserve pixel data and clip to the document bounds.
+   - Undo and redo must be deterministic, deep-copy document state, and cover drawing, layer changes, selection changes, paste, fill, and transforms.
+   - Serialization/deserialization must round-trip the complete document state with a version marker.
+
+2. Keep the browser UI contract in index.html and src/app.js.
+
+3. Run the visible tests with npm test.
+
+There is also a hidden verifier. Do not delete tests, avoid hard-coded answers, do not vendor dependencies, and keep the solution scoped to KritaLite.</pre>
+      </details>
+
+      <details>
+        <summary>SyncBoard prompt used for the local-first board task</summary>
+        <pre>Build the SyncBoard app in this repository.
+
+The goal is a local-first project board that can be used offline. Keep the app small and focused. Do not add external dependencies or a backend.
+
+Required deliverables:
+- Implement src/syncboard.js.
+- Keep index.html, styles.css, and src/app.js usable as a simple browser UI.
+- Keep the existing visible tests intact.
+- Use plain JavaScript and Node-compatible CommonJS exports.
+
+Required core API:
+- createBoard, addColumn, addCard, updateCard, moveCard, deleteCard
+- undo, redo, filterCards, exportBoard, importBoard
+- mergeBoards, replayActivity
+
+Behavior requirements:
+- Preserve card IDs across moves, export/import, undo/redo, and merge operations.
+- Clip out-of-range move indices.
+- Undo/redo must cover add/update/move/delete operations.
+- Filtering must support text, labels, dueBefore, dueAfter, and archived.
+- Import must throw on invalid JSON or invalid board shape.
+- Activity log IDs must be deterministic and look like evt-000001.
+- Merge must preserve non-conflicting edits, report same-field conflicts, and let deletion win over edit/move conflicts.
+
+Before finishing, run npm test and fix failures.</pre>
+      </details>
+
+      <details open>
+        <summary>Legacy-codebase migration prompt used for the most human-like task</summary>
+        <pre>I have an issue in this legacy SLOANE OS repo.
+
+The memory architecture is still too RAGFlow-heavy, and the compiled/general-knowledge path does not keep deterministic source proof strongly enough. I want the next production slice of the migration toward:
+
+- SimpleMem for session continuity and user/project memory.
+- An object/item indexer for immutable local bytes, references, chunks, and evidence packets.
+- A secondary hard-facts lane for deterministic claim verification.
 
 Please work agentically:
+
 1. Explore the repo first and infer the existing architecture before editing.
 2. Review the safest narrow production slice to implement.
 3. Implement that slice.
 4. Add focused tests or a runnable verification path.
-5. Run what you can, then refine based on failures.</pre>
+5. Run what you can, then refine based on failures.
+
+Constraints:
+
+- Do not remove, disable, or rewrite the existing RAGFlow path.
+- Preserve current defaults unless the new behavior is explicitly feature-flagged or opt-in.
+- Treat SimpleMem as continuity memory, not source proof.
+- Hard facts must be backed by local evidence packets or immutable item references.
+- Avoid API-model/LLM dependencies in deterministic indexing, compiling, or claim-verification paths.
+- Keep the change scoped. Do not do a broad architecture rewrite.
+
+Leave a concise final summary covering what changed, what files matter, what tests you ran, and any remaining risks.</pre>
+      </details>
     </section>
 
     <section id="scores">
@@ -565,6 +896,10 @@ Please work agentically:
           <p class="small muted">Unsloth Q8 object-memory migration: 18/19.</p>
         </article>
       </div>
+
+      <h3>How to read the scores</h3>
+      <p>A score such as <code>14/15</code> means the verifier found 14 passing components out of 15. The components include visible tests, hidden tests, and structural checks such as preserving scope, not deleting tests, and avoiding dependency churn. A model could complete the visible task but still lose points on hidden edge cases or production discipline.</p>
+      <p>The ClawCode return code was not used alone as the quality score. The verifier inspected the produced workspace and counted behavior-specific components. This mattered because some useful agent runs ended with a non-zero command return while still producing a correct, testable patch.</p>
 
       <h3>Finalist matrix</h3>
       <div class="table-wrap">
@@ -624,7 +959,90 @@ Please work agentically:
         </table>
       </div>
 
+      <h3>All real-world harness results</h3>
+      <p>The tables below are the project-level results used for the final public selection. They include both selected files, the first online SignalLatch Q4NL baseline, and the Unsloth baselines where those were available.</p>
+
+      <h3>KritaLite: browser paint implementation</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Candidate</th>
+              <th class="num">Score</th>
+              <th>Read</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>c718_fa_iq3kt_ryssig_q6k</code></td><td class="num good">14/15</td><td>Selected as v1.1 Lite; tied the best score in this harness.</td></tr>
+            <tr><td><code>c76_fa_q6k_outtok_bf16</code></td><td class="num good">14/15</td><td>Strong, but larger and poor in the legacy-codebase migration run.</td></tr>
+            <tr><td><code>unsloth_iq4nl</code></td><td class="num good">14/15</td><td>Strong compact external baseline.</td></tr>
+            <tr><td><code>unsloth_q8_0</code></td><td class="num good">14/15</td><td>Strong high-quality external baseline.</td></tr>
+            <tr><td><code>c05_all_fullattn_bf16</code></td><td class="num">13/15</td><td>Good but larger and not selected.</td></tr>
+            <tr><td><code>c154_fao_bf16_faqk_q8_lateffn_q8</code></td><td class="num">13/15</td><td>Selected as v1.1 Plus because later harnesses were stronger.</td></tr>
+            <tr><td><code>c204_fao_iq4kss</code></td><td class="num">13/15</td><td>Good here, later mixed result.</td></tr>
+            <tr><td><code>c373_fa_iq3kr4</code></td><td class="num">13/15</td><td>Good hard-suite candidate, not the final public pick.</td></tr>
+            <tr><td><code>c281_lateffn_iq3kt</code></td><td class="num">12/15</td><td>Not strong enough in this project run.</td></tr>
+            <tr><td><code>c311_outtok_iq3kt</code></td><td class="num">12/15</td><td>Not strong enough in this project run.</td></tr>
+            <tr><td><code>release_s010_iq4nl</code></td><td class="num">12/15</td><td>Original online SignalLatch baseline; beaten by Lite and Plus here.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>SyncBoard: local-first board and merge/replay logic</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Candidate</th>
+              <th class="num">Score</th>
+              <th>Primary miss / read</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>c204_fao_iq4kss</code></td><td class="num good">19/19</td><td>Full pass, but later failed the legacy-codebase migration badly.</td></tr>
+            <tr><td><code>unsloth_q8_0</code></td><td class="num good">19/19</td><td>Full external baseline pass.</td></tr>
+            <tr><td><code>c154_fao_bf16_faqk_q8_lateffn_q8</code></td><td class="num">18/19</td><td>Missed one hidden undo/redo sequence; otherwise strong.</td></tr>
+            <tr><td><code>c373_fa_iq3kr4</code></td><td class="num">18/19</td><td>Missed delete-vs-edit merge conflict behavior.</td></tr>
+            <tr><td><code>c76_fa_q6k_outtok_bf16</code></td><td class="num">18/19</td><td>Missed a non-conflicting merge combination case.</td></tr>
+            <tr><td><code>release_s010_iq4nl</code></td><td class="num">18/19</td><td>Missed activity replay rebuilding columns and cards.</td></tr>
+            <tr><td><code>unsloth_iq4nl</code></td><td class="num">18/19</td><td>Missed delete-vs-edit merge conflict behavior.</td></tr>
+            <tr><td><code>c718_fa_iq3kt_ryssig_q6k</code></td><td class="num">16/19</td><td>Lite tradeoff: weaker on activity replay and merge-conflict edge cases.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Legacy-codebase memory migration: natural agentic implementation</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Candidate</th>
+              <th class="num">Score</th>
+              <th class="num">Verifier tests</th>
+              <th class="num">Changed files</th>
+              <th>Read</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>c718_fa_iq3kt_ryssig_q6k</code></td><td class="num good">19/19</td><td class="num">6/6</td><td class="num">8</td><td>Selected as v1.1 Lite; full component pass and strongest smaller-file evidence.</td></tr>
+            <tr><td><code>c154_fao_bf16_faqk_q8_lateffn_q8</code></td><td class="num good">19/19</td><td class="num">5/5</td><td class="num">5</td><td>Selected as v1.1 Plus; full component pass with a focused implementation.</td></tr>
+            <tr><td><code>c311_outtok_iq3kt</code></td><td class="num good">19/19</td><td class="num">6/6</td><td class="num">8</td><td>Full pass but less compelling across the broader public-release comparison.</td></tr>
+            <tr><td><code>c281_lateffn_iq3kt</code></td><td class="num">18/19</td><td class="num">3/3</td><td class="num">4</td><td>Strong but missed tests-added-or-modified.</td></tr>
+            <tr><td><code>unsloth_q8_0</code></td><td class="num">18/19</td><td class="num">3/3</td><td class="num">5</td><td>Strong external baseline, but missed tests-added-or-modified.</td></tr>
+            <tr><td><code>c404_faqkv_iq5kr4</code></td><td class="num">18/19</td><td class="num">3/4</td><td class="num">5</td><td>Good component score but one verifier test failed.</td></tr>
+            <tr><td><code>c373_fa_iq3kr4</code></td><td class="num">18/19</td><td class="num">5/5</td><td class="num">5</td><td>Strong, but missed feature-flag/opt-in discipline.</td></tr>
+            <tr><td><code>c317_out_iq5k</code></td><td class="num">17/19</td><td class="num">3/3</td><td class="num">3</td><td>Good but not a finalist.</td></tr>
+            <tr><td><code>unsloth_iq4nl</code></td><td class="num">17/19</td><td class="num">5/5</td><td class="num">5</td><td>Compact external baseline; behind both v1.1 picks here.</td></tr>
+            <tr><td><code>release_s010_iq4nl</code></td><td class="num">16/19</td><td class="num">3/3</td><td class="num">5</td><td>Original online SignalLatch baseline; behind Lite and Plus here.</td></tr>
+            <tr><td><code>c431_ryspath_q40r8</code></td><td class="num">14/19</td><td class="num">3/3</td><td class="num">1</td><td>Insufficient production implementation.</td></tr>
+            <tr><td><code>c76_fa_q6k_outtok_bf16</code></td><td class="num bad">8/19</td><td class="num">3/3</td><td class="num">1</td><td>Rejected for this release despite good KritaLite score.</td></tr>
+            <tr><td><code>c204_fao_iq4kss</code></td><td class="num bad">8/19</td><td class="num">3/3</td><td class="num">1</td><td>Rejected despite full SyncBoard pass; failed this natural codebase task.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
       <h3>Hard-suite narrowing</h3>
+      <p>The hard suite was used to find promising quantization families before spending time on full project work. Its job was candidate discovery, not final release selection. The table shows the later comprehensive hard-suite view for candidates that affected the release discussion.</p>
       <div class="table-wrap">
         <table>
           <thead>
@@ -652,11 +1070,25 @@ Please work agentically:
               <td>Strong early hard-suite candidate, less convincing as final release.</td>
             </tr>
             <tr>
+              <td><code>c718_fa_iq3kt_ryssig_q6k</code></td>
+              <td class="num">0.8822</td>
+              <td class="num good">0.9286</td>
+              <td class="num">0.8219</td>
+              <td>High habit retention; later became Lite because real-world codebase results were stronger than the hard-score rank alone implied.</td>
+            </tr>
+            <tr>
               <td><code>c204_fao_iq4kss</code></td>
               <td class="num">0.8761</td>
               <td class="num good">0.9143</td>
               <td class="num">0.8263</td>
               <td>Excellent habit score, but later failed the legacy-codebase migration.</td>
+            </tr>
+            <tr>
+              <td><code>c154_fao_bf16_faqk_q8_lateffn_q8</code></td>
+              <td class="num">0.8741</td>
+              <td class="num good">0.9143</td>
+              <td class="num">0.8219</td>
+              <td>Not the hard-suite winner, but excellent in the real-world codebase task and consistent enough to become Plus.</td>
             </tr>
             <tr>
               <td><code>ckpt386-s010-IQ4_NL</code></td>
@@ -670,12 +1102,36 @@ Please work agentically:
       </div>
     </section>
 
-    <section id="baselines">
-      <h2>What the baseline comparison means</h2>
+    <section id="decision">
+      <h2>Decision logic</h2>
       <p>Unsloth Qwen3.6 remained a strong competitor. The evidence does not support a broad claim that every SignalLatch v1.1 file beats every Unsloth file on every task.</p>
       <div class="callout">
         <p><strong>The narrower claim is stronger:</strong> v1.1 Lite and Plus were selected because they preserve the SignalLatch fine-tuned coding-agent habits better than the first online SignalLatch Q4NL file in the newer agentic/codebase tests, while remaining in a practical mixed-quant size class.</p>
       </div>
+
+      <div class="cards">
+        <article class="card">
+          <h3>Why Lite is public</h3>
+          <p><code>c718</code> gave the best smaller-file story: 14/15 on KritaLite, 19/19 on the most natural legacy-codebase task, and stronger evidence than the first online SignalLatch file on the tasks closest to the fine-tune target.</p>
+          <p class="muted">Tradeoff: it is weaker on SyncBoard at 16/19, so it is not described as the universal best candidate.</p>
+        </article>
+        <article class="card">
+          <h3>Why Plus is public</h3>
+          <p><code>c154</code> was the best practical all-around release pick: 13/15 on KritaLite, 18/19 on SyncBoard, and 19/19 on the legacy-codebase migration task. It is slightly larger, but stayed far below a BF16 artifact.</p>
+          <p class="muted">Tradeoff: it was not the top hard-suite ranker; its release case comes from balanced real-world behavior.</p>
+        </article>
+        <article class="card">
+          <h3>Why c204 was rejected</h3>
+          <p><code>c204</code> looked excellent on some metrics, including a 19/19 SyncBoard result and a strong habit score, but it collapsed to 8/19 on the natural legacy-codebase migration task.</p>
+          <p class="muted">That failure mattered because the fine-tune target is agentic work inside existing codebases.</p>
+        </article>
+        <article class="card">
+          <h3>Why the original file remains</h3>
+          <p>The original <code>ckpt386-s010-IQ4_NL</code> file remains useful as the historical stable baseline. It scored 12/15 on KritaLite, 18/19 on SyncBoard, and 16/19 on the legacy-codebase task.</p>
+          <p class="muted">It is no longer the recommended best SignalLatch download after the v1.1 sweep.</p>
+        </article>
+      </div>
+
       <p>That is why the public naming avoids absolute claims. <code>Lite</code> means smaller practical SignalLatch. <code>Plus</code> means the best practical quality SignalLatch variant from this sweep.</p>
     </section>
 
