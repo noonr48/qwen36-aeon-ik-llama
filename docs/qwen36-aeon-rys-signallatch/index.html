@@ -397,6 +397,7 @@
     <div class="hero-actions" aria-label="Release links">
       <a class="button primary" href="https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-SignalLatch-GGUF">SignalLatch on Hugging Face</a>
       <a class="button" href="../ckpt386-s010-testing-process/index.html">Fine-tune record</a>
+      <a class="button" href="../signallatch-v1-1-production-process/index.html">v1.1 production record</a>
       <a class="button" href="../qwen36-aeon-rys-15-20/index.html">Base RYS full record</a>
       <a class="button" href="https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-15-20-GGUF">Base RYS on Hugging Face</a>
       <a class="button" href="https://github.com/noonr48/qwen36-aeon-ik-llama">Runtime fork</a>
@@ -481,7 +482,7 @@
           <p>Use the custom AEON ik-llama fork. The GGUFs in this release line are intended for that runtime path, especially for graph split, Qwen3.6/Qwen3.5 hybrid handling, Jinja chat formatting, and DeepSeek-style reasoning extraction.</p>
           <p><a href="https://github.com/noonr48/qwen36-aeon-ik-llama">github.com/noonr48/qwen36-aeon-ik-llama</a></p>
           <pre><code>./build/bin/llama-server \
-  -m /path/to/Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf \
+  -m /path/to/Qwen3.6-27B-AEON-RYS-SignalLatch-v1.1-Lite-Mixed-Q4NL.gguf \
   -c 65536 \
   -ngl 999 \
   -np 1 \
@@ -501,7 +502,7 @@
           <h3>Parallel RAM-cache serving</h3>
           <p>For agent harness use, the current custom fork can expose stable slot aliases and still run RAM prompt-cache save/load on those pinned lanes. This is the setup pattern used when an OpenAI-compatible harness needs two independent workers without losing repeated repo context between turns.</p>
           <pre><code>./build/bin/llama-server \
-  -m /path/to/Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf \
+  -m /path/to/Qwen3.6-27B-AEON-RYS-SignalLatch-v1.1-Lite-Mixed-Q4NL.gguf \
   -c 360000 \
   -np 2 \
   -ngl 999 \
@@ -664,9 +665,19 @@ qwen36-aeon-rys-signallatch-q4nl-p2-slot1</code></pre>
       <h2>Which file should you use?</h2>
       <div class="cards">
         <article class="card">
-          <h3>SignalLatch practical default</h3>
+          <h3>SignalLatch v1.1 Lite</h3>
+          <p><code>Qwen3.6-27B-AEON-RYS-SignalLatch-v1.1-Lite-Mixed-Q4NL.gguf</code></p>
+          <p>Use this as the smaller practical SignalLatch runtime artifact.</p>
+        </article>
+        <article class="card">
+          <h3>SignalLatch v1.1 Plus</h3>
+          <p><code>Qwen3.6-27B-AEON-RYS-SignalLatch-v1.1-Plus-Mixed-Q4NL.gguf</code></p>
+          <p>Use this when you can spare the extra disk/VRAM margin and want the strongest practical mixed-quant SignalLatch candidate from the current testing.</p>
+        </article>
+        <article class="card">
+          <h3>Original SignalLatch Q4NL baseline</h3>
           <p><code>Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf</code></p>
-          <p>Use this when you want the behavior-finetuned coding-agent profile.</p>
+          <p>Use this only if you specifically want the first published SignalLatch Q4NL-style baseline.</p>
         </article>
         <article class="card">
           <h3>Non-finetuned RYS default</h3>

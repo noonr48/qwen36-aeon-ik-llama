@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SignalLatch v1.1 Production Quantization Process</title>
+  <meta name="description" content="Production-process record for the SignalLatch v1.1 Lite and Plus mixed-quant GGUF release candidates.">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17211f;
+      --muted: #58635f;
+      --faint: #7a8580;
+      --paper: #fbfcf9;
+      --panel: #ffffff;
+      --soft: #eef4f0;
+      --line: #d8dfdb;
+      --accent: #126b5d;
+      --accent-2: #8c4f17;
+      --accent-3: #315f93;
+      --warn: #8f2f20;
+      --code: #10201d;
+      --shadow: 0 14px 34px rgba(23, 33, 31, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font: 16px/1.62 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #f7f9f5 0, var(--paper) 520px);
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration-thickness: 0.08em;
+      text-underline-offset: 0.18em;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    .wrap {
+      width: min(1160px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      background: rgba(251, 252, 249, 0.94);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    nav {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      font-weight: 800;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .navlinks {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      font-size: 0.92rem;
+    }
+
+    .navlinks a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .navlinks a:hover { color: var(--accent); }
+
+    .hero {
+      padding: 70px 0 42px;
+    }
+
+    .eyebrow {
+      color: var(--accent-2);
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 0.82rem;
+      letter-spacing: 0.07em;
+      margin: 0 0 18px;
+    }
+
+    h1 {
+      max-width: 980px;
+      margin: 0;
+      font-size: clamp(2.35rem, 5.7vw, 5.3rem);
+      line-height: 0.99;
+      letter-spacing: 0;
+    }
+
+    .dek {
+      max-width: 860px;
+      margin: 24px 0 0;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 2.2vw, 1.28rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 16px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--panel);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 0 6px 16px rgba(23, 33, 31, 0.05);
+    }
+
+    .button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .quick-read {
+      margin-top: 38px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 120px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.7rem;
+      line-height: 1.1;
+      margin-bottom: 6px;
+      letter-spacing: 0;
+    }
+
+    .metric span { color: var(--muted); font-size: 0.93rem; }
+
+    main {
+      padding: 24px 0 72px;
+    }
+
+    section {
+      padding: 38px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: clamp(1.7rem, 3vw, 2.55rem);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 1.16rem;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 16px;
+      max-width: 860px;
+    }
+
+    .muted { color: var(--muted); }
+    .small { font-size: 0.92rem; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1.05fr);
+      gap: 32px;
+      align-items: start;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .card p:last-child,
+    .metric p:last-child { margin-bottom: 0; }
+
+    .callout {
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 18px;
+      margin: 18px 0;
+      max-width: 940px;
+    }
+
+    .warning { border-left-color: var(--warn); }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+      counter-reset: step;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 54px minmax(0, 1fr);
+      gap: 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      width: 42px;
+      height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      font-weight: 800;
+    }
+
+    .step h3 { margin-top: 2px; }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      margin: 16px 0;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 720px;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      background: #f2f6f2;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+
+    tr:last-child td { border-bottom: 0; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .good { color: var(--accent); font-weight: 800; }
+    .mid { color: var(--accent-3); font-weight: 800; }
+    .bad { color: var(--warn); font-weight: 800; }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 16px 0;
+    }
+
+    .score-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .bar {
+      height: 10px;
+      background: #e6ece8;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0 4px;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-3));
+    }
+
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: var(--code);
+      color: #e9f2ee;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      max-width: 960px;
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 28px 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 820px) {
+      nav { align-items: flex-start; flex-direction: column; padding: 14px 0; }
+      .navlinks { justify-content: flex-start; }
+      .quick-read, .layout, .cards, .score-grid { grid-template-columns: 1fr; }
+      .step { grid-template-columns: 1fr; }
+      .step::before { width: 36px; height: 36px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <nav aria-label="Page navigation">
+        <div class="brand">SignalLatch v1.1</div>
+        <div class="navlinks">
+          <a href="#release">Release picks</a>
+          <a href="#timeline">Process</a>
+          <a href="#tests">Tests</a>
+          <a href="#baselines">Baselines</a>
+          <a href="#caveats">Caveats</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap hero">
+    <p class="eyebrow">Production quantization record</p>
+    <h1>How SignalLatch v1.1 Lite and Plus were selected.</h1>
+    <p class="dek">This page records the sequential production process behind the v1.1 mixed-quant GGUFs: what was tested, which candidates were rejected, how the real-world agent harnesses were designed, and why two release files were selected instead of one.</p>
+    <div class="hero-actions" aria-label="Release links">
+      <a class="button primary" href="https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-SignalLatch-GGUF">SignalLatch on Hugging Face</a>
+      <a class="button" href="../qwen36-aeon-rys-signallatch/index.html">SignalLatch overview</a>
+      <a class="button" href="../ckpt386-s010-testing-process/index.html">Fine-tune record</a>
+    </div>
+
+    <div class="quick-read" aria-label="Summary metrics">
+      <div class="metric">
+        <strong>163</strong>
+        <span>hard-suite candidate runs across the reasoning/habit gate.</span>
+      </div>
+      <div class="metric">
+        <strong>1,956</strong>
+        <span>scored prompt-level results from the 12-task hard suite.</span>
+      </div>
+      <div class="metric">
+        <strong>32</strong>
+        <span>real-world ClawCode harness runs across three agentic tasks.</span>
+      </div>
+      <div class="metric">
+        <strong>564</strong>
+        <span>real-world verifier component checks used for finalist comparison.</span>
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <section id="release">
+      <div class="layout">
+        <div>
+          <h2>The release decision</h2>
+          <p>The first published SignalLatch runtime file was based on the original reasoning/coding <code>IQ4_NL</code> quantization path. It was the practical deployment target for the checkpoint-386 SignalLatch behavior merge.</p>
+          <p>The v1.1 release candidates keep that small-file goal, but were selected with stronger emphasis on retaining fine-tuned SignalLatch habits after quantization: review-before-edit behavior, instruction latching, tool-shaped reasoning, repair from evidence, and validation before completion.</p>
+          <div class="callout">
+            <p><strong>Final decision:</strong> publish two files. <code>Lite</code> is the smaller practical replacement for the original Q4NL-style upload. <code>Plus</code> is the best practical quality file from the current evidence.</p>
+          </div>
+        </div>
+        <div class="cards">
+          <article class="card">
+            <h3>Lite</h3>
+            <p><code>Qwen3.6-27B-AEON-RYS-SignalLatch-v1.1-Lite-Mixed-Q4NL.gguf</code></p>
+            <p class="muted">Internal candidate: <code>c718_fa_iq3kt_ryssig_q6k</code>. About 16 GB. Best smaller public variant.</p>
+          </article>
+          <article class="card">
+            <h3>Plus</h3>
+            <p><code>Qwen3.6-27B-AEON-RYS-SignalLatch-v1.1-Plus-Mixed-Q4NL.gguf</code></p>
+            <p class="muted">Internal candidate: <code>c154_fao_bf16_faqk_q8_lateffn_q8</code>. About 18 GB. Best all-around practical quality variant.</p>
+          </article>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Public file</th>
+              <th>Role</th>
+              <th>Internal candidate</th>
+              <th class="num">Size</th>
+              <th>SHA256</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>SignalLatch-v1.1-Lite-Mixed-Q4NL</code></td>
+              <td>Smaller practical release</td>
+              <td><code>c718_fa_iq3kt_ryssig_q6k</code></td>
+              <td class="num">~16 GB</td>
+              <td><code>631b54e141369f9a8d7eed9c1e81a3e187f60fb579d322b744a8ba79c36a96a5</code></td>
+            </tr>
+            <tr>
+              <td><code>SignalLatch-v1.1-Plus-Mixed-Q4NL</code></td>
+              <td>Best practical quality</td>
+              <td><code>c154_fao_bf16_faqk_q8_lateffn_q8</code></td>
+              <td class="num">~18 GB</td>
+              <td><code>e589a0b7dba56eb04c3ea621da7ddb9e27152a78ee9ddd088c0115e26b1bb9b1</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="timeline">
+      <h2>Sequential process</h2>
+      <p class="muted">The process was deliberately conservative: keep the known-good reasoning/coding path as the anchor, then test whether new mixed quantization patterns preserved the SignalLatch behavior habits in realistic coding-agent work.</p>
+
+      <div class="timeline">
+        <article class="step">
+          <div>
+            <h3>Start from the first public SignalLatch Q4NL-style file</h3>
+            <p>The original online file, <code>ckpt386-s010-IQ4_NL</code>, came from the checkpoint-386 SignalLatch LoRA merged at strength <code>0.10</code> and quantized through the practical reasoning/coding imatrix path. That artifact stayed as the public baseline.</p>
+          </div>
+        </article>
+        <article class="step">
+          <div>
+            <h3>Try habit-focused calibration, then reject it as the default</h3>
+            <p>A process/habit imatrix was built to emphasize the fine-tuned behavior loop, but the first process-imatrix Q4NL checks did not clearly beat the existing coding-agent path. The decision was to preserve the reasoning/coding imatrix anchor and search for layer-level mixed quantization patterns that better retained SignalLatch habits.</p>
+          </div>
+        </article>
+        <article class="step">
+          <div>
+            <h3>Run the hard reasoning and habit gate</h3>
+            <p>The fast gate used 12 tasks covering exact reasoning, linked reasoning, command lifecycle behavior, evidence-before-edit habits, repair loops, context sufficiency, and calibrated uncertainty. This produced 163 hard-suite candidate runs and 1,956 scored prompt-level results.</p>
+          </div>
+        </article>
+        <article class="step">
+          <div>
+            <h3>Narrow to real-world coding tasks</h3>
+            <p>Short prompts and exact checks are useful, but they do not fully simulate a coding-agent session. The next phase moved to ClawCode harnesses where the model had to inspect a workspace, infer structure, edit files, run tests, and recover from failures.</p>
+          </div>
+        </article>
+        <article class="step">
+          <div>
+            <h3>Add external baselines</h3>
+            <p>The finalists were compared against the original SignalLatch Q4NL file and Unsloth Qwen3.6 <code>IQ4_NL</code> and <code>Q8_0</code> GGUF baselines. This prevented the release from being judged only against earlier internal candidates.</p>
+          </div>
+        </article>
+        <article class="step">
+          <div>
+            <h3>Pick two outputs, not one</h3>
+            <p><code>c154</code> was the strongest practical all-around file. <code>c718</code> was the better smaller release story: it beat the original online SignalLatch file on the Krita-like task and the legacy-codebase migration task, while staying near the original practical size class. Because the smaller and higher-quality goals were different, both were kept.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="tests">
+      <h2>The real-world harnesses</h2>
+      <p>The real-world tests were designed to be closer to a human asking an agent to build or modify something in a project, rather than a benchmark prompt that names every target file and every implementation detail.</p>
+
+      <div class="cards">
+        <article class="card">
+          <h3>KritaLite</h3>
+          <p>Build a local Krita-like canvas application with layers, brushes, transforms, opacity controls, and a local-only image-generation stub.</p>
+        </article>
+        <article class="card">
+          <h3>SyncBoard</h3>
+          <p>Implement and repair a small collaborative board/state-management app with hidden tests for undo/redo, filtering, import/export, replay, and merge-conflict behavior.</p>
+        </article>
+        <article class="card">
+          <h3>Legacy-codebase memory migration</h3>
+          <p>Work inside a private legacy agent-system codebase and implement a narrow production slice for moving from a retrieval-heavy memory design toward session memory, object/item indexing, local evidence packets, and deterministic hard-facts verification, while preserving the existing retrieval path.</p>
+        </article>
+        <article class="card">
+          <h3>Why this shape</h3>
+          <p>The target use case is a real local coding worker. In that setting, the user often gives an implementation direction, not a full file map. The model must explore, plan, implement, test, and refine.</p>
+        </article>
+      </div>
+
+      <h3>Representative human-like prompt shape</h3>
+      <p class="muted">The legacy-codebase migration prompt intentionally gave the model an implementation goal rather than a file-by-file patch plan:</p>
+      <pre>I have an issue in this legacy codebase.
+
+The memory architecture is still too retrieval-heavy, and the compiled/general-knowledge path does not keep deterministic source proof strongly enough. I want the next production slice of the migration toward session memory, object/item indexing, evidence packets, and hard-facts verification.
+
+Please work agentically:
+1. Explore the repo first and infer the existing architecture before editing.
+2. Review the safest narrow production slice to implement.
+3. Implement that slice.
+4. Add focused tests or a runnable verification path.
+5. Run what you can, then refine based on failures.</pre>
+    </section>
+
+    <section id="scores">
+      <h2>Score evidence</h2>
+      <p>Each harness measures a different failure mode. The final decision did not come from a single table. The selected files had to survive multiple task shapes without losing the intended SignalLatch behavior.</p>
+
+      <div class="score-grid">
+        <article class="score-card">
+          <h3>Lite vs original</h3>
+          <p><code>c718</code> beat the original online file on KritaLite and the legacy-codebase migration task, but was weaker on SyncBoard.</p>
+          <div class="bar" aria-label="Lite object-memory score"><span style="width:100%"></span></div>
+          <p class="small muted">Object-memory migration: 19/19.</p>
+        </article>
+        <article class="score-card">
+          <h3>Plus as all-around pick</h3>
+          <p><code>c154</code> had the cleanest overall profile: perfect object-memory result, strong SyncBoard, and good KritaLite.</p>
+          <div class="bar" aria-label="Plus object-memory score"><span style="width:100%"></span></div>
+          <p class="small muted">Object-memory migration: 19/19.</p>
+        </article>
+        <article class="score-card">
+          <h3>Baselines included</h3>
+          <p>Unsloth Qwen3.6 <code>IQ4_NL</code> and <code>Q8_0</code> were included so internal candidates were not judged in isolation.</p>
+          <div class="bar" aria-label="Unsloth Q8 object-memory score"><span style="width:94.74%"></span></div>
+          <p class="small muted">Unsloth Q8 object-memory migration: 18/19.</p>
+        </article>
+      </div>
+
+      <h3>Finalist matrix</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Candidate</th>
+              <th>Public role</th>
+              <th class="num">KritaLite</th>
+              <th class="num">SyncBoard</th>
+              <th class="num">Legacy-codebase migration</th>
+              <th>Decision read</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>c154_fao_bf16_faqk_q8_lateffn_q8</code></td>
+              <td>v1.1 Plus</td>
+              <td class="num">13/15</td>
+              <td class="num">18/19</td>
+              <td class="num good">19/19</td>
+              <td>Best practical all-around release candidate.</td>
+            </tr>
+            <tr>
+              <td><code>c718_fa_iq3kt_ryssig_q6k</code></td>
+              <td>v1.1 Lite</td>
+              <td class="num good">14/15</td>
+              <td class="num">16/19</td>
+              <td class="num good">19/19</td>
+              <td>Best smaller release candidate, with a SyncBoard tradeoff.</td>
+            </tr>
+            <tr>
+              <td><code>ckpt386-s010-IQ4_NL</code></td>
+              <td>Original online SignalLatch baseline</td>
+              <td class="num">12/15</td>
+              <td class="num">18/19</td>
+              <td class="num">16/19</td>
+              <td>Stable first release, no longer the strongest candidate overall.</td>
+            </tr>
+            <tr>
+              <td><code>unsloth_iq4nl</code></td>
+              <td>External compact baseline</td>
+              <td class="num good">14/15</td>
+              <td class="num">18/19</td>
+              <td class="num">17/19</td>
+              <td>Very competitive compact external baseline.</td>
+            </tr>
+            <tr>
+              <td><code>unsloth_q8_0</code></td>
+              <td>External high-quality baseline</td>
+              <td class="num good">14/15</td>
+              <td class="num good">19/19</td>
+              <td class="num">18/19</td>
+              <td>Strong baseline; useful reference for practical quality.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Hard-suite narrowing</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Candidate</th>
+              <th class="num">Weighted hard-suite score</th>
+              <th class="num">Habit score</th>
+              <th class="num">Hard score</th>
+              <th>Interpretation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>c373_fa_iq3kr4</code></td>
+              <td class="num good">0.8935</td>
+              <td class="num">0.8786</td>
+              <td class="num">0.9130</td>
+              <td>Best early comprehensive score; kept as a conservative backup.</td>
+            </tr>
+            <tr>
+              <td><code>c281_lateffn_iq3kt</code></td>
+              <td class="num good">0.8916</td>
+              <td class="num">0.8786</td>
+              <td class="num">0.9085</td>
+              <td>Strong early hard-suite candidate, less convincing as final release.</td>
+            </tr>
+            <tr>
+              <td><code>c204_fao_iq4kss</code></td>
+              <td class="num">0.8761</td>
+              <td class="num good">0.9143</td>
+              <td class="num">0.8263</td>
+              <td>Excellent habit score, but later failed the legacy-codebase migration.</td>
+            </tr>
+            <tr>
+              <td><code>ckpt386-s010-IQ4_NL</code></td>
+              <td class="num">0.7954</td>
+              <td class="num">0.8417</td>
+              <td class="num">0.7328</td>
+              <td>Original public baseline for comparison.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="baselines">
+      <h2>What the baseline comparison means</h2>
+      <p>Unsloth Qwen3.6 remained a strong competitor. The evidence does not support a broad claim that every SignalLatch v1.1 file beats every Unsloth file on every task.</p>
+      <div class="callout">
+        <p><strong>The narrower claim is stronger:</strong> v1.1 Lite and Plus were selected because they preserve the SignalLatch fine-tuned coding-agent habits better than the first online SignalLatch Q4NL file in the newer agentic/codebase tests, while remaining in a practical mixed-quant size class.</p>
+      </div>
+      <p>That is why the public naming avoids absolute claims. <code>Lite</code> means smaller practical SignalLatch. <code>Plus</code> means the best practical quality SignalLatch variant from this sweep.</p>
+    </section>
+
+    <section id="caveats">
+      <h2>Caveats</h2>
+      <ul>
+        <li>This is not a general leaderboard claim.</li>
+        <li>The tests emphasize coding-agent behavior, tool discipline, file editing, and repair loops.</li>
+        <li>The legacy-codebase task used a private/internal codebase, so the page describes the task shape and scoring rather than publishing the repository.</li>
+        <li>Lite is not strictly better than the original file on every harness; it trades SyncBoard edge-case strength for better KritaLite and legacy-codebase migration results.</li>
+        <li>Plus is the best current all-around pick, but it is slightly larger than Lite.</li>
+        <li>Both files require the custom AEON ik-llama runtime path described in the main SignalLatch model card.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p>Last updated: 2026-05-20. This page is a production-process companion record for the Qwen3.6 AEON RYS SignalLatch v1.1 GGUF release candidates.</p>
+    </div>
+  </footer>
+</body>
+</html>
