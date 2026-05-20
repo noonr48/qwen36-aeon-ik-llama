@@ -42,18 +42,18 @@ Interpretation so far:
 - No Q4NL eval servers or Claw runners remained after the final s0.05 summary; only the pre-existing ComfyUI process was still visible in `nvidia-smi`.
 
 Key artifact paths:
-- Q4NL artifacts: `server:/home/benbi/qwen36_ms_swift_lora/evals/q4nl_strength_sweep_20260505/gguf_iq4nl`
-- s0.25 first run summary: `server:/home/benbi/qwen36_ms_swift_lora/evals/q4nl_s025_followup_prod_20260505_t07_graph_fa_c65536_pair03/summary.md`
-- s0.20 summary: `server:/home/benbi/qwen36_ms_swift_lora/evals/q4nl_s020_followup_prod_20260505_t07_graph_fa_c65536_pair49/summary.md`
-- s0.05 summary: `server:/home/benbi/qwen36_ms_swift_lora/evals/q4nl_s005_followup_prod_20260505_t07_graph_fa_c65536_pair03/summary.md`
-- s0.25 repeat summary: `server:/home/benbi/qwen36_ms_swift_lora/evals/q4nl_s025_repeat2_prod_20260505_t07_graph_fa_c65536_pair49/summary.md`
+- Q4NL artifacts: `[local server artifact root redacted]/evals/q4nl_strength_sweep_20260505/gguf_iq4nl`
+- s0.25 first run summary: `[local server artifact root redacted]/evals/q4nl_s025_followup_prod_20260505_t07_graph_fa_c65536_pair03/summary.md`
+- s0.20 summary: `[local server artifact root redacted]/evals/q4nl_s020_followup_prod_20260505_t07_graph_fa_c65536_pair49/summary.md`
+- s0.05 summary: `[local server artifact root redacted]/evals/q4nl_s005_followup_prod_20260505_t07_graph_fa_c65536_pair03/summary.md`
+- s0.25 repeat summary: `[local server artifact root redacted]/evals/q4nl_s025_repeat2_prod_20260505_t07_graph_fa_c65536_pair49/summary.md`
 
 Stability phase:
 - Started after the first deploy sweep to decide the long-term deployment candidate.
 - `s0.10-repeat2` launched on GPU pair 0/3, port 8120:
-  `server:/home/benbi/qwen36_ms_swift_lora/evals/q4nl_s010_repeat2_prod_20260505_t07_graph_fa_c65536_pair03`
+  `[local server artifact root redacted]/evals/q4nl_s010_repeat2_prod_20260505_t07_graph_fa_c65536_pair03`
 - `s0.20-repeat2` launched on GPU pair 4/9, port 8121:
-  `server:/home/benbi/qwen36_ms_swift_lora/evals/q4nl_s020_repeat2_prod_20260505_t07_graph_fa_c65536_pair49`
+  `[local server artifact root redacted]/evals/q4nl_s020_repeat2_prod_20260505_t07_graph_fa_c65536_pair49`
 - Both use IQ4_NL GGUF, temp 0.7, graph split, flash attention, Jinja, DeepSeek reasoning format, c65536, and non-5060 bwrap GPU binding.
 - First repeat task results:
   - `s0.10-repeat2` commits scored 0.875; it had the branch schema/docs but missed sending branch through the GitHub `sha` request parameter.
@@ -68,9 +68,9 @@ Stability phase:
   - Next action: run repeat3 for both s0.10 and s0.20 before choosing the long-term deploy strength.
 - Repeat3 launched:
   - `s0.10-repeat3` on pair 0/3, port 8120:
-    `server:/home/benbi/qwen36_ms_swift_lora/evals/q4nl_s010_repeat3_prod_20260505_t07_graph_fa_c65536_pair03`
+    `[local server artifact root redacted]/evals/q4nl_s010_repeat3_prod_20260505_t07_graph_fa_c65536_pair03`
   - `s0.20-repeat3` on pair 4/9, port 8121:
-    `server:/home/benbi/qwen36_ms_swift_lora/evals/q4nl_s020_repeat3_prod_20260505_t07_graph_fa_c65536_pair49`
+    `[local server artifact root redacted]/evals/q4nl_s020_repeat3_prod_20260505_t07_graph_fa_c65536_pair49`
 - Repeat3 early results:
   - `s0.10-repeat3` commits passed 1.0, but PR-details scored 0.5 because it did not fetch/use PR detail endpoint fields.
   - `s0.20-repeat3` commits scored 0.75; it missed branch output metadata and branch-through-sha.
@@ -100,13 +100,13 @@ Long-term deployment recommendation:
 - After repeat3, no Q4NL eval servers or Claw runners remained. `nvidia-smi` only showed the pre-existing ComfyUI process on the 5090.
 
 Final artifact paths:
-- `s0.10-repeat3`: `server:/home/benbi/qwen36_ms_swift_lora/evals/q4nl_s010_repeat3_prod_20260505_t07_graph_fa_c65536_pair03/summary.md`
-- `s0.20-repeat3`: `server:/home/benbi/qwen36_ms_swift_lora/evals/q4nl_s020_repeat3_prod_20260505_t07_graph_fa_c65536_pair49/summary.md`
+- `s0.10-repeat3`: `[local server artifact root redacted]/evals/q4nl_s010_repeat3_prod_20260505_t07_graph_fa_c65536_pair03/summary.md`
+- `s0.20-repeat3`: `[local server artifact root redacted]/evals/q4nl_s020_repeat3_prod_20260505_t07_graph_fa_c65536_pair49/summary.md`
 
 ik_llama fork status:
-- The server fork at `server:/home/benbi/ik_llama.cpp` is on upstream `main` version `61 (0147cf48)` plus a dirty local patch stack.
+- The server fork at `[local server ik_llama.cpp checkout]` is on upstream `main` version `61 (0147cf48)` plus a dirty local patch stack.
 - Relevant local changes include Qwen3.6/Qwen3Next GGUF conversion/model metadata support, linear-attention LoRA conversion handling, graph-split recurrent prompt/checkpoint stabilization, Jinja/DeepSeek reasoning serving flags, slot-pinned model aliases, tool-call dedupe, and the chat diff crash fix for non-monotonic partial tool-call parsing.
-- The built `llama-server` used for the Q4NL deploy sweep is `server:/home/benbi/ik_llama.cpp/build/bin/llama-server`, built 2026-05-03 15:24 local server time. It exposes the required flags: `--jinja`, `--reasoning-format`, `--reasoning-budget`, `-fa`, `-sm graph`, `--ctx-checkpoints`, `-cram`, `--lora`, and `--lora-scaled`.
+- The built `llama-server` used for the Q4NL deploy sweep is `[local server ik_llama.cpp checkout]/build/bin/llama-server`, built 2026-05-03 15:24 local server time. It exposes the required flags: `--jinja`, `--reasoning-format`, `--reasoning-budget`, `-fa`, `-sm graph`, `--ctx-checkpoints`, `-cram`, `--lora`, and `--lora-scaled`.
 - The chosen deployment path is not a live runtime LoRA adapter. It is a strength-merged IQ4_NL GGUF: `Qwen3.6-27B-AEON-RYS-15-20-ckpt386-s010-IQ4_NL-imatrix.gguf`.
 - Live/native LoRA adapter support exists and was tested separately, but the deploy configuration uses flash attention and graph split. Current `llama_lora_adapter_set` still rejects LoRA with flash attention, so merged GGUF is the correct long-term serving path for this setup.
 - Before treating this as reproducible production infrastructure, commit or archive the dirty `ik_llama.cpp` patch stack. The source currently shows many uncommitted changes in `common/chat*.cpp`, `examples/server/*`, conversion scripts, GGUF Python metadata/mapping files, `include/llama.h`, and `src/llama-*`.

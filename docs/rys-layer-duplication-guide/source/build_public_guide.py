@@ -9,7 +9,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Inches, Pt, RGBColor
 
 
-ROOT = Path("/home/benbi/qwen36_rys_blog")
+ROOT = Path(__file__).resolve().parents[3]
 SOURCE = ROOT / "qwen36_rys_public_guide_source.txt"
 DOCX_OUT = ROOT / "rys_layer_duplication_guide.docx"
 MD_OUT = ROOT / "post_qwen36_rys_no_looping.md"

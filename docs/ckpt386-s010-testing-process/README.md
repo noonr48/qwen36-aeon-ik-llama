@@ -84,13 +84,13 @@ It should not be framed as:
 The adapter was trained against the AEON RYS 15/20 HF-format base:
 
 ```text
-/home/benbi/qwen36_rys_work/aeon_rys_15_20
+[local model-work root redacted]/aeon_rys_15_20
 ```
 
 Training data:
 
 ```text
-/home/benbi/qwen36_ms_swift_lora/data/qwen36_behavioral_ms_swift_train.jsonl
+[local build artifact root redacted]/data/qwen36_behavioral_ms_swift_train.jsonl
 ```
 
 Data shape:
@@ -100,7 +100,7 @@ Data shape:
 Final adapter:
 
 ```text
-/home/benbi/qwen36_ms_swift_lora/output/train_hf_zero3_5060ti_5090_mb2_full_s35_resume200_rank4_5090_adamw_torch_fused_len640_r8_20260501_152142/checkpoint-386
+[local build artifact root redacted]/output/train_hf_zero3_5060ti_5090_mb2_full_s35_resume200_rank4_5090_adamw_torch_fused_len640_r8_20260501_152142/checkpoint-386
 ```
 
 Training completion:
@@ -432,7 +432,7 @@ Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-BF16.gguf
 Artifact directory:
 
 ```text
-/home/benbi/qwen36_ms_swift_lora/evals/q4nl_strength_sweep_20260505/gguf_iq4nl
+[local build artifact root redacted]/evals/q4nl_strength_sweep_20260505/gguf_iq4nl
 ```
 
 Size:
@@ -493,8 +493,8 @@ Earlier scouting and practical tests:
 The training adapter and full local conversion artifacts remain build-machine provenance rather than public documentation:
 
 ```text
-server:/home/benbi/qwen36_ms_swift_lora/output/train_hf_zero3_5060ti_5090_mb2_full_s35_resume200_rank4_5090_adamw_torch_fused_len640_r8_20260501_152142/checkpoint-386
-server:/home/benbi/qwen36_ms_swift_lora/evals/q4nl_strength_sweep_20260505/gguf_iq4nl
+[local server artifact root redacted]/output/train_hf_zero3_5060ti_5090_mb2_full_s35_resume200_rank4_5090_adamw_torch_fused_len640_r8_20260501_152142/checkpoint-386
+[local server artifact root redacted]/evals/q4nl_strength_sweep_20260505/gguf_iq4nl
 ```
 
 ## Final read
