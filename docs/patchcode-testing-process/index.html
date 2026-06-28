@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qwen3.6 AEON RYS PatchCode — Testing Process</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--ink:#c9d1d9;--mut:#8b949e;--acc:#58a6ff;--bd:#30363d;--gw:#f85149;--gd:#3fb950}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+main{max-width:900px;margin:0 auto;padding:40px 24px 120px}
+h1,h2,h3,h4{color:#f0f6fc;line-height:1.25;font-weight:650;margin:1.8em 0 .6em}
+h1{font-size:2em;border-bottom:1px solid var(--bd);padding-bottom:.3em;margin-top:.3em}
+h2{font-size:1.45em;border-bottom:1px solid var(--bd);padding-bottom:.25em}
+h3{font-size:1.15em}
+a{color:var(--acc);text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-size:.88em;background:#1f2630;padding:.12em .4em;border-radius:5px;color:#79c0ff}
+pre{background:#010409;border:1px solid var(--bd);border-radius:8px;padding:14px 16px;overflow:auto}
+pre code{background:none;padding:0;color:var(--ink);font-size:.85em}
+blockquote{margin:1em 0;padding:.6em 1em;border-left:3px solid var(--acc);background:#0f1a26;border-radius:0 6px 6px 0;color:#d2dbe6}
+table{border-collapse:collapse;width:100%;margin:1.2em 0;font-size:.93em;display:block;overflow-x:auto}
+th,td{border:1px solid var(--bd);padding:7px 11px;text-align:left}
+th{background:#21262d;color:#f0f6fc;font-weight:650}
+tr:nth-child(even) td{background:#0f151c}
+hr{border:0;border-top:1px solid var(--bd);margin:2em 0}
+strong{color:#f0f6fc}
+ul,ol{padding-left:1.4em}
+li{margin:.25em 0}
+.bnr{background:#2a1a1a;border:1px solid #5c2e2e;border-left:4px solid var(--gw);padding:14px 18px;border-radius:8px;margin:18px 0}
+.bnr a{color:#ffb3b3}
+</style>
+</head>
+<body>
+<main>
+<h1>Qwen3.6 AEON RYS PatchCode (merged_lam0.5): What We Actually Did</h1>
+<p>This is the longer, more casual write-up for the PatchCode upload candidate (internal project name <code>merged_lam0.5</code>).</p>
+<p>The clean model card stays short. This document is the full story: what we distilled, exactly how the dataset was built, how we tested it, why the early single-run scores fooled us, why we stopped trusting them, and why the upload candidate ended up being the plain <code>IQ4_NL</code> (reasoning-imatrix) merged GGUF rather than a heavier mixed-quant recipe.</p>
+<p>Related public guides:
+- runtime fork: <code>https://github.com/noonr48/qwen36-aeon-ik-llama</code>
+- RYS layer-duplication / architecture guide: <code>https://github.com/noonr48/qwen36-aeon-ik-llama/tree/main/docs/rys-layer-duplication-guide</code>
+- previous fine-tuned release (SignalLatch): <code>https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-SignalLatch-GGUF</code></p>
+<p>Related release line:
+- previous finetune: <code>Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf</code>
+- this upload candidate: <code>Qwen3.6-27B-AEON-RYS-Agentic-Coder-PatchCode.IQ4_NL.gguf</code></p>
+<h2>Glossary</h2>
+<ul>
+<li><code>AEON</code>: the upstream/source model family this RYS line was built from (<code>AEON-7/Qwen3.6-27B-AEON-Ultimate-Uncensored</code>).</li>
+<li><code>SignalLatch</code> / <code>ckpt386-s010</code>: the previous finetune in this line — a behaviour LoRA (checkpoint 386) merged into the AEON RYS base at strength <code>0.10</code>. PatchCode is built on top of this.</li>
+<li><code>PatchCode</code> / <code>merged_lam0.5</code>: the public name for this release. It is a second behaviour distil (an agentic-coder joint LoRA) merged onto SignalLatch at strength <code>0.5</code>.</li>
+<li><code>IQ4_NL</code>: the quantized GGUF deployment format we actually upload and run.</li>
+<li><code>imatrix</code>: importance-matrix-assisted quantization data. <code>reasoning-imatrix</code> = calibrated on reasoning/coding text (the kind that worked); <code>media-imatrix</code> = an earlier calibration kind that underperformed.</li>
+<li><code>ik-llama</code>: the custom runtime fork. The <code>qwen3_5</code> hybrid architecture does not load on stock <code>llama.cpp</code> / <code>vLLM</code>.</li>
+<li><code>KritaLite</code>: our hardened real-world discriminator build (a ~160k-token multi-file app, 15 binary verifier components). Single-shot coding gates saturate on this model family, so we stopped trusting them.</li>
+<li><code>discipline</code> / <code>style_discipline</code>: a rubric measuring the distilled action-first style (no preamble, claim-requires-run, narrate→act→verify).</li>
+</ul>
+<h2>The short version</h2>
+<p>We started from the SignalLatch finetune and distilled a second, agentic-coder behaviour LoRA on top of it. The goal was not a new general chat model. The goal was to make the model a better coding agent: action-first execution, claims backed by an actual run, systematic diagnose→fix loops, stable multi-turn tool use, and fewer stalled runs.</p>
+<p>After a full 5-phase bake-off, the model that held up was:</p>
+<pre><code class="language-text">Qwen3.6-27B-AEON-RYS-Agentic-Coder-PatchCode.IQ4_NL.gguf
+</code></pre>
+<p>That means:
+- base: <code>Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010</code>
+- adapter: agentic-coder joint LoRA, checkpoint <code>3661</code>
+- merge strength: <code>0.5</code> (effective alpha/r = 1.0)
+- deploy format: plain <code>IQ4_NL</code> with reasoning-imatrix
+- runtime: custom AEON ik-llama fork</p>
+<p>The awkward part — and the reason this write-up is long — is that the eventual ship pick was <strong>not</strong> the candidate that looked best early. A mixed-quant recipe (<code>c76</code>) hit a perfect-looking build score on the first multi-seed pass and did not reproduce. A 5-seed, same-condition confirm reversed the read. The plain <code>IQ4_NL</code> ended up tied with everything else within noise, so the decision fell to non-noise axes (size, recipe safety), where plain <code>IQ4_NL</code> wins.</p>
+<h2>What this was meant to upgrade</h2>
+<p>PatchCode is an upgrade over the existing SignalLatch finetune:</p>
+<pre><code class="language-text">Qwen3.6-27B-AEON-RYS-SignalLatch-ckpt386-s010-IQ4_NL.gguf
+</code></pre>
+<p>The new work was not another RYS architecture pass (the architecture is unchanged and is documented in the layer-duplication guide). The new work was a behaviour distil layered on top of SignalLatch, then merged and quantized into the same practical Q4-class deployment lane.</p>
+<p>Public framing stays narrow:</p>
+<blockquote class="bnr">
+<p>This is a practical coding-agent / tool-use-oriented fine-tuned IQ4_NL variant of the SignalLatch release.</p>
+</blockquote>
+<p>It should not be framed as:
+- a universal upgrade over base in every format
+- a general chat benchmark win
+- a stock <code>llama.cpp</code> / <code>vLLM</code> model
+- a live-LoRA deployment recipe</p>
+<h2>The dataset — exact pipeline</h2>
+<p>This is the part most people ask about, so it is written out in full. The training blend is <code>~58.5k</code> examples and is made of two pieces: a large <strong>synthetic coding-agent behaviour backbone</strong> and a smaller <strong>curated action-first style slice</strong>, blended together.</p>
+<h3>Piece 1 — synthetic coding-agent behaviour backbone (~43k)</h3>
+<p>A standalone generator (<code>generate_v2.py</code>) produces synthetic multi-turn coding-agent traces. It is <strong>fully synthetic</strong> — no real user data, no scraped repos. The pipeline:</p>
+<ol>
+<li><strong>Behaviour-driven generation.</strong> A pool of parallel workers calls a coding-agent teacher model. Each call is shaped around a named <em>behaviour</em> from a fixed behaviour pool (~30 behaviours), for example:
+   - <code>survey_before_edit</code> — read/search the real context before touching code
+   - <code>hypothesis_driven_debugging</code> — form a hypothesis, then verify
+   - <code>tool_intent_first</code> — express tool intent before prose
+   - <code>weigh_alternatives_then_commit</code> — weigh ≥3 options, commit to one, verify
+   - <code>external_awareness</code> — check versions/docs before asserting
+   - <code>recall_first_habit</code> — recall prior context before re-deriving</li>
+<li><strong>Tool-agnostic vocabulary (anti-lock-in).</strong> Tool calls use a behavioural-category vocabulary (e.g. <code>memory_search</code>, <code>repo_search</code>, <code>render_or_visual_proof</code>), not real tool names. This is deliberate: the model learns <em>when/why to use a tool</em>, not a specific vendor's API surface.</li>
+<li><strong>Scenarios.</strong> A synthetic scenario bank provides repo-shaped task context (file trees, failing tests, stack traces) so the traces are grounded in realistic edit/verify loops.</li>
+<li><strong>Quality gates (per sample).</strong> Traces that fail the gates are dropped, not emitted:
+   - <code>no-op-edit</code> guard (a claimed edit that changes nothing)
+   - <code>claim-without-verify</code> reject (the assistant claims done with no run/check)
+   - <code>reasoning-empty</code> / <code>incomplete-trace</code> / <code>lang-runner-mismatch</code> / <code>prompt-over-cap</code></li>
+<li><strong>Deficit-resume scheduling.</strong> Generation runs continuously, tracks per-behaviour deficits, and resumes after interruption until target counts are met. (~30 samples/sec on the build host.)</li>
+</ol>
+<p><strong>Corpus assembly + filtering (exact counts):</strong>
+- raw unified coding corpus: <code>71,776</code> samples
+- filter drops <code>10,666</code> bad samples → <code>61,110</code> kept
+  - top drop reasons: <code>prompt_over_cap</code> 3,946 · <code>lang_runner_mismatch</code> 3,645 · <code>reasoning_empty</code> 2,086 · <code>incomplete_trace</code> 861 · <code>claim_without_verify</code> 620
+- coding training subset used for the blend: <code>43,075</code> (<code>meda_lora_train_v2x1</code>)</p>
+<p>The broader synthetic corpus spans five behaviour layers (media-behaviour 42,973 · tool-depth 15,242 · reliability 19,393 · self-correction 31,476 · coding 7,721 = <code>116,805</code> total before filtering); the blend draws the coding-oriented subset.</p>
+<h3>Piece 2 — curated action-first style slice (~7k)</h3>
+<p>A smaller slice of curated execution-style traces that model the exact discipline we wanted to amplify: terse narrate→act→verify, no preamble, claim-requires-run. Composition (<code>6,953</code> total):
+- own multi-project execution sessions (<code>5,455</code>) — span many different projects on purpose, so the style generalises instead of locking to one domain
+- a different-domain contributor (<code>1,130</code>) — explicitly included for cross-project transfer
+- reasoning-chain exemplars (<code>368</code>) — weigh-alternatives deliberation seeds</p>
+<p><strong>De-identification / anti-lock-in pass:</strong> real tool names, hostnames, absolute paths, and identifiers are abstracted to behavioural-category tokens / placeholders. The supervision is <strong>assistant-turn-only</strong> — system/user/tool turns (where real project content lives) are masked (<code>IGNORE_INDEX</code>), so the model learns a <em>behaviour policy conditioned on varied context</em>, not project facts as outputs.</p>
+<h3>Piece 3 — the blend</h3>
+<p>A small blender oversamples the style slice so it is not drowned by the larger coding backbone, then shuffles:</p>
+<ul>
+<li>coding backbone: <code>43,075</code></li>
+<li>style slice oversampled ~2.2×</li>
+<li>blended training file: <code>58,576</code> (<code>training_blend</code>) ≈ <strong>~74% coding backbone / ~26% action-first style</strong></li>
+</ul>
+<p>The oversample ratio was chosen so the style shows up without overfitting the smaller slice; a held-out task type was used to check it generalises rather than parrots.</p>
+<h3>What the dataset is <em>not</em></h3>
+<ul>
+<li>It is not scraped real-user data or real private repos.</li>
+<li>It is not a single-topic dataset — both pieces deliberately span many projects/domains.</li>
+<li>It does not teach new domain <em>facts</em>; it teaches an execution <em>discipline</em>.</li>
+</ul>
+<h2>The training piece</h2>
+<p>A single LoRA was joint-co-trained on the blended <code>58.5k</code> set (one adapter, not two-then-merge — a prior two-adapter λ-merge plan was superseded because post-hoc merges can kill a fragile capability with no usable λ).</p>
+<p>Training config:
+- PEFT type: <code>LORA</code>
+- rank: <code>r=32</code>, alpha: <code>64</code> (alpha/r = 2.0)
+- dropout: <code>0.05</code>
+- target modules: <strong>all-linear</strong>, including the hybrid arch projections — <code>q/k/v/o_proj</code>, <code>gate/up/down_proj</code>, <code>out_proj</code>, and the linear-attn/SSM projections <code>in_proj_qkv / in_proj_a / in_proj_b / in_proj_z</code>
+- supervision: completion-only (assistant turns only)
+- optimiser: adamw, lr <code>5e-5</code> + warmup + cosine decay
+- epochs: <code>1</code>
+- backend: model-parallel <code>device_map</code> across a multi-GPU host (the max-quality path; the no-NVLink fleet ruled out DeepSpeed/FSDP here)</p>
+<p>Completion:
+- <code>global_step=3661</code> = <code>epoch 1.0</code> complete
+- final <code>train_loss ≈ 0.853</code>
+- runtime ~91h (~89.5 s/it), grad-norm steady (no divergence)
+- 37 checkpoints saved across the run → full trajectory available for eval</p>
+<p>The adapter was behaviour-focused and small. It was not trained to teach broad new knowledge.</p>
+<h2>The merge — why λ=0.5</h2>
+<p>The trained default adapter strength (alpha/r = 2.0) was <strong>over-applied</strong>. A checkpoint × strength eval showed half-strength beat full-strength on all three tested checkpoints:</p>
+<table>
+<thead>
+<tr>
+<th>checkpoint</th>
+<th style="text-align: right;">λ=0.3</th>
+<th style="text-align: right;">λ=0.5</th>
+<th style="text-align: right;">λ=0.7</th>
+<th style="text-align: right;">λ=1.0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3661</td>
+<td style="text-align: right;">0.522</td>
+<td style="text-align: right;"><strong>0.617</strong></td>
+<td style="text-align: right;">0.490</td>
+<td style="text-align: right;">0.491</td>
+</tr>
+<tr>
+<td>2600</td>
+<td style="text-align: right;">0.567</td>
+<td style="text-align: right;"><strong>0.573</strong></td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">0.442</td>
+</tr>
+<tr>
+<td>1800</td>
+<td style="text-align: right;">0.540</td>
+<td style="text-align: right;"><strong>0.564</strong></td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">0.397</td>
+</tr>
+</tbody>
+</table>
+<p>At λ=1.0 the adapter was net-neutral-to-harmful (one checkpoint fell <em>below</em> the un-adapted base). The mechanism: an over-loud LoRA delta pushes activations into regimes that hurt calibrated behaviour (preamble returns, over-claiming). λ=0.5 (effective alpha/r = 1.0) keeps the style direction but respects base calibration. So the merge was done at <strong>λ=0.5 onto SignalLatch (ckpt386-s010)</strong>, then exported to BF16 GGUF. (A future v2 could bake the good strength in by training at alpha=r=32, removing the inference-time knob.)</p>
+<p><img alt="Merge strength sweep — λ=0.5 wins on all three checkpoints; trained default λ=1.0 is over-applied." src="assets/lambda_sweep.png" /></p>
+<h2>Why the final testing moved to merged IQ4_NL</h2>
+<p>The key question was not "best adapter in BF16" — it was "what we would actually deploy". The deploy target was a merged GGUF, <code>IQ4_NL</code>, imatrix-quantized, on the custom ik-llama runtime (Jinja + DeepSeek reasoning format + flash attention + graph split, temp <code>0.7</code>).</p>
+<p>Live LoRA loading is not the production path for this release (the tested serving profile uses flash attention, which conflicts with live LoRA on this runtime). So the long-term path became: <strong>merge the adapter first, then export + quantize a full GGUF.</strong> That is why the upload is a merged GGUF, not an adapter.</p>
+<p>The plain <code>IQ4_NL</code> uses the <strong>reasoning/coding imatrix</strong> (the kind that worked). An earlier build used a media-domain imatrix; it underperformed and was superseded.</p>
+<h2>The testing ladder (5 phases + confirms)</h2>
+<p>Single-shot and hard-suite gates <strong>saturate</strong> on this model family (every quant scores ~the same, including BF16). The discrimination that actually changed the decision came from a 160k-token real-world build (KritaLite) run multi-seed, plus a discipline rubric, plus an autonomous-loop convergence test. The phases:</p>
+<p><strong>Phase 1 — single-seed real-world build.</strong> Made the plain <code>IQ4_NL</code> look like the winner (0.933 vs c76's 0.867). This was <strong>noise</strong> — it did not reproduce.</p>
+<p><strong>Phase 2 — multi-seed KritaLite (3 seeds).</strong> Reversed phase 1: <code>c76</code>/<code>c404</code>/<code>c373</code> hit 0.933; plain <code>IQ4_NL</code> dropped to 0.867. Now a mixed-quant recipe looked like the winner.</p>
+<p><strong>Phase 3 — 40-recipe broad search.</strong> Returned all-zero. Root cause was a <strong>harness bug</strong> (the eval script imports a <code>config.json</code> that was not copied into the eval root), not real scores.</p>
+<p><strong>Phase 4 — search re-gate (bug fixed).</strong> Re-scored all 53 candidates correctly. No new recipe beat the curated originals; the broad search does not help this merge.</p>
+<p><strong>Phase 5 — discipline + agentic process.</strong> Plain <code>IQ4_NL</code> and BF16 led the action-first <em>discipline</em> rubric (0.931); <code>c76</code> led <em>process efficiency</em> (fewest turns/tools/errors).</p>
+<p><strong>Overnight 2 — base-precision × attention-promotion matrix (3 seeds).</strong> Decomposed the build/discipline tradeoff. No candidate clears "both" (build ≥ 0.90 <strong>and</strong> discipline ≥ 0.90):
+- promotion destroys discipline regardless of base precision
+- uniform higher precision does <strong>not</strong> fix build (build is not precision-limited)</p>
+<p><strong>Confirm — 5-seed, same-condition, baseline vs c76 head-to-head.</strong> The decisive run:</p>
+<table>
+<thead>
+<tr>
+<th>candidate</th>
+<th style="text-align: right;">build (5-seed)</th>
+<th style="text-align: right;">long-context</th>
+<th style="text-align: right;">discipline (5-seed)</th>
+<th style="text-align: right;">size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>plain IQ4_NL (reasoning imx)</strong></td>
+<td style="text-align: right;">0.920 (±0.067)</td>
+<td style="text-align: right;">0.975</td>
+<td style="text-align: right;">0.842 (±0.333)</td>
+<td style="text-align: right;">16.6 G</td>
+</tr>
+<tr>
+<td>c76 (promoted attn)</td>
+<td style="text-align: right;">0.907 (±0.067)</td>
+<td style="text-align: right;">0.935</td>
+<td style="text-align: right;">0.867 (±0.292)</td>
+<td style="text-align: right;">20 G</td>
+</tr>
+</tbody>
+</table>
+<p>build gap <code>0.013</code> ≪ <code>0.067</code> noise floor → <strong>not discriminating</strong>. c76's earlier "0.933 build win" did not reproduce (it scored 0.933 → 0.867 → 0.907 across passes — pure run-to-run variance).</p>
+<p><strong>Q8 confirm — 5-seed, near-lossless Q8 vs plain IQ4_NL.</strong> Q8 shows no edge on any axis and is ~2× the size → ruled out. Near-lossless precision buys nothing measurable here.</p>
+<p><strong>Agentic-loop — the autonomy axis (8 held-out tasks × 5 seeds).</strong> Each quant runs a held-out mini-project (README + failing pytest suite) autonomously; converged = objective pytest pass, not self-claimed:</p>
+<table>
+<thead>
+<tr>
+<th>quant</th>
+<th style="text-align: right;">convergence</th>
+<th style="text-align: right;">mean turns</th>
+<th style="text-align: right;">recovery</th>
+<th style="text-align: right;">halluc-success</th>
+<th style="text-align: right;">stall</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>plain IQ4_NL</td>
+<td style="text-align: right;">100% (40/40)</td>
+<td style="text-align: right;">7.2</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0%</td>
+<td style="text-align: right;">0%</td>
+</tr>
+<tr>
+<td>c76</td>
+<td style="text-align: right;">100% (40/40)</td>
+<td style="text-align: right;">6.6</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0%</td>
+<td style="text-align: right;">0%</td>
+</tr>
+<tr>
+<td>Q8</td>
+<td style="text-align: right;">100% (40/40)</td>
+<td style="text-align: right;">7.0</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0%</td>
+<td style="text-align: right;">0%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Non-discriminating (0pp spread).</strong> The distilled discipline (action-first, claim-requires-run, verify-before-claim) is preserved across all quants.</p>
+<h2>The noise lesson (critical — reuse for every future bake-off)</h2>
+<p>The SignalLatch-style suite is <strong>noisier than it looked</strong>:
+- KritaLite build: ±0.067–0.13 <strong>run-to-run</strong> variance (beyond seed). c76 scored 0.933 → 0.867 → 0.907 on the same gguf.
+- discipline: ±0.3 spread.
+- build is <strong>ceiling-limited</strong> (max 0.933 = 14/15) → zero headroom to discriminate two good quants.</p>
+<p><strong>Rule:</strong> 3-seed differences &lt;0.13 on this suite are meaningless. Use <strong>5+ seeds, same-condition head-to-head</strong> before any ship call. Only non-noise axes (size, recipe methodology/safety, long-context at ceiling) reliably tiebreak. HumanEval was rejected — it saturates on Qwen and is the wrong mode for an agent.</p>
+<p>This is exactly how a 3-seed pass almost shipped the <em>weaker</em> model.</p>
+<h2>The ship decision</h2>
+<p>With build, discipline, long-context, and autonomy all <strong>tied within noise</strong>, the decision fell to non-noise axes, where plain <code>IQ4_NL</code> wins all three:</p>
+<p><img alt="No candidate clears BOTH build and discipline (≥0.90) — promotion destroys discipline; precision does not fix build." src="assets/bothquest.png" /></p>
+<p><img alt="Ship scoreboard (5-seed): IQ4_NL ties the field within noise on build/long-context/discipline, and wins on size." src="assets/ship_scoreboard.png" /></p>
+<ul>
+<li><strong>smaller</strong> (16.6 G vs 20–29 G)</li>
+<li><strong>marginal long-context</strong> edge (0.975 vs 0.935–0.969)</li>
+<li><strong>plain-quant recipe</strong> — the fleet's proven pattern; promotion/mixed recipes carry evidence-harmful risk (discipline collapse) for zero measured benefit</li>
+</ul>
+<p>Ship: <strong>plain <code>IQ4_NL</code> (reasoning-imatrix)</strong>. The mixed-recipe <code>c76</code> is retained on disk as the build-heavy fallback if a future, harder build-gate ever discriminates beyond the noise floor (use 5+ seeds).</p>
+<h2>What the testing says and does not say</h2>
+<p><strong>Does say:</strong>
+- PatchCode's distilled action-first discipline is preserved through <code>IQ4_NL</code> (tied with BF16 across build / long-context / discipline / autonomy).
+- Near-lossless precision (Q8) and attention promotion buy no measurable edge on this suite.
+- Plain <code>IQ4_NL</code> is the defensible default on size + recipe safety.</p>
+<p><strong>Does not say:</strong>
+- It does not prove PatchCode is better for all tasks.
+- It does not prove plain <code>IQ4_NL</code> is globally optimal.
+- It does not make this a stock <code>llama.cpp</code> / <code>vLLM</code> release.
+- It does not make live LoRA loading the recommended serving setup.</p>
+<p>The most accurate public sentence:</p>
+<blockquote>
+<p>On a 5-seed, same-condition practical coding-agent bake-off, PatchCode plain <code>IQ4_NL</code> tied BF16 within noise on build, long-context, discipline, and autonomous-loop convergence, and was the selected default on size and recipe safety.</p>
+</blockquote>
+<h2>Selected artifact</h2>
+<pre><code class="language-text">Qwen3.6-27B-AEON-RYS-Agentic-Coder-PatchCode.IQ4_NL.gguf      (16.6 GB — recommended)
+Qwen3.6-27B-AEON-RYS-Agentic-Coder-PatchCode.BF16.gguf        (57.6 GB — source-quality reference)
+</code></pre>
+<p>Recommended runtime: <code>https://github.com/noonr48/qwen36-aeon-ik-llama</code></p>
+<pre><code class="language-bash">./build/bin/llama-server \
+  -m /path/to/Qwen3.6-27B-AEON-RYS-Agentic-Coder-PatchCode.IQ4_NL.gguf \
+  -c 65536 -ngl 999 -np 1 -fa on -sm none \
+  --temp 0.7 --jinja --reasoning-format deepseek --reasoning-budget 0
+</code></pre>
+<p>(<code>&lt;think&gt;</code> is emitted as a separate <code>reasoning_content</code> field — use <code>--reasoning-format deepseek</code> or fold it back so tool-action parsing sees the action.)</p>
+<h2>Final read</h2>
+<p>This was not a clean leaderboard. It was a real engineering pass: distil the style, build a hardened discriminator because the easy gates saturated, get fooled by a one-run perfect build score, repeat the finalists same-condition, discover the build is ceiling-limited and noisy, and ship the smallest plain-quant that ties everything within noise.</p>
+<pre><code class="language-text">PatchCode IQ4_NL is a practical agentic-coder upgrade over the SignalLatch release.
+It is the selected default among the tested quants, tied with BF16 within noise —
+not a universal final answer.
+</code></pre>
+</main>
+</body>
+</html>
