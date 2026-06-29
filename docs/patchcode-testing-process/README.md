@@ -69,7 +69,7 @@ This is the part most people ask about, so it is written out in full. The traini
 
 ### Piece 1 — synthetic coding-agent behaviour backbone (~43k)
 
-A standalone generator (`generate_v2.py`) produces synthetic multi-turn coding-agent traces. It is **fully synthetic** — no real user data, no scraped repos. The pipeline:
+A standalone synthetic generator produces multi-turn coding-agent traces. It is **fully synthetic** — no real user data, no scraped repos. The pipeline:
 
 1. **Behaviour-driven generation.** A pool of parallel workers calls a coding-agent teacher model. Each call is shaped around a named *behaviour* from a fixed behaviour pool (~30 behaviours), for example:
    - `survey_before_edit` — read/search the real context before touching code
@@ -84,13 +84,13 @@ A standalone generator (`generate_v2.py`) produces synthetic multi-turn coding-a
    - `no-op-edit` guard (a claimed edit that changes nothing)
    - `claim-without-verify` reject (the assistant claims done with no run/check)
    - `reasoning-empty` / `incomplete-trace` / `lang-runner-mismatch` / `prompt-over-cap`
-5. **Deficit-resume scheduling.** Generation runs continuously, tracks per-behaviour deficits, and resumes after interruption until target counts are met. (~30 samples/sec on the build host.)
+5. **Deficit-resume scheduling.** Generation runs continuously, tracks per-behaviour deficits, and resumes after interruption until target counts are met (~30 samples/sec).
 
 **Corpus assembly + filtering (exact counts):**
 - raw unified coding corpus: `71,776` samples
 - filter drops `10,666` bad samples → `61,110` kept
   - top drop reasons: `prompt_over_cap` 3,946 · `lang_runner_mismatch` 3,645 · `reasoning_empty` 2,086 · `incomplete_trace` 861 · `claim_without_verify` 620
-- coding training subset used for the blend: `43,075` (`meda_lora_train_v2x1`)
+- coding training subset used for the blend: `43,075`
 
 The broader synthetic corpus spans five behaviour layers (media-behaviour 42,973 · tool-depth 15,242 · reliability 19,393 · self-correction 31,476 · coding 7,721 = `116,805` total before filtering); the blend draws the coding-oriented subset.
 
@@ -109,7 +109,7 @@ A small blender oversamples the style slice so it is not drowned by the larger c
 
 - coding backbone: `43,075`
 - style slice oversampled ~2.2×
-- blended training file: `58,576` (`training_blend`) ≈ **~74% coding backbone / ~26% action-first style**
+- blended training set: `58,576` ≈ **~74% coding backbone / ~26% action-first style**
 
 The oversample ratio was chosen so the style shows up without overfitting the smaller slice; a held-out task type was used to check it generalises rather than parrots.
 
@@ -165,7 +165,7 @@ The plain `IQ4_NL` uses the **reasoning/coding imatrix** (the kind that worked).
 
 ## The testing ladder (5 phases + confirms)
 
-Single-shot and hard-suite gates **saturate** on this model family (every quant scores ~the same, including BF16). The discrimination that actually changed the decision came from a 160k-token real-world build (KritaLite) run multi-seed, plus a discipline rubric, plus an autonomous-loop convergence test. The phases:
+Single-shot and hard-suite gates **saturate** on this model family (every quant scores ~the same, including BF16). The discrimination that actually changed the decision came from a 160k-token real-world build (KritaLite) run multi-seed, plus a discipline rubric, plus an agentic-process efficiency probe. The phases:
 
 **Phase 1 — single-seed real-world build.** Made the plain `IQ4_NL` look like the winner (0.933 vs c76's 0.867). This was **noise** — it did not reproduce.
 
@@ -192,15 +192,14 @@ build gap `0.013` ≪ `0.067` noise floor → **not discriminating**. c76's earl
 
 **Q8 confirm — 5-seed, near-lossless Q8 vs plain IQ4_NL.** Q8 shows no edge on any axis and is ~2× the size → ruled out. Near-lossless precision buys nothing measurable here.
 
-**Agentic-loop — the autonomy axis (8 held-out tasks × 5 seeds).** Each quant runs a held-out mini-project (README + failing pytest suite) autonomously; converged = objective pytest pass, not self-claimed:
+**Behaviour rubric — PatchCode vs the base it was distilled from.** A 15-case rubric (action-first style + coding discipline + held-out generalization) was run across merge strengths, with the adapter disabled as the "strength 0" anchor — i.e. the SignalLatch base PatchCode was built on. PatchCode at the chosen λ=0.5 beat the base on score while emitting far fewer tokens:
 
-| quant | convergence | mean turns | recovery | halluc-success | stall |
-|---|---:|---:|---:|---:|---:|
-| plain IQ4_NL | 100% (40/40) | 7.2 | 0.4 | 0% | 0% |
-| c76 | 100% (40/40) | 6.6 | 0.4 | 0% | 0% |
-| Q8 | 100% (40/40) | 7.0 | 0.5 | 0% | 0% |
+| variant (15-case rubric) | score | avg output tokens | avg time/case |
+|---|---:|---:|---:|
+| base (adapter off = SignalLatch) | `0.486` | `311` | `34s` |
+| PatchCode (ckpt-3661 @ λ=0.5) | `0.617` | `91` | `13s` |
 
-**Non-discriminating (0pp spread).** The distilled discipline (action-first, claim-requires-run, verify-before-claim) is preserved across all quants.
+The base tended to ramble (~311 tokens of hedging preamble — e.g. it scored 0.20 on the coding-discipline case with "I might overwrite the user's changes…"); PatchCode was terse and on-target (~91 tokens) and scored higher. That is the distil's intended effect: more disciplined execution, less wasted output. Caveats: this is a behaviour rubric, not a multi-turn agent turn-count; λ=0.5 is the sweet spot — higher strengths (0.7 / 1.0 / 1.3) also got terse (~60 tokens) but fell *below* the base (0.39–0.49), so terseness alone is not the win; single-temperature, small per-category N.
 
 ## The noise lesson (critical — reuse for every future bake-off)
 
@@ -215,7 +214,7 @@ This is exactly how a 3-seed pass almost shipped the *weaker* model.
 
 ## The ship decision
 
-With build, discipline, long-context, and autonomy all **tied within noise**, the decision fell to non-noise axes, where plain `IQ4_NL` wins all three:
+With build, discipline, and long-context all **tied within noise**, the decision fell to non-noise axes, where plain `IQ4_NL` wins all three:
 
 ![No candidate clears BOTH build and discipline (≥0.90) — promotion destroys discipline; precision does not fix build.](assets/bothquest.png)
 
@@ -230,7 +229,7 @@ Ship: **plain `IQ4_NL` (reasoning-imatrix)**. The mixed-recipe `c76` is retained
 ## What the testing says and does not say
 
 **Does say:**
-- PatchCode's distilled action-first discipline is preserved through `IQ4_NL` (tied with BF16 across build / long-context / discipline / autonomy).
+- PatchCode's distilled action-first discipline is preserved through `IQ4_NL` (tied with BF16 across build / long-context / discipline).
 - Near-lossless precision (Q8) and attention promotion buy no measurable edge on this suite.
 - Plain `IQ4_NL` is the defensible default on size + recipe safety.
 
@@ -242,7 +241,7 @@ Ship: **plain `IQ4_NL` (reasoning-imatrix)**. The mixed-recipe `c76` is retained
 
 The most accurate public sentence:
 
-> On a 5-seed, same-condition practical coding-agent bake-off, PatchCode plain `IQ4_NL` tied BF16 within noise on build, long-context, discipline, and autonomous-loop convergence, and was the selected default on size and recipe safety.
+> On a 5-seed, same-condition practical coding-agent bake-off, PatchCode plain `IQ4_NL` tied BF16 within noise on build, long-context, and discipline, and was the selected default on size and recipe safety.
 
 ## Selected artifact
 

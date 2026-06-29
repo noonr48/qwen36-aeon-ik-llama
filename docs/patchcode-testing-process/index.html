@@ -82,7 +82,7 @@ li{margin:.25em 0}
 <h2>The dataset — exact pipeline</h2>
 <p>This is the part most people ask about, so it is written out in full. The training blend is <code>~58.5k</code> examples and is made of two pieces: a large <strong>synthetic coding-agent behaviour backbone</strong> and a smaller <strong>curated action-first style slice</strong>, blended together.</p>
 <h3>Piece 1 — synthetic coding-agent behaviour backbone (~43k)</h3>
-<p>A standalone generator (<code>generate_v2.py</code>) produces synthetic multi-turn coding-agent traces. It is <strong>fully synthetic</strong> — no real user data, no scraped repos. The pipeline:</p>
+<p>A standalone synthetic generator produces multi-turn coding-agent traces. It is <strong>fully synthetic</strong> — no real user data, no scraped repos. The pipeline:</p>
 <ol>
 <li><strong>Behaviour-driven generation.</strong> A pool of parallel workers calls a coding-agent teacher model. Each call is shaped around a named <em>behaviour</em> from a fixed behaviour pool (~30 behaviours), for example:
    - <code>survey_before_edit</code> — read/search the real context before touching code
@@ -97,13 +97,13 @@ li{margin:.25em 0}
    - <code>no-op-edit</code> guard (a claimed edit that changes nothing)
    - <code>claim-without-verify</code> reject (the assistant claims done with no run/check)
    - <code>reasoning-empty</code> / <code>incomplete-trace</code> / <code>lang-runner-mismatch</code> / <code>prompt-over-cap</code></li>
-<li><strong>Deficit-resume scheduling.</strong> Generation runs continuously, tracks per-behaviour deficits, and resumes after interruption until target counts are met. (~30 samples/sec on the build host.)</li>
+<li><strong>Deficit-resume scheduling.</strong> Generation runs continuously, tracks per-behaviour deficits, and resumes after interruption until target counts are met (~30 samples/sec).</li>
 </ol>
 <p><strong>Corpus assembly + filtering (exact counts):</strong>
 - raw unified coding corpus: <code>71,776</code> samples
 - filter drops <code>10,666</code> bad samples → <code>61,110</code> kept
   - top drop reasons: <code>prompt_over_cap</code> 3,946 · <code>lang_runner_mismatch</code> 3,645 · <code>reasoning_empty</code> 2,086 · <code>incomplete_trace</code> 861 · <code>claim_without_verify</code> 620
-- coding training subset used for the blend: <code>43,075</code> (<code>meda_lora_train_v2x1</code>)</p>
+- coding training subset used for the blend: <code>43,075</code></p>
 <p>The broader synthetic corpus spans five behaviour layers (media-behaviour 42,973 · tool-depth 15,242 · reliability 19,393 · self-correction 31,476 · coding 7,721 = <code>116,805</code> total before filtering); the blend draws the coding-oriented subset.</p>
 <h3>Piece 2 — curated action-first style slice (~7k)</h3>
 <p>A smaller slice of curated execution-style traces that model the exact discipline we wanted to amplify: terse narrate→act→verify, no preamble, claim-requires-run. Composition (<code>6,953</code> total):
@@ -116,7 +116,7 @@ li{margin:.25em 0}
 <ul>
 <li>coding backbone: <code>43,075</code></li>
 <li>style slice oversampled ~2.2×</li>
-<li>blended training file: <code>58,576</code> (<code>training_blend</code>) ≈ <strong>~74% coding backbone / ~26% action-first style</strong></li>
+<li>blended training set: <code>58,576</code> ≈ <strong>~74% coding backbone / ~26% action-first style</strong></li>
 </ul>
 <p>The oversample ratio was chosen so the style shows up without overfitting the smaller slice; a held-out task type was used to check it generalises rather than parrots.</p>
 <h3>What the dataset is <em>not</em></h3>
@@ -185,7 +185,7 @@ li{margin:.25em 0}
 <p>Live LoRA loading is not the production path for this release (the tested serving profile uses flash attention, which conflicts with live LoRA on this runtime). So the long-term path became: <strong>merge the adapter first, then export + quantize a full GGUF.</strong> That is why the upload is a merged GGUF, not an adapter.</p>
 <p>The plain <code>IQ4_NL</code> uses the <strong>reasoning/coding imatrix</strong> (the kind that worked). An earlier build used a media-domain imatrix; it underperformed and was superseded.</p>
 <h2>The testing ladder (5 phases + confirms)</h2>
-<p>Single-shot and hard-suite gates <strong>saturate</strong> on this model family (every quant scores ~the same, including BF16). The discrimination that actually changed the decision came from a 160k-token real-world build (KritaLite) run multi-seed, plus a discipline rubric, plus an autonomous-loop convergence test. The phases:</p>
+<p>Single-shot and hard-suite gates <strong>saturate</strong> on this model family (every quant scores ~the same, including BF16). The discrimination that actually changed the decision came from a 160k-token real-world build (KritaLite) run multi-seed, plus a discipline rubric, plus an agentic-process efficiency probe. The phases:</p>
 <p><strong>Phase 1 — single-seed real-world build.</strong> Made the plain <code>IQ4_NL</code> look like the winner (0.933 vs c76's 0.867). This was <strong>noise</strong> — it did not reproduce.</p>
 <p><strong>Phase 2 — multi-seed KritaLite (3 seeds).</strong> Reversed phase 1: <code>c76</code>/<code>c404</code>/<code>c373</code> hit 0.933; plain <code>IQ4_NL</code> dropped to 0.867. Now a mixed-quant recipe looked like the winner.</p>
 <p><strong>Phase 3 — 40-recipe broad search.</strong> Returned all-zero. Root cause was a <strong>harness bug</strong> (the eval script imports a <code>config.json</code> that was not copied into the eval root), not real scores.</p>
@@ -224,46 +224,32 @@ li{margin:.25em 0}
 </table>
 <p>build gap <code>0.013</code> ≪ <code>0.067</code> noise floor → <strong>not discriminating</strong>. c76's earlier "0.933 build win" did not reproduce (it scored 0.933 → 0.867 → 0.907 across passes — pure run-to-run variance).</p>
 <p><strong>Q8 confirm — 5-seed, near-lossless Q8 vs plain IQ4_NL.</strong> Q8 shows no edge on any axis and is ~2× the size → ruled out. Near-lossless precision buys nothing measurable here.</p>
-<p><strong>Agentic-loop — the autonomy axis (8 held-out tasks × 5 seeds).</strong> Each quant runs a held-out mini-project (README + failing pytest suite) autonomously; converged = objective pytest pass, not self-claimed:</p>
+<p><strong>Behaviour rubric — PatchCode vs the base it was distilled from.</strong> A 15-case rubric (action-first style + coding discipline + held-out generalization) was run across merge strengths, with the adapter disabled as the "strength 0" anchor — i.e. the SignalLatch base PatchCode was built on. PatchCode at the chosen λ=0.5 beat the base on score while emitting far fewer tokens:</p>
 <table>
 <thead>
 <tr>
-<th>quant</th>
-<th style="text-align: right;">convergence</th>
-<th style="text-align: right;">mean turns</th>
-<th style="text-align: right;">recovery</th>
-<th style="text-align: right;">halluc-success</th>
-<th style="text-align: right;">stall</th>
+<th>variant (15-case rubric)</th>
+<th style="text-align: right;">score</th>
+<th style="text-align: right;">avg output tokens</th>
+<th style="text-align: right;">avg time/case</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>plain IQ4_NL</td>
-<td style="text-align: right;">100% (40/40)</td>
-<td style="text-align: right;">7.2</td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">0%</td>
-<td style="text-align: right;">0%</td>
+<td>base (adapter off = SignalLatch)</td>
+<td style="text-align: right;"><code>0.486</code></td>
+<td style="text-align: right;"><code>311</code></td>
+<td style="text-align: right;"><code>34s</code></td>
 </tr>
 <tr>
-<td>c76</td>
-<td style="text-align: right;">100% (40/40)</td>
-<td style="text-align: right;">6.6</td>
-<td style="text-align: right;">0.4</td>
-<td style="text-align: right;">0%</td>
-<td style="text-align: right;">0%</td>
-</tr>
-<tr>
-<td>Q8</td>
-<td style="text-align: right;">100% (40/40)</td>
-<td style="text-align: right;">7.0</td>
-<td style="text-align: right;">0.5</td>
-<td style="text-align: right;">0%</td>
-<td style="text-align: right;">0%</td>
+<td>PatchCode (ckpt-3661 @ λ=0.5)</td>
+<td style="text-align: right;"><code>0.617</code></td>
+<td style="text-align: right;"><code>91</code></td>
+<td style="text-align: right;"><code>13s</code></td>
 </tr>
 </tbody>
 </table>
-<p><strong>Non-discriminating (0pp spread).</strong> The distilled discipline (action-first, claim-requires-run, verify-before-claim) is preserved across all quants.</p>
+<p>The base tended to ramble (~311 tokens of hedging preamble — e.g. it scored 0.20 on the coding-discipline case with "I might overwrite the user's changes…"); PatchCode was terse and on-target (~91 tokens) and scored higher. That is the distil's intended effect: more disciplined execution, less wasted output. Caveats: this is a behaviour rubric, not a multi-turn agent turn-count; λ=0.5 is the sweet spot — higher strengths (0.7 / 1.0 / 1.3) also got terse (~60 tokens) but fell <em>below</em> the base (0.39–0.49), so terseness alone is not the win; single-temperature, small per-category N.</p>
 <h2>The noise lesson (critical — reuse for every future bake-off)</h2>
 <p>The SignalLatch-style suite is <strong>noisier than it looked</strong>:
 - KritaLite build: ±0.067–0.13 <strong>run-to-run</strong> variance (beyond seed). c76 scored 0.933 → 0.867 → 0.907 on the same gguf.
@@ -272,7 +258,7 @@ li{margin:.25em 0}
 <p><strong>Rule:</strong> 3-seed differences &lt;0.13 on this suite are meaningless. Use <strong>5+ seeds, same-condition head-to-head</strong> before any ship call. Only non-noise axes (size, recipe methodology/safety, long-context at ceiling) reliably tiebreak. HumanEval was rejected — it saturates on Qwen and is the wrong mode for an agent.</p>
 <p>This is exactly how a 3-seed pass almost shipped the <em>weaker</em> model.</p>
 <h2>The ship decision</h2>
-<p>With build, discipline, long-context, and autonomy all <strong>tied within noise</strong>, the decision fell to non-noise axes, where plain <code>IQ4_NL</code> wins all three:</p>
+<p>With build, discipline, and long-context all <strong>tied within noise</strong>, the decision fell to non-noise axes, where plain <code>IQ4_NL</code> wins all three:</p>
 <p><img alt="No candidate clears BOTH build and discipline (≥0.90) — promotion destroys discipline; precision does not fix build." src="assets/bothquest.png" /></p>
 <p><img alt="Ship scoreboard (5-seed): IQ4_NL ties the field within noise on build/long-context/discipline, and wins on size." src="assets/ship_scoreboard.png" /></p>
 <ul>
@@ -283,7 +269,7 @@ li{margin:.25em 0}
 <p>Ship: <strong>plain <code>IQ4_NL</code> (reasoning-imatrix)</strong>. The mixed-recipe <code>c76</code> is retained on disk as the build-heavy fallback if a future, harder build-gate ever discriminates beyond the noise floor (use 5+ seeds).</p>
 <h2>What the testing says and does not say</h2>
 <p><strong>Does say:</strong>
-- PatchCode's distilled action-first discipline is preserved through <code>IQ4_NL</code> (tied with BF16 across build / long-context / discipline / autonomy).
+- PatchCode's distilled action-first discipline is preserved through <code>IQ4_NL</code> (tied with BF16 across build / long-context / discipline).
 - Near-lossless precision (Q8) and attention promotion buy no measurable edge on this suite.
 - Plain <code>IQ4_NL</code> is the defensible default on size + recipe safety.</p>
 <p><strong>Does not say:</strong>
@@ -293,7 +279,7 @@ li{margin:.25em 0}
 - It does not make live LoRA loading the recommended serving setup.</p>
 <p>The most accurate public sentence:</p>
 <blockquote>
-<p>On a 5-seed, same-condition practical coding-agent bake-off, PatchCode plain <code>IQ4_NL</code> tied BF16 within noise on build, long-context, discipline, and autonomous-loop convergence, and was the selected default on size and recipe safety.</p>
+<p>On a 5-seed, same-condition practical coding-agent bake-off, PatchCode plain <code>IQ4_NL</code> tied BF16 within noise on build, long-context, and discipline, and was the selected default on size and recipe safety.</p>
 </blockquote>
 <h2>Selected artifact</h2>
 <pre><code class="language-text">Qwen3.6-27B-AEON-RYS-Agentic-Coder-PatchCode.IQ4_NL.gguf      (16.6 GB — recommended)
