@@ -421,37 +421,24 @@
 
   <div class="hero">
     <div class="wrap">
-      <div class="eyebrow">SignalLatch fine-tune record</div>
-      <h1>How the first ckpt386 s0.10 SignalLatch release was made, tested, and selected.</h1>
-      <p class="dek">This page is the self-contained public record for the original SignalLatch behavior fine-tune on top of Qwen3.6 AEON RYS 15/20. It documents the first public ckpt386 s0.10 IQ4_NL release, not the later v1.1 Lite/Plus mixed-quant selection.</p>
+      <div class="eyebrow">PatchCode fine-tune record</div>
+      <h1>How the PatchCode agentic-coder fine-tune was made, tested, and selected.</h1>
+      <p class="dek">This page is the self-contained public record for the PatchCode behaviour distil &mdash; an agentic-coder joint LoRA (checkpoint 3661, merged at &lambda;=0.5) on top of the SignalLatch release. It covers the IQ4_NL quant bake-off, the run-to-run noise analysis, and the exact dataset pipeline.</p>
       <div class="actions">
-        <a class="button primary" href="https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-SignalLatch-GGUF">SignalLatch on Hugging Face</a>
-        <a class="button" href="../signallatch-v1-1-production-process/index.html">Current v1.1 record</a>
-        <a class="button" href="../qwen36-aeon-rys-15-20/index.html">Base AEON RYS record</a>
-        <a class="button" href="../qwen36-aeon-rys-signallatch/index.html">Release overview</a>
+        <a class="button primary" href="https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-Agentic-Coder-PatchCode-GGUF">PatchCode on Hugging Face</a>
+        <a class="button" href="https://noonr48.github.io/qwen36-aeon-ik-llama/ckpt386-s010-testing-process/index.html">SignalLatch record</a>
+        <a class="button" href="https://noonr48.github.io/qwen36-aeon-ik-llama/qwen36-aeon-rys-signallatch/index.html">SignalLatch overview</a>
+        <a class="button" href="https://noonr48.github.io/qwen36-aeon-ik-llama/rys-layer-duplication-guide/">RYS arch guide</a>
         <a class="button" href="https://github.com/noonr48/qwen36-aeon-ik-llama">Runtime fork</a>
       </div>
       <div class="quick" aria-label="Key release facts">
-        <div class="metric">
-          <strong>ckpt386</strong>
-          <span>Final one-epoch behavioral LoRA checkpoint used for the merge.</span>
-        </div>
-        <div class="metric">
-          <strong>s0.10</strong>
-          <span>Selected merge strength after deploy-format IQ4_NL sweeps and repeats.</span>
-        </div>
-        <div class="metric">
-          <strong>4/5</strong>
-          <span>First deploy-format s0.10 practical matrix pass count, mean 0.950.</span>
-        </div>
-        <div class="metric">
-          <strong>9/15</strong>
-          <span>Strict repeat-screen count used for strength selection, not a capability ceiling; 9/14 crash-adjusted.</span>
-        </div>
+        <div class="metric"><strong>ckpt-3661</strong><span>Final one-epoch agentic-coder joint LoRA checkpoint used for the merge.</span></div>
+        <div class="metric"><strong>&lambda; = 0.5</strong><span>Selected merge strength (effective alpha/r = 1.0) &mdash; the trained default was over-applied.</span></div>
+        <div class="metric"><strong>IQ4_NL</strong><span>Shipped 16.6&nbsp;GB GGUF &mdash; ties BF16 within noise at ~&#8531; the size.</span></div>
+        <div class="metric"><strong>~58.5k</strong><span>Agentic-coding behaviour examples in the training blend (synthetic backbone + curated style slice).</span></div>
       </div>
     </div>
   </div>
-
   <main class="wrap"><div class="wrap"><h1>Qwen3.6 AEON RYS PatchCode (merged_lam0.5): What We Actually Did</h1>
 <p>This is the longer, more casual write-up for the PatchCode upload candidate (internal project name <code>merged_lam0.5</code>).</p>
 <p>The clean model card stays short. This document is the full story: what we distilled, exactly how the dataset was built, how we tested it, why the early single-run scores fooled us, why we stopped trusting them, and why the upload candidate ended up being the plain <code>IQ4_NL</code> (reasoning-imatrix) merged GGUF rather than a heavier mixed-quant recipe.</p>
