@@ -1,38 +1,458 @@
-<!DOCTYPE html>
-<html lang="en"><head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Qwen3.6 AEON RYS PatchCode — Testing Process</title>
-<style>
-:root{--bg:#0d1117;--card:#161b22;--ink:#c9d1d9;--mut:#8b949e;--acc:#58a6ff;--bd:#30363d;--gw:#f85149;--gd:#3fb950}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-main{max-width:900px;margin:0 auto;padding:40px 24px 120px}
-h1,h2,h3,h4{color:#f0f6fc;line-height:1.25;font-weight:650;margin:1.8em 0 .6em}
-h1{font-size:2em;border-bottom:1px solid var(--bd);padding-bottom:.3em;margin-top:.3em}
-h2{font-size:1.45em;border-bottom:1px solid var(--bd);padding-bottom:.25em}
-h3{font-size:1.15em}
-a{color:var(--acc);text-decoration:none}
-a:hover{text-decoration:underline}
-code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-size:.88em;background:#1f2630;padding:.12em .4em;border-radius:5px;color:#79c0ff}
-pre{background:#010409;border:1px solid var(--bd);border-radius:8px;padding:14px 16px;overflow:auto}
-pre code{background:none;padding:0;color:var(--ink);font-size:.85em}
-blockquote{margin:1em 0;padding:.6em 1em;border-left:3px solid var(--acc);background:#0f1a26;border-radius:0 6px 6px 0;color:#d2dbe6}
-table{border-collapse:collapse;width:100%;margin:1.2em 0;font-size:.93em;display:block;overflow-x:auto}
-th,td{border:1px solid var(--bd);padding:7px 11px;text-align:left}
-th{background:#21262d;color:#f0f6fc;font-weight:650}
-tr:nth-child(even) td{background:#0f151c}
-hr{border:0;border-top:1px solid var(--bd);margin:2em 0}
-strong{color:#f0f6fc}
-ul,ol{padding-left:1.4em}
-li{margin:.25em 0}
-.bnr{background:#2a1a1a;border:1px solid #5c2e2e;border-left:4px solid var(--gw);padding:14px 18px;border-radius:8px;margin:18px 0}
-.bnr a{color:#ffb3b3}
-</style>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PatchCode (agentic-coder) — Testing Process — Qwen3.6 AEON RYS Docs</title>
+  <meta name="description" content="Historical public record for the original Qwen3.6 AEON RYS SignalLatch ckpt386 s0.10 fine-tune, testing process, runtime setup, and first-release decision.">
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f7f5ee;
+      --paper-2: #ede9dc;
+      --ink: #111816;
+      --muted: #586560;
+      --line: #d2d7ce;
+      --panel: #ffffff;
+      --panel-2: #fbfaf5;
+      --code: #eef1ea;
+      --green: #0f7667;
+      --green-dark: #09564c;
+      --blue: #275f86;
+      --rust: #9a5a1c;
+      --red: #943b34;
+      --gold: #b48412;
+      --shadow: 0 18px 46px rgba(17, 24, 22, 0.10);
+      --soft-shadow: 0 10px 24px rgba(17, 24, 22, 0.07);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(17, 24, 22, 0.035) 1px, transparent 1px) 0 0 / 38px 38px,
+        linear-gradient(180deg, var(--paper), #fbfaf5 34rem, var(--paper));
+      font: 16px/1.62 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+      overflow-x: hidden;
+    }
+
+    a {
+      color: var(--green-dark);
+      text-decoration-thickness: 0.08em;
+      text-underline-offset: 0.18em;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 0.93em;
+    }
+
+    .wrap {
+      width: min(1180px, calc(100% - 36px));
+      margin: 0 auto;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(247, 245, 238, 0.92);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 58px;
+      font-size: 0.9rem;
+    }
+
+    nav .brand {
+      color: var(--ink);
+      font-weight: 900;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    nav .links {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px 16px;
+      flex-wrap: wrap;
+    }
+
+    nav .links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    nav .links a:hover { color: var(--green-dark); }
+
+    .hero {
+      padding: 76px 0 46px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(237, 233, 220, 0.9), rgba(247, 245, 238, 0.22)),
+        linear-gradient(90deg, rgba(15, 118, 103, 0.08), rgba(39, 95, 134, 0.08));
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--rust);
+      font-size: 0.78rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 34px;
+      height: 2px;
+      background: var(--rust);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 1080px;
+      font-size: clamp(2.35rem, 5.3vw, 5.6rem);
+      line-height: 0.99;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .dek {
+      max-width: 920px;
+      margin: 24px 0 0;
+      color: var(--muted);
+      font-size: clamp(1.03rem, 1.7vw, 1.28rem);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 15px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--panel);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 800;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .button.primary {
+      background: var(--green);
+      border-color: var(--green);
+      color: #ffffff;
+    }
+
+    .quick {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 36px;
+    }
+
+    .metric {
+      min-height: 126px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.72rem;
+      line-height: 1.08;
+      margin-bottom: 8px;
+      overflow-wrap: anywhere;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    main { padding: 26px 0 74px; }
+
+    section {
+      padding: 42px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: clamp(1.7rem, 3vw, 2.65rem);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 1.12rem;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 16px;
+      max-width: 900px;
+    }
+
+    .muted { color: var(--muted); }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(0, 0.98fr) minmax(320px, 1.02fr);
+      gap: 32px;
+      align-items: start;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .card.flat {
+      background: var(--panel-2);
+      box-shadow: none;
+    }
+
+    .card.good { border-left: 5px solid var(--green); }
+    .card.warn { border-left: 5px solid var(--gold); }
+    .card.risk { border-left: 5px solid var(--red); }
+    .card.blue { border-left: 5px solid var(--blue); }
+
+    .card p:last-child { margin-bottom: 0; }
+
+    .callout {
+      border-left: 4px solid var(--green);
+      background: rgba(15, 118, 103, 0.08);
+      padding: 18px 20px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      margin: 18px 0;
+      max-width: 980px;
+    }
+
+    .callout.warn {
+      border-left-color: var(--gold);
+      background: rgba(180, 132, 18, 0.10);
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .flow .step {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      min-height: 118px;
+    }
+
+    .step b {
+      display: block;
+      color: var(--green-dark);
+      margin-bottom: 8px;
+    }
+
+    .figure {
+      margin: 24px 0 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--soft-shadow);
+    }
+
+    .figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 6px;
+      background: #ffffff;
+    }
+
+    .caption {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--soft-shadow);
+      margin: 18px 0 26px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 740px;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--paper-2);
+      color: var(--ink);
+      font-weight: 900;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+    .num { text-align: right; white-space: nowrap; }
+    .pass { color: var(--green-dark); font-weight: 800; }
+    .fail { color: var(--red); font-weight: 800; }
+    .soft { color: var(--muted); }
+
+    pre {
+      overflow-x: auto;
+      background: var(--code);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      color: var(--ink);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .split-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin: 0 0 16px;
+    }
+
+    li { margin: 6px 0; }
+
+    footer {
+      padding: 32px 0 52px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 920px) {
+      nav { align-items: flex-start; flex-direction: column; padding: 12px 0; }
+      nav .links { justify-content: flex-start; }
+      .hero { padding-top: 46px; }
+      .quick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-2 { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .cards, .split-list { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      .wrap { width: min(100% - 24px, 1180px); }
+      .quick { grid-template-columns: 1fr; }
+      .metric { min-height: auto; }
+      table { min-width: 680px; }
+    }
+  </style>
 </head>
 <body>
-<main>
-<h1>Qwen3.6 AEON RYS PatchCode (merged_lam0.5): What We Actually Did</h1>
+  <header>
+    <div class="wrap">
+      <nav aria-label="Page navigation">
+        <a class="brand" href="../index.html">Qwen3.6 AEON RYS Docs</a>
+        <div class="links">
+          <a href="https://noonr48.github.io/qwen36-aeon-ik-llama/">Docs home</a>
+          <a href="https://noonr48.github.io/qwen36-aeon-ik-llama/qwen36-aeon-rys-signallatch/index.html">SignalLatch</a>
+          <a href="https://noonr48.github.io/qwen36-aeon-ik-llama/ckpt386-s010-testing-process/index.html">ckpt386 process</a>
+          <a href="https://noonr48.github.io/qwen36-aeon-ik-llama/signallatch-v1-1-production-process/index.html">v1.1 production</a>
+          <a href="https://noonr48.github.io/qwen36-aeon-ik-llama/signallatch-v1-1-all-results/index.html">v1.1 all results</a>
+          <a href="https://noonr48.github.io/qwen36-aeon-ik-llama/rys-layer-duplication-guide/">RYS arch guide</a>
+          <a href="https://noonr48.github.io/qwen36-aeon-ik-llama/qwen36-aeon-rys-15-20/index.html">AEON 15/20</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="wrap">
+      <div class="eyebrow">SignalLatch fine-tune record</div>
+      <h1>How the first ckpt386 s0.10 SignalLatch release was made, tested, and selected.</h1>
+      <p class="dek">This page is the self-contained public record for the original SignalLatch behavior fine-tune on top of Qwen3.6 AEON RYS 15/20. It documents the first public ckpt386 s0.10 IQ4_NL release, not the later v1.1 Lite/Plus mixed-quant selection.</p>
+      <div class="actions">
+        <a class="button primary" href="https://huggingface.co/jackasda211233/Qwen3.6-27B-AEON-RYS-SignalLatch-GGUF">SignalLatch on Hugging Face</a>
+        <a class="button" href="../signallatch-v1-1-production-process/index.html">Current v1.1 record</a>
+        <a class="button" href="../qwen36-aeon-rys-15-20/index.html">Base AEON RYS record</a>
+        <a class="button" href="../qwen36-aeon-rys-signallatch/index.html">Release overview</a>
+        <a class="button" href="https://github.com/noonr48/qwen36-aeon-ik-llama">Runtime fork</a>
+      </div>
+      <div class="quick" aria-label="Key release facts">
+        <div class="metric">
+          <strong>ckpt386</strong>
+          <span>Final one-epoch behavioral LoRA checkpoint used for the merge.</span>
+        </div>
+        <div class="metric">
+          <strong>s0.10</strong>
+          <span>Selected merge strength after deploy-format IQ4_NL sweeps and repeats.</span>
+        </div>
+        <div class="metric">
+          <strong>4/5</strong>
+          <span>First deploy-format s0.10 practical matrix pass count, mean 0.950.</span>
+        </div>
+        <div class="metric">
+          <strong>9/15</strong>
+          <span>Strict repeat-screen count used for strength selection, not a capability ceiling; 9/14 crash-adjusted.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap"><div class="wrap"><h1>Qwen3.6 AEON RYS PatchCode (merged_lam0.5): What We Actually Did</h1>
 <p>This is the longer, more casual write-up for the PatchCode upload candidate (internal project name <code>merged_lam0.5</code>).</p>
 <p>The clean model card stays short. This document is the full story: what we distilled, exactly how the dataset was built, how we tested it, why the early single-run scores fooled us, why we stopped trusting them, and why the upload candidate ended up being the plain <code>IQ4_NL</code> (reasoning-imatrix) merged GGUF rather than a heavier mixed-quant recipe.</p>
 <p>Related public guides:
@@ -71,7 +491,7 @@ li{margin:.25em 0}
 </code></pre>
 <p>The new work was not another RYS architecture pass (the architecture is unchanged and is documented in the layer-duplication guide). The new work was a behaviour distil layered on top of SignalLatch, then merged and quantized into the same practical Q4-class deployment lane.</p>
 <p>Public framing stays narrow:</p>
-<blockquote class="bnr">
+<blockquote>
 <p>This is a practical coding-agent / tool-use-oriented fine-tuned IQ4_NL variant of the SignalLatch release.</p>
 </blockquote>
 <p>It should not be framed as:
@@ -179,7 +599,7 @@ li{margin:.25em 0}
 </tbody>
 </table>
 <p>At λ=1.0 the adapter was net-neutral-to-harmful (one checkpoint fell <em>below</em> the un-adapted base). The mechanism: an over-loud LoRA delta pushes activations into regimes that hurt calibrated behaviour (preamble returns, over-claiming). λ=0.5 (effective alpha/r = 1.0) keeps the style direction but respects base calibration. So the merge was done at <strong>λ=0.5 onto SignalLatch (ckpt386-s010)</strong>, then exported to BF16 GGUF. (A future v2 could bake the good strength in by training at alpha=r=32, removing the inference-time knob.)</p>
-<p><img alt="Merge strength sweep — λ=0.5 wins on all three checkpoints; trained default λ=1.0 is over-applied." src="assets/lambda_sweep.png" /></p>
+<p><img alt="Merge strength sweep — λ=0.5 wins on all three checkpoints; trained default λ=1.0 is over-applied." src="https://noonr48.github.io/qwen36-aeon-ik-llama/patchcode-testing-process/assets/lambda_sweep.png" /></p>
 <h2>Why the final testing moved to merged IQ4_NL</h2>
 <p>The key question was not "best adapter in BF16" — it was "what we would actually deploy". The deploy target was a merged GGUF, <code>IQ4_NL</code>, imatrix-quantized, on the custom ik-llama runtime (Jinja + DeepSeek reasoning format + flash attention + graph split, temp <code>0.7</code>).</p>
 <p>Live LoRA loading is not the production path for this release (the tested serving profile uses flash attention, which conflicts with live LoRA on this runtime). So the long-term path became: <strong>merge the adapter first, then export + quantize a full GGUF.</strong> That is why the upload is a merged GGUF, not an adapter.</p>
@@ -259,8 +679,8 @@ li{margin:.25em 0}
 <p>This is exactly how a 3-seed pass almost shipped the <em>weaker</em> model.</p>
 <h2>The ship decision</h2>
 <p>With build, discipline, and long-context all <strong>tied within noise</strong>, the decision fell to non-noise axes, where plain <code>IQ4_NL</code> wins all three:</p>
-<p><img alt="No candidate clears BOTH build and discipline (≥0.90) — promotion destroys discipline; precision does not fix build." src="assets/bothquest.png" /></p>
-<p><img alt="Ship scoreboard (5-seed): IQ4_NL ties the field within noise on build/long-context/discipline, and wins on size." src="assets/ship_scoreboard.png" /></p>
+<p><img alt="No candidate clears BOTH build and discipline (≥0.90) — promotion destroys discipline; precision does not fix build." src="https://noonr48.github.io/qwen36-aeon-ik-llama/patchcode-testing-process/assets/bothquest.png" /></p>
+<p><img alt="Ship scoreboard (5-seed): IQ4_NL ties the field within noise on build/long-context/discipline, and wins on size." src="https://noonr48.github.io/qwen36-aeon-ik-llama/patchcode-testing-process/assets/ship_scoreboard.png" /></p>
 <ul>
 <li><strong>smaller</strong> (16.6 G vs 20–29 G)</li>
 <li><strong>marginal long-context</strong> edge (0.975 vs 0.935–0.969)</li>
@@ -297,7 +717,11 @@ Qwen3.6-27B-AEON-RYS-Agentic-Coder-PatchCode.BF16.gguf        (57.6 GB — sourc
 <pre><code class="language-text">PatchCode IQ4_NL is a practical agentic-coder upgrade over the SignalLatch release.
 It is the selected default among the tested quants, tied with BF16 within noise —
 not a universal final answer.
-</code></pre>
-</main>
+</code></pre></div></main>
+
+  <footer>
+    <div class="wrap">
+      Last updated: 2026-06-29. This page documents the PatchCode (agentic-coder) fine-tune and quant bake-off for the Qwen3.6 AEON RYS / SignalLatch line.</div>
+  </footer>
 </body>
 </html>
