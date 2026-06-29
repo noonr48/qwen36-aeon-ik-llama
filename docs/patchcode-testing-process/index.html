@@ -400,7 +400,7 @@
       table { min-width: 680px; }
     }
   </style>
-</head>
+<style>main img{max-width:100%;height:auto;display:block;margin:1.4em auto .5em;border-radius:6px}main table{display:block;overflow-x:auto}</style></head>
 <body>
   <header>
     <div class="wrap">
@@ -591,6 +591,141 @@
 <p>The key question was not "best adapter in BF16" — it was "what we would actually deploy". The deploy target was a merged GGUF, <code>IQ4_NL</code>, imatrix-quantized, on the custom ik-llama runtime (Jinja + DeepSeek reasoning format + flash attention + graph split, temp <code>0.7</code>).</p>
 <p>Live LoRA loading is not the production path for this release (the tested serving profile uses flash attention, which conflicts with live LoRA on this runtime). So the long-term path became: <strong>merge the adapter first, then export + quantize a full GGUF.</strong> That is why the upload is a merged GGUF, not an adapter.</p>
 <p>The plain <code>IQ4_NL</code> uses the <strong>reasoning/coding imatrix</strong> (the kind that worked). An earlier build used a media-domain imatrix; it underperformed and was superseded.</p>
+<h2>Complete test catalog — every run, at a glance</h2>
+<p>Thirteen separate test runs fed this decision, plus the behaviour-rubric λ-sweep. This is the full list — what each measured, on what, and what it said. The detail for each follows in <em>The testing ladder</em>.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>test</th>
+<th>measures</th>
+<th>candidates</th>
+<th>conditions</th>
+<th>headline result</th>
+<th>verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Phase 1 — single-seed KritaLite</td>
+<td>160k-token real-world build</td>
+<td>IQ4_NL, c76, c373, BF16</td>
+<td>1 seed</td>
+<td>IQ4_NL 0.933 vs c76 0.867</td>
+<td><strong>noise</strong> — did not reproduce</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Phase 2 — 3-seed KritaLite</td>
+<td>build</td>
+<td>8 quants + BF16</td>
+<td>3 seeds</td>
+<td>c76/c404 0.933; IQ4_NL/BF16 0.867</td>
+<td>reversed phase 1; mixed recipe led</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Phase 3 — 40-recipe broad search</td>
+<td>build</td>
+<td>40 mixed recipes</td>
+<td>3 seeds</td>
+<td>all-zero</td>
+<td><strong>harness bug</strong> (missing <code>config.json</code>) — void</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Phase 4 — search re-gate</td>
+<td>build</td>
+<td>53 candidates</td>
+<td>bug fixed</td>
+<td>none beat the curated originals</td>
+<td>broad search doesn't help this merge</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Phase 5 — discipline rubric</td>
+<td>action-first style</td>
+<td>5 quants</td>
+<td>3 seeds</td>
+<td>BF16/IQ4_NL 0.931; c76 0.903</td>
+<td>IQ4_NL &amp; BF16 lead discipline</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Phase 5 — <code>agent_eval_http</code></td>
+<td>7-task agentic pass-rate + turns</td>
+<td>5 quants</td>
+<td>1 pass</td>
+<td>c76 27/7 turns; baseline 27/11; c373 31/17 (thrash)</td>
+<td>c76 leads process-efficiency</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Q5 confirm</td>
+<td>build + long-context + discipline</td>
+<td>Q5_K_M (uniform, 20 G)</td>
+<td>3 seeds</td>
+<td>0.867 / 0.988 / 0.806</td>
+<td>doesn't clear "both" (build+disc ≥ 0.90)</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Overnight 2 — precision × promotion matrix</td>
+<td>build + discipline</td>
+<td>8 (q5/q6/q8 × uniform/promoted)</td>
+<td>3 seeds</td>
+<td>none clear both; promotion kills discipline</td>
+<td>precision is <strong>not</strong> the build lever</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>Confirm — 5-seed head-to-head</strong></td>
+<td>build + long-context + discipline</td>
+<td>IQ4_NL vs c76</td>
+<td><strong>5 seeds, same-condition</strong></td>
+<td>IQ4_NL 0.920 vs c76 0.907 (Δ 0.013 ≪ 0.067)</td>
+<td><strong>TIED within noise — the decisive test</strong></td>
+</tr>
+<tr>
+<td>10</td>
+<td>Q8 confirm</td>
+<td>build + long-context + discipline</td>
+<td>Q8_0 vs IQ4_NL</td>
+<td>5 seeds</td>
+<td>Q8 0.867 vs IQ4_NL 0.920</td>
+<td>no edge; near-lossless buys nothing</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Agentic-loop</td>
+<td>40 held-out mini-projects; pytest-verified convergence + turns + recovery + stall</td>
+<td>IQ4_NL, c76, Q8</td>
+<td>40 tasks</td>
+<td><strong>all 100 % convergence, ~6.6–7.2 turns, 0 % stall</strong></td>
+<td><strong>did not discriminate</strong> — every quant (incl. base) converges; a family property, not a PatchCode distinction</td>
+</tr>
+<tr>
+<td>12</td>
+<td>SignalLatch 4-gate suite</td>
+<td>coding/habits + hard-reasoning + long-context (exact + rubric)</td>
+<td>IQ4_NL vs BF16</td>
+<td>n=12 hard, n=4 longctx</td>
+<td>IQ4_NL 0.887 vs BF16 0.846 (hard); 0.979 vs 0.941 (long); 0 errors</td>
+<td>IQ4_NL tracks/edges BF16 within noise</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Behaviour rubric — λ-sweep</td>
+<td>action-first style + coding discipline + held-out generalization</td>
+<td>base (SignalLatch) vs PatchCode @ λ{0.3,0.5,0.7,1.0,1.3}, ckpt{3661,2600,1800}</td>
+<td>15 cases × strengths</td>
+<td>base 0.486 → PatchCode λ0.5 0.617 (~⅓ the tokens)</td>
+<td>PatchCode beats base; λ0.5 is the sweet spot</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The only test that discriminated was #9</strong> (the 5-seed confirm) — and it discriminated by showing everything is <em>tied within noise</em>, which pushed the decision onto non-noise axes (size + plain-quant recipe), where IQ4_NL wins. Tests #1 and #3 were void (noise / harness bug). Tests #5–#8, #10 and #11 all failed to separate the finalists. #12 confirms IQ4_NL is not a quality cliff below BF16. #13 is the one place PatchCode clearly beats its SignalLatch base.</p>
 <h2>The testing ladder (5 phases + confirms)</h2>
 <p>Single-shot and hard-suite gates <strong>saturate</strong> on this model family (every quant scores ~the same, including BF16). The discrimination that actually changed the decision came from a 160k-token real-world build (KritaLite) run multi-seed, plus a discipline rubric, plus an agentic-process efficiency probe. The phases:</p>
 <p><strong>Phase 1 — single-seed real-world build.</strong> Made the plain <code>IQ4_NL</code> look like the winner (0.933 vs c76's 0.867). This was <strong>noise</strong> — it did not reproduce.</p>
@@ -657,6 +792,79 @@
 </tbody>
 </table>
 <p>The base tended to ramble (~311 tokens of hedging preamble — e.g. it scored 0.20 on the coding-discipline case with "I might overwrite the user's changes…"); PatchCode was terse and on-target (~91 tokens) and scored higher. That is the distil's intended effect: more disciplined execution, less wasted output. Caveats: this is a behaviour rubric, not a multi-turn agent turn-count; λ=0.5 is the sweet spot — higher strengths (0.7 / 1.0 / 1.3) also got terse (~60 tokens) but fell <em>below</em> the base (0.39–0.49), so terseness alone is not the win; single-temperature, small per-category N.</p>
+<p><strong>Q5_K_M confirm — uniform Q5 (3 seeds).</strong> Does a uniform higher precision (no selective promotion) clear "both"? <code>Q5_K_M</code> (20 G, imatrix-calibrated): build <code>0.867</code> (±0.133), long-context <code>0.988</code>, discipline <code>0.806</code> (±0.292) → build and discipline both below 0.90. Uniform-precision does not fix build and erodes discipline. Ruled out.</p>
+<p><strong>Agentic-loop — autonomous convergence (40 held-out mini-projects).</strong> Each quant ran 40 held-out mini-projects (a README plus a <em>failing</em> pytest suite) fully autonomously: reason → read → implement → run tests → fix → converge. Convergence is <strong>objective pytest pass, not self-claimed.</strong></p>
+<table>
+<thead>
+<tr>
+<th>quant</th>
+<th>n</th>
+<th>convergence</th>
+<th>mean turns (converged)</th>
+<th>recovery (mean)</th>
+<th>stall</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>c76</td>
+<td>40</td>
+<td><code>100%</code></td>
+<td>6.6</td>
+<td>0.4</td>
+<td><code>0%</code></td>
+</tr>
+<tr>
+<td>Q8_0</td>
+<td>40</td>
+<td><code>100%</code></td>
+<td>7.0</td>
+<td>0.5</td>
+<td><code>0%</code></td>
+</tr>
+<tr>
+<td>IQ4_NL</td>
+<td>40</td>
+<td><code>100%</code></td>
+<td>7.2</td>
+<td>0.4</td>
+<td><code>0%</code></td>
+</tr>
+</tbody>
+</table>
+<p>This axis <strong>did not discriminate</strong> — every quant (including the un-adapted base behaviour) converged on all 40 tasks, so autonomous convergence is a property of the model <em>family</em> on these tasks, not a PatchCode distinction. It does not favour any ship candidate, and the decision falls to size + recipe methodology. (Per-task: 8 tasks × 5 reps each, all 5/5 for every quant — <code>calc</code>, <code>debug_stack</code>, <code>graph</code>, <code>lru</code>, <code>mdlist</code>, <code>minijson</code>, <code>taskq</code>, <code>tracker</code>.)</p>
+<p><strong>SignalLatch gate suite — IQ4_NL vs BF16.</strong> The established four-type gate set (coding/habits, hard-reasoning, hard-project, long-context) run on the PatchCode merge in both formats. Both clear every gate with <strong>zero errors</strong>; IQ4_NL tracks or nominally edges BF16. The ~0.04 gaps sit inside the build noise floor, so this reads as <em>tied</em>, not an IQ4_NL win.</p>
+<table>
+<thead>
+<tr>
+<th>gate (cases)</th>
+<th>PatchCode IQ4_NL</th>
+<th>BF16 (control)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>coding / habits</td>
+<td><code>0.958</code></td>
+<td><code>0.917</code></td>
+</tr>
+<tr>
+<td>hard-reasoning</td>
+<td><code>0.789</code></td>
+<td><code>0.751</code></td>
+</tr>
+<tr>
+<td>long-context (4)</td>
+<td><code>0.979</code></td>
+<td><code>0.941</code></td>
+</tr>
+<tr>
+<td><strong>weighted overall</strong></td>
+<td><strong><code>0.887</code></strong></td>
+<td><code>0.846</code></td>
+</tr>
+</tbody>
+</table>
 <h2>The noise lesson (critical — reuse for every future bake-off)</h2>
 <p>The SignalLatch-style suite is <strong>noisier than it looked</strong>:
 - KritaLite build: ±0.067–0.13 <strong>run-to-run</strong> variance (beyond seed). c76 scored 0.933 → 0.867 → 0.907 on the same gguf.

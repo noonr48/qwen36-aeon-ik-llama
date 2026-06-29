@@ -163,6 +163,28 @@ Live LoRA loading is not the production path for this release (the tested servin
 
 The plain `IQ4_NL` uses the **reasoning/coding imatrix** (the kind that worked). An earlier build used a media-domain imatrix; it underperformed and was superseded.
 
+## Complete test catalog — every run, at a glance
+
+Thirteen separate test runs fed this decision, plus the behaviour-rubric λ-sweep. This is the full list — what each measured, on what, and what it said. The detail for each follows in *The testing ladder*.
+
+| # | test | measures | candidates | conditions | headline result | verdict |
+|---|---|---|---|---|---|---|
+| 1 | Phase 1 — single-seed KritaLite | 160k-token real-world build | IQ4_NL, c76, c373, BF16 | 1 seed | IQ4_NL 0.933 vs c76 0.867 | **noise** — did not reproduce |
+| 2 | Phase 2 — 3-seed KritaLite | build | 8 quants + BF16 | 3 seeds | c76/c404 0.933; IQ4_NL/BF16 0.867 | reversed phase 1; mixed recipe led |
+| 3 | Phase 3 — 40-recipe broad search | build | 40 mixed recipes | 3 seeds | all-zero | **harness bug** (missing `config.json`) — void |
+| 4 | Phase 4 — search re-gate | build | 53 candidates | bug fixed | none beat the curated originals | broad search doesn't help this merge |
+| 5 | Phase 5 — discipline rubric | action-first style | 5 quants | 3 seeds | BF16/IQ4_NL 0.931; c76 0.903 | IQ4_NL & BF16 lead discipline |
+| 6 | Phase 5 — `agent_eval_http` | 7-task agentic pass-rate + turns | 5 quants | 1 pass | c76 27/7 turns; baseline 27/11; c373 31/17 (thrash) | c76 leads process-efficiency |
+| 7 | Q5 confirm | build + long-context + discipline | Q5_K_M (uniform, 20 G) | 3 seeds | 0.867 / 0.988 / 0.806 | doesn't clear "both" (build+disc ≥ 0.90) |
+| 8 | Overnight 2 — precision × promotion matrix | build + discipline | 8 (q5/q6/q8 × uniform/promoted) | 3 seeds | none clear both; promotion kills discipline | precision is **not** the build lever |
+| 9 | **Confirm — 5-seed head-to-head** | build + long-context + discipline | IQ4_NL vs c76 | **5 seeds, same-condition** | IQ4_NL 0.920 vs c76 0.907 (Δ 0.013 ≪ 0.067) | **TIED within noise — the decisive test** |
+| 10 | Q8 confirm | build + long-context + discipline | Q8_0 vs IQ4_NL | 5 seeds | Q8 0.867 vs IQ4_NL 0.920 | no edge; near-lossless buys nothing |
+| 11 | Agentic-loop | 40 held-out mini-projects; pytest-verified convergence + turns + recovery + stall | IQ4_NL, c76, Q8 | 40 tasks | **all 100 % convergence, ~6.6–7.2 turns, 0 % stall** | **did not discriminate** — every quant (incl. base) converges; a family property, not a PatchCode distinction |
+| 12 | SignalLatch 4-gate suite | coding/habits + hard-reasoning + long-context (exact + rubric) | IQ4_NL vs BF16 | n=12 hard, n=4 longctx | IQ4_NL 0.887 vs BF16 0.846 (hard); 0.979 vs 0.941 (long); 0 errors | IQ4_NL tracks/edges BF16 within noise |
+| 13 | Behaviour rubric — λ-sweep | action-first style + coding discipline + held-out generalization | base (SignalLatch) vs PatchCode @ λ{0.3,0.5,0.7,1.0,1.3}, ckpt{3661,2600,1800} | 15 cases × strengths | base 0.486 → PatchCode λ0.5 0.617 (~⅓ the tokens) | PatchCode beats base; λ0.5 is the sweet spot |
+
+**The only test that discriminated was #9** (the 5-seed confirm) — and it discriminated by showing everything is *tied within noise*, which pushed the decision onto non-noise axes (size + plain-quant recipe), where IQ4_NL wins. Tests #1 and #3 were void (noise / harness bug). Tests #5–#8, #10 and #11 all failed to separate the finalists. #12 confirms IQ4_NL is not a quality cliff below BF16. #13 is the one place PatchCode clearly beats its SignalLatch base.
+
 ## The testing ladder (5 phases + confirms)
 
 Single-shot and hard-suite gates **saturate** on this model family (every quant scores ~the same, including BF16). The discrimination that actually changed the decision came from a 160k-token real-world build (KritaLite) run multi-seed, plus a discipline rubric, plus an agentic-process efficiency probe. The phases:
@@ -200,6 +222,27 @@ build gap `0.013` ≪ `0.067` noise floor → **not discriminating**. c76's earl
 | PatchCode (ckpt-3661 @ λ=0.5) | `0.617` | `91` | `13s` |
 
 The base tended to ramble (~311 tokens of hedging preamble — e.g. it scored 0.20 on the coding-discipline case with "I might overwrite the user's changes…"); PatchCode was terse and on-target (~91 tokens) and scored higher. That is the distil's intended effect: more disciplined execution, less wasted output. Caveats: this is a behaviour rubric, not a multi-turn agent turn-count; λ=0.5 is the sweet spot — higher strengths (0.7 / 1.0 / 1.3) also got terse (~60 tokens) but fell *below* the base (0.39–0.49), so terseness alone is not the win; single-temperature, small per-category N.
+
+**Q5_K_M confirm — uniform Q5 (3 seeds).** Does a uniform higher precision (no selective promotion) clear "both"? `Q5_K_M` (20 G, imatrix-calibrated): build `0.867` (±0.133), long-context `0.988`, discipline `0.806` (±0.292) → build and discipline both below 0.90. Uniform-precision does not fix build and erodes discipline. Ruled out.
+
+**Agentic-loop — autonomous convergence (40 held-out mini-projects).** Each quant ran 40 held-out mini-projects (a README plus a *failing* pytest suite) fully autonomously: reason → read → implement → run tests → fix → converge. Convergence is **objective pytest pass, not self-claimed.**
+
+| quant | n | convergence | mean turns (converged) | recovery (mean) | stall |
+|---|---|---|---|---|---|
+| c76 | 40 | `100%` | 6.6 | 0.4 | `0%` |
+| Q8_0 | 40 | `100%` | 7.0 | 0.5 | `0%` |
+| IQ4_NL | 40 | `100%` | 7.2 | 0.4 | `0%` |
+
+This axis **did not discriminate** — every quant (including the un-adapted base behaviour) converged on all 40 tasks, so autonomous convergence is a property of the model *family* on these tasks, not a PatchCode distinction. It does not favour any ship candidate, and the decision falls to size + recipe methodology. (Per-task: 8 tasks × 5 reps each, all 5/5 for every quant — `calc`, `debug_stack`, `graph`, `lru`, `mdlist`, `minijson`, `taskq`, `tracker`.)
+
+**SignalLatch gate suite — IQ4_NL vs BF16.** The established four-type gate set (coding/habits, hard-reasoning, hard-project, long-context) run on the PatchCode merge in both formats. Both clear every gate with **zero errors**; IQ4_NL tracks or nominally edges BF16. The ~0.04 gaps sit inside the build noise floor, so this reads as *tied*, not an IQ4_NL win.
+
+| gate (cases) | PatchCode IQ4_NL | BF16 (control) |
+|---|---|---|
+| coding / habits | `0.958` | `0.917` |
+| hard-reasoning | `0.789` | `0.751` |
+| long-context (4) | `0.979` | `0.941` |
+| **weighted overall** | **`0.887`** | `0.846` |
 
 ## The noise lesson (critical — reuse for every future bake-off)
 
