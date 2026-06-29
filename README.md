@@ -238,6 +238,16 @@ MTP check on `3x RTX 3090`:
 
 That is why MTP is published as an extra artifact instead of replacing the default model.
 
+Runtime-repack speed probe:
+
+```bash
+cmake --build build --config Release --target llama-bench
+scripts/qwen36-rys-rtr-bench.sh /path/to/qwen36-aeon-rys-or-signallatch.gguf
+scripts/qwen36-rys-rtr-suite.sh /path/to/models.tsv
+```
+
+The single-model probe runs the same `llama-bench` shape twice, first with `-rtr 0` and then with `-rtr 1`, and writes JSON, a TSV summary, the CUDA device environment, and a repack log audit under `tmp/qwen36-rys-rtr/`. The suite wrapper repeats that probe for a tab-separated `label<TAB>/path/to/model.gguf` list. It is intentionally separate from the long-context `-np 2` RAM-cache server profile; use it to decide whether runtime tensor repacking is actually faster on a specific Qwen3.6 RYS or SignalLatch GGUF before adding `--run-time-repack` to a serving command. When pinning GPUs, prefer GPU UUIDs or set `CUDA_DEVICE_ORDER=PCI_BUS_ID` before using numeric IDs.
+
 ## Experimental MTP file
 
 The MTP GGUF keeps the MTP tail intact:
