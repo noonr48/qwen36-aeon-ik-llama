@@ -68,7 +68,7 @@
   <main>
     <span class="tag">Qwen3.6 AEON RYS</span>
     <h1>Documentation</h1>
-    <p class="lead">Release notes, runtime guidance, and evidence pages for the AEON RYS 15/20 GGUF line, the SignalLatch behavior fine-tune, and the PatchCode agentic-coder fine-tune.</p>
+    <p class="lead">Release notes, runtime guidance, and evidence pages for the AEON RYS 15/20 GGUF line, the SignalLatch behavior fine-tune, the PatchCode agentic-coder fine-tune, and the Gameworks dual-capability fine-tune.</p>
     <section class="grid" aria-label="Documentation links">
       <article class="card">
         <h2><a href="./qwen36-aeon-rys-15-20/index.html">AEON RYS 15/20 Full Release Record</a></h2>
@@ -97,6 +97,10 @@
       <article class="card">
         <h2><a href="./patchcode-testing-process/index.html">PatchCode (Agentic-Coder) Fine-Tune Record</a></h2>
         <p>The agentic-coder behaviour distil on SignalLatch: exact dataset pipeline (synthetic coding-agent generator + curated action-first slice), the lambda=0.5 merge, the 5-phase quant bake-off, and why plain IQ4_NL shipped over BF16 / Q8 / mixed recipes.</p>
+      </article>
+      <article class="card">
+        <h2><a href="./gameworks-testing-process/index.html">Gameworks (Dual-Capability) Fine-Tune Record</a></h2>
+        <p>The game/media-creation LoRA layered on PatchCode: 30k structured game-design samples across five skill clusters, the dual-axis quant bake-off (coding + game-creation), why no single quant won both axes, and the Q5_K_M deployment recommendation.</p>
       </article>
     </section>
   </main>
